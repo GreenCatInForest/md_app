@@ -1,0 +1,15 @@
+asgiref==3.8.1
+Django
+djangorestframework
+drf-spectacular
+pillow
+psycopg2-binary
+
+numpy
+pandas
+matplotlib 
+datetime
+pytz
+
+django-tailwind 
+django-tailwind[reload] 

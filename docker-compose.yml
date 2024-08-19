@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:latest  
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: maple_db
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "5435:5432"
+
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py migrate && 
+             python manage.py runserver 0.0.0.0:1091"
+    volumes:
+      - .:/code
+    ports:
+      - "1091:1091"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://myuser:mypassword@db:5432/maple_db
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_cl
+    environment:
+      PGADMIN_DEFAULT_EMAIL: myemail@example.com
+      PGADMIN_DEFAULT_PASSWORD: 1111
+    ports:
+      - "2000:80"
+    depends_on:
+      - db
+    volumes:
+      - pg_admin:/var/lib/pgadmin
+
+volumes:
+  pg_data:
+  pg_admin:
+
