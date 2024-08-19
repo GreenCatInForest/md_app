@@ -39,7 +39,46 @@
             </div>
         </section>
 
-{% endblock %}
+        <section class="featured-products-wrapper z-100">
+            <article class="featured-products">
+                <div class="featured-product">
+                    <img class="" src="{% static 'images/icons8-hygrometer-50.png' %}" alt="Featured Product 1"/>
+                    <h5>Obtain Equipment</h5>
+                    <p>Moisture diagnostic equipment for rent</p>
+                    <p>Can be re-used on multiple properties</p>
+                </div>
+                <div class="featured-product">
+                    <img src="{% static 'images/icons8-graph-report-50.png' %}" alt="Featured Product 2"/>
+                    <h5>Connect the loggers to your PC or phone</h5>
+                    <p>Automatically generated reports, using your data</p>
+                    <p class="group"><span class="text-xl align-middle group-hover:text-light-accent3">∞ </span> Unlimited number of reports</p>
+                    
+                </div>
+                <div class="featured-product">
+                    <img src="{% static 'images/icons8-smart-home-checked-50.png' %}" alt="Featured Product 3"/>
+                    <h5>Monitor Multiple Properties</h5>
+                    <p>Rent loggers and generate reports for multiple properties, simultaneously</p>
+                    <p>Revist the full data sets and reports whenever needed</p>
+
+                </div>
+            </article>
+        </section>
+        
+        
+
+              <div class="forgot-password">
+                  <a  href="{% url 'forgot_password' %}">Forgot the Password?</a>
+              </div> 
+
+              <div class="register-form mt-12">
+                  <p class="">Don't have an account?</p>
+                  <button class="actButton my-3 w-full small_tablet:max-w-xs" ><a href="{% url 'register' %}">Register</a></button>
+              </div> 
+        </section>
+      </div>  
+      
+{% endblock %}  
+
         
 </body>
 </html>
