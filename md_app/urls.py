@@ -1,5 +1,5 @@
 """
-URL configuration for md_app project.
+URL configuration for maple_diagnostic project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.0/topics/http/urls/
@@ -15,12 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
+from django.urls.conf import include
 
 urlpatterns = [
     path ('', include('core.urls')),
     path('admin/', admin.site.urls),
-    path("__reload__/", include("django_browser_reload.urls")),
     path('api/', include('loggers.urls')),
+
     path('users/', include('users.urls')),
+    path("__reload__/", include("django_browser_reload.urls")),
 ]
