@@ -39,6 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'tailwind',
+    'tailwind_app',
+    'rest_framework',
+    'django_browser_reload',
+
 ]
 
 MIDDLEWARE = [
@@ -49,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 ROOT_URLCONF = 'md_app.urls'
@@ -85,6 +91,13 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+
+TAILWIND_APP_NAME = 'tailwind_app'
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
 
 
 # Password validation
