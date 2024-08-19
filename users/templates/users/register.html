@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+</head>
+<body>
+    {% block content %}
+    {% load static %}
+    <section class="registration-page-wrapper">
+        <p class="my-4 wrapper-overlay-gradient">Please enter your e-mail and password to register</p>
+        <p class="my-4 mx-auto w-full xsd:w-2/3">Please register to access a wider range of facilities on our website. Registration is free and any information you provide will not be shared with any third party.
+    
+            Once you have registered you will be automatically logged into site and redirected back to the page you tried to access beforehand.</p>
+        
+    <form class="register-form wrapper-overlay-gradient" method="POST">
+        {% csrf_token %}
+        {{ user_register_form.as_p }}
+        <button button class="actButton my-3 w-full xsdd:max-w-xs" type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+    {% endblock %}
+</body>
+</html>

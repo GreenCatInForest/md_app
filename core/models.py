@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth.models import (
     AbstractBaseUser, 
     BaseUserManager, 
@@ -5,8 +6,14 @@ from django.contrib.auth.models import (
     Group, 
     Permission,
 )
+from django.conf import settings
 from django.db import models
-
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+from decimal import Decimal
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -58,10 +65,36 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self):
         return f"{self.name} {self.surname}"
     
+    
+class PasswordReset(models.Model):
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    token = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Password reset for {self.user.email}"
+    
 
-    from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.conf import settings
+   
+def property_photo_upload_path(instance, filename):
+    # Get the company ID
+        property_address = instance.address if instance.address else 'temp'
+    # Generate the upload path
+        return os.path.join('img', 'properties_img', str(property_address), filename)
+
+def room_photo_upload_path(instance, filename):
+    # Get the company ID
+        property = instance.property
+        property_address = property.address if property.address else 'temp'
+        room_name = instance.room_name if instance.room_name else 'temp'
+    # Generate the upload path
+        return os.path.join('img', 'properties_img', property_address, str(room_name), filename)
+
+def report_property_photo_upload_path(instance, filename):
+        property = instance.property
+        property_address = property.address if property.address else 'temp'
+    # Generate the upload path
+        return os.path.join('img', 'properties_img', str(property_address), filename)
 
 class Logger (models.Model):
     serial_number = models.CharField(max_length=255, unique=True)
@@ -136,5 +169,44 @@ class Logger_Health (models.Model):
 
     class Meta:
         verbose_name_plural = 'logger health'
+
+
+class Report (models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    report_timestamp = models.DateTimeField(auto_now=True)
+    property_address = models.CharField(max_length=455)
+    external_picture = models.ImageField(upload_to=report_property_photo_upload_path, null=True, blank=True)
+    external_logger = models.CharField(max_length=7)
+    company = models.CharField(max_length=255)
+    company_logo = models.ImageField(upload_to='companies/<company_id>/', null=True, blank=True)
+    surveyor = models.CharField(max_length=255)
+    notes = models.TextField()
+    occupied = models.BooleanField(default=False)
+    occupied_during_all_monitoring = models.BooleanField(default=False)
+    number_of_occupants = models.IntegerField(default=0)
+    room_name = models.CharField(max_length=255)
+    room_picture = models.ImageField(upload_to=room_photo_upload_path, null=True, blank=True)
+    room_ambient_logger = models.CharField(max_length=7)
+    room_surface_logger = models.CharField(max_length=7)
+    room_monitor_area = models.CharField(max_length=255, blank=True, null=True)
+    room_mould_visible = models.BooleanField(default=False)
+    report_file = models.FileField(upload_to='reports/<report_id>/')
+
+    def __str__(self):
+        return self.start_time.strftime("%Y%m%d-%H:%M:%S")
+
+    def add_report (cls, start_time, end_time, property, property_photo, company, surveyor, notes, report_file, report_requirements):
+        report = Report(start_time=start_time, end_time=end_time, property=property, property_photo=property_photo, company=company, surveyor=surveyor, notes=notes, report_file=report_file, report_requirements=report_requirements)
+        report.save()
+        return report 
+
+    def clean(self):
+        # Ensure end_time is after start_time
+        if self.end_time and self.start_time and self.end_time <= self.start_time:
+            raise ValidationError(_('End time must be after start time.'))
+
+
 
 

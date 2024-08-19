@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+</head>
+<body>
+{% block content %}
+{% load static %}
+    <h2>User Login</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ user_login_form.as_p }}
+        <button type="submit">Login</button>
+    </form>
+    
+    <!-- Logout button -->
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+{% endblock %}
+</body>
+</html>
