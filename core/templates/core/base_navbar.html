@@ -1,0 +1,27 @@
+
+    {% load static tailwind_tags %}
+
+    {% block content %}
+
+    <nav id="base-navbar">
+                <a href="{% url 'index' %}">
+                    <img src="{% static 'images/Maple-LogoWhite.svg' %}" alt="Maple Logo" class="maple-logo-header"/>
+                </a>
+                <div position="relative">
+                    <a href="" class="base-navbar-link">About</a>
+                    <a href="" class="base-navbar-link">Services</a>
+                    <a href="" class="base-navbar-link">Contacts</a>
+                    <button id="dark-mode-btn-toggle"><img src="" alt="btn"/></button>
+                    {% if user.is_authenticated %}
+                        <div class="{% if user.is_authenticated %}inline-block{% else %}absolute{% endif %}">
+                            <a href="" class="w-8 h-8 rounded-full bg-pink-600 flex items-center justify-center">{{ user.name|slice:":1" }}</p> 
+                            <a href="">Logout</a>
+                        </div>
+                        {% else %}
+                        <button id="loginButton" data-url="">Login</button>
+                    {% endif %} 
+                </div>
+    </nav>
+
+    {% endblock %}
+
