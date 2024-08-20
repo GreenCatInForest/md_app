@@ -74,6 +74,10 @@ class PasswordReset(models.Model):
     def __str__(self):
         return f"Password reset for {self.user.email}"
     
+def company_logo_upload_path(instance, filename):
+    company_name = instance.company if instance.company else 'temp'
+    return os.path.join('img', 'companies_img', str(company_name), filename)
+
 
    
 def property_photo_upload_path(instance, filename):
@@ -180,7 +184,7 @@ class Report (models.Model):
     external_picture = models.ImageField(upload_to=report_property_photo_upload_path, null=True, blank=True)
     external_logger = models.CharField(max_length=7)
     company = models.CharField(max_length=255)
-    company_logo = models.ImageField(upload_to='companies/<company_id>/', null=True, blank=True)
+    company_logo = models.ImageField(upload_to=company_logo_upload_path, null=True, blank=True)
     surveyor = models.CharField(max_length=255)
     notes = models.TextField()
     occupied = models.BooleanField(default=False)
