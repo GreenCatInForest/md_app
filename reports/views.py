@@ -1,29 +1,44 @@
 
 import logging
-
 from django.shortcuts import render, HttpResponse
 from django.utils import timezone
 from datetime import datetime
-from .forms import ReportForm
-from core.models import Logger, Logger_Data
+from .forms import ReportForm, RoomFormSet
+from core.models import Logger, Logger_Data, Room
 from .config import ReportConfig
 from .utils import PCAdataTool
+from django.contrib.auth.decorators import login_required
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+
+
 def report_view(request):
     if request.method == 'POST':
         form = ReportForm(request.POST, request.FILES)
+        room_formset = RoomFormSet(request.POST, request.FILES, prefix='rooms')
         
-        if form.is_valid():
-            logger.debug("Form is valid.")
+        if form.is_valid() and room_formset.is_valid():
+            logger.debug("Form and formset are valid.")
+            # Save the report instance
+            report = form.save(commit=False)
+            report.user = request.user  # Set the user to the currently logged-in user
+            report.save()
+            
+              # Save the rooms and associate them with the report
+            rooms = room_formset.save(commit=False)
+            for room in rooms:
+                room.report = report
+                room.save()
+            
+            logger.debug("Rooms have been saved.")
+            
             # Fetch data from form
             property_address = form.cleaned_data['property_address']
             company_name = form.cleaned_data['company']
             surveyor_name = form.cleaned_data['surveyor']
-            room_name = form.cleaned_data['room_name']
             report_date = form.cleaned_data['report_timestamp']
             external_picture = form.cleaned_data['external_picture']
             
@@ -37,9 +52,6 @@ def report_view(request):
             occupied_during_all_monitoring = form.cleaned_data['occupied_during_all_monitoring']
             number_of_occupants = form.cleaned_data['number_of_occupants']
             notes = form.cleaned_data['notes']
-            room_picture = form.cleaned_data['room_picture']
-            room_monitor_area = form.cleaned_data['room_monitor_area']
-            room_mould_visible = form.cleaned_data['room_mould_visible']
             
             start_date = form.cleaned_data['start_time']
             end_date = form.cleaned_data['end_time']
@@ -81,7 +93,6 @@ def report_view(request):
                     'company_name': company_name,
                     'surveyor_name': surveyor_name,
                     'report_date': report_date,
-                    'room_name': room_name,
                     'external_picture': external_picture,
                     'external_logger': external_logger,
                     'ambient_logger': ambient_logger,
@@ -95,13 +106,10 @@ def report_view(request):
                     'occupied_during_all_monitoring': occupied_during_all_monitoring,
                     'number_of_occupants': number_of_occupants,
                     'notes': notes,
-                    'room_monitor_area': room_monitor_area,
-                    'room_mould_visible': room_mould_visible,
-                    'company_logo': form.cleaned_data['company_logo'],
-                    'room_picture': room_picture
+                    'rooms': room_formset.cleaned_data, 
                 }
+                
                 logger.debug("Calling PCAdataTool.RPTGen to generate the report...")
-                # Process the report data
                 # Process the report data
                 PCAdataTool.RPTGen(form_data)
                 
@@ -113,11 +121,12 @@ def report_view(request):
 
         else:
             # If form is not valid, re-render the form with error messages
-            logger.error("Form validation failed.")
+            logger.error("Form or formset validation failed.")
             logger.error(f"Form validation failed with errors: {form.errors}")
-            return render(request, 'reports/report.html', {'form': form})
+            return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
 
     else:
         form = ReportForm()
+        room_formset = RoomFormSet(prefix='rooms')
 
-    return render(request, 'reports/report.html', {'form': form})
+    return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})

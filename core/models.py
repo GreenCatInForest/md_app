@@ -190,12 +190,6 @@ class Report (models.Model):
     occupied = models.BooleanField(default=False)
     occupied_during_all_monitoring = models.BooleanField(default=False)
     number_of_occupants = models.IntegerField(default=0)
-    room_name = models.CharField(max_length=255)
-    room_picture = models.ImageField(upload_to=room_photo_upload_path, null=True, blank=True)
-    room_ambient_logger = models.CharField(max_length=7)
-    room_surface_logger = models.CharField(max_length=7)
-    room_monitor_area = models.CharField(max_length=255, blank=True, null=True)
-    room_mould_visible = models.BooleanField(default=False)
     report_file = models.FileField(upload_to='reports/<report_id>/')
 
     def __str__(self):
@@ -212,5 +206,15 @@ class Report (models.Model):
             raise ValidationError(_('End time must be after start time.'))
 
 
+class Room(models.Model):
+    report = models.ForeignKey(Report, related_name='rooms', on_delete=models.CASCADE)
+    room_name = models.CharField(max_length=255)
+    room_picture = models.ImageField(upload_to=room_photo_upload_path, null=True, blank=True)
+    room_ambient_logger = models.CharField(max_length=7)
+    room_surface_logger = models.CharField(max_length=7)
+    room_monitor_area = models.CharField(max_length=255, blank=True, null=True)
+    room_mould_visible = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"Room {self.room_name} in Report {self.report_id}"
 

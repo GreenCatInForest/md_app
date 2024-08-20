@@ -34,7 +34,7 @@ def user_register(request):
             messages.success(request, 'Your account has been created! You will be now log in.')
             login(request, user)  # Log in the user
             # return HttpResponse('Hello '+user.name+' '+user.surname + ' You have successfully registered!')
-            return redirect('report-request')  # Redirect to user account page
+            return redirect('report')  # Redirect to user account page
     else:
         user_register_form = UserRegisterForm() # Create a new user form
     return render(request, 'users/register.html', {'user_register_form': user_register_form}) 
@@ -51,7 +51,7 @@ def user_login(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, 'You have successfully logged in!')
-                return redirect('report-request')
+                return redirect('report')
             else:
                 messages.error(request, 'Invalid email or password')
                 print("Invalid email or password")

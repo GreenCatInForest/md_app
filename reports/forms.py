@@ -1,6 +1,6 @@
 from django import forms
-from core.models import Report
-from django.forms import TextInput, FileInput, CheckboxInput, DateInput, IntegerField, formset_factory
+from core.models import Report, Room
+from django.forms import TextInput, FileInput, CheckboxInput, DateInput, IntegerField, modelformset_factory, formset_factory
 
 
 class ReportForm(forms.ModelForm): 
@@ -9,9 +9,7 @@ class ReportForm(forms.ModelForm):
         fields = [
             'company', 'company_logo', 'surveyor', 'property_address', 'external_picture',
             'external_logger', 'occupied', 'occupied_during_all_monitoring', 
-            'number_of_occupants', 'notes', 'room_name', 'room_picture',
-            'room_ambient_logger', 'room_surface_logger', 'room_monitor_area',
-            'room_mould_visible', 'start_time', 'end_time'
+            'number_of_occupants', 'notes', 'start_time', 'end_time'
         ]
         widgets = {
             'company': TextInput(attrs={
@@ -64,6 +62,21 @@ class ReportForm(forms.ModelForm):
                 'rows':'2',
                 'id':'notes'
             }),
+           
+            'start_time': DateInput(attrs={'type': 'text', 'id':'start_time'}),
+            'end_time': DateInput(attrs={'type': 'text', 'id':'end_time'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class RoomForm(forms.ModelForm):
+    class Meta:
+        model = Room
+        fields = ['room_name', 'room_ambient_logger', 'room_surface_logger',
+                  'room_monitor_area', 'room_mould_visible', 'room_picture']
+        widgets = {
             'room_name': TextInput(attrs={
                 'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
                 'placeholder': 'Enter room name',
@@ -93,20 +106,11 @@ class ReportForm(forms.ModelForm):
                 'id':'room_mould_visible',
                 'type':'checkbox'
             }),
-            'start_time': DateInput(attrs={'type': 'text', 'id':'start_time'}),
-            'end_time': DateInput(attrs={'type': 'text', 'id':'end_time'}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-
-class RoomForm(forms.Form):
-    room_name = forms.CharField(required=True, label='Room Name')
-    room_ambient_logger = forms.CharField(required=True, label='Ambient Logger Serial Number')
-    room_surface_logger = forms.CharField(required=True, label='Surface Logger Serial Number')
-    room_picture = forms.ImageField(required=False, label='Room Picture')
-    room_monitor_area = forms.CharField(required=False, label='Monitor Area')
-    room_mould_visible = forms.BooleanField(required=False, label='Mould Visible')
-
-   
+RoomFormSet = modelformset_factory(
+    Room,
+    form=RoomForm,  
+    extra=4,
+    can_delete=True
+)
