@@ -11,5 +11,8 @@ matplotlib
 datetime
 pytz
 
+fpdf
+PyPDF2
+
 django-tailwind 
 django-tailwind[reload] 

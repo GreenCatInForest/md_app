@@ -38,6 +38,205 @@
                     </div>
                 </div>
             </section>
+            <section class="dark:bg-blue-950">
+                <div class="py-8 px-4 mx-auto max-w-4xl lg:py-8">
+                    <form method="post" enctype="multipart/form-data"> 
+                        {% csrf_token %}
+                        <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+                            <div class="form-group sm:col-span-2">
+                                <label for="property_address" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Property Address</label>
+                                {{ form.property_address }}
+                            </div>
+
+                            <div class="form-group flex items-center justify-center w-full">
+                                <label for="external_picture" class="flex flex-col items-center justify-center w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                                    <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload External Picture</h3>
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                        </svg>
+                                        <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                                    </div>
+                                    {{ form.external_picture }}
+                                </label>
+                            </div> 
+
+                            <div class="form-group w-full">
+                                <label for="external_logger" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">External Logger, Serial Number</label>
+                                {{ form.external_logger }}
+                                
+                                <div class="flex flex-row items-center gap-4 my-2">
+                                    <label for="occupied" class="block my-2 text-sm font-medium text-gray-900 dark:text-white">Occupied?</label>
+                                    {{ form.occupied }}
+                                </div>
+                                <div class="flex flex-row items-center gap-4 my-2">
+                                    <label for="occupied_during_all_monitoring" class="block my-2 text-sm font-medium text-gray-900 dark:text-white">Occupied during all monitoring?</label>
+                                    {{ form.occupied_during_all_monitoring }}
+                                </div>
+                               
+                                <div class="relative z-0 w-full mb-4 group max-w-md mx-auto">
+                                     {{ form.number_of_occupants }}
+                                    <label for="number_of_occupants" class="bg-transparent peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Number of Occupants</label>
+                                </div>
+                            
+                                <label for="notes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"></label>
+                               {{ form.notes }}
+                            </div>
+
+                        <!-- Date Picker -->
+                        <div class="w-full sm:col-span-2">
+                        <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Date Range</h3>
+                        <div id="date-range-picker" class="flex items-center">
+                            <div class="relative sm:w-full">
+                                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                    </svg>
+                                </div>
+                                {{ form.start_time }}
+                            </div>
+                            
+                            <span class="mx-4 text-gray-500">to</span>
+                            
+                            <div class="relative sm:w-full">
+                                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                    </svg>
+                                </div>
+                                {{ form.end_time }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rooms Form -->
+
+                <div class="form-group sm:col-span-2">
+                    <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Rooms</h3>
+                    <div id="room-forms-container" class="sm:grid sm:grid-cols-2 sm:gap-4">
+                        <!-- Room forms will be dynamically added here -->
+                    </div>
+                    <button type="button" id="add-room" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900  mt-4 sm:mt-6  bg-primary-100  focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800">Add Room</button>
+                </div>
+
+                <!-- Company and Surveyor Form -->
+                <div class="form-group sm:col-span-2">
+                    <h3 class="block mb-4 text-sm font-medium text-gray-900 dark:text-white text-left">Company Information</h3>
+                    <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+                        <div class="form-group flex items-center justify-center w-full">
+                            <label for="company_logo" class="flex flex-col items-center justify-center mb-4 w-full h-[16rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                                <h3 class="block my-2 text-sm font-medium text-gray-900 dark:text-white">Upload Company Logo</h3>
+                                <div class="flex flex-col items-center justify-center pt-4 pb-4">
+                                    <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                    </svg>
+                                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                                </div>
+                                {{ form.company_logo }}
+                            </label>
+                        </div> 
+                        <div class="form-group w-full">
+                            <label for="company" class="block mb-4 text-sm font-medium text-gray-900 dark:text-white">Company Name</label>
+                            {{ form.company }}
+
+                            <label for="surveyor" class="block my-4 text-sm font-medium text-gray-900 dark:text-white">Surveyor Name</label>
+                            {{ form.surveyor }}
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="inline-flex items-center py-2.5 mt-s4 m:mt-6 text-sm font-medium text-center text-white bg-primary-100 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800 justify-center  px-5 bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 dark:focus:ring-blue-900">
+                    Create Report
+                </button>
+            </form>
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+{% endif %}
+        </div>
+    </section>
+
+    <script src="{% static 'js/datepicker.js' %}" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const startDatepicker = document.getElementById('start_time');
+            const endDatepicker = document.getElementById('end_time');
+            new Datepicker(startDatepicker, {
+                format: 'yyyy-mm-dd',
+                autohide: true
+            });
+            new Datepicker(endDatepicker, {
+                format: 'yyyy-mm-dd',
+                autohide: true
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let roomCount = 1;
+            function updateRoomNumbers() {
+                const rooms = document.querySelectorAll('.room-form');
+                rooms.forEach((room, index) => {
+                    const roomNumber = index + 1;
+                    room.setAttribute('id', `room-${roomNumber}`);
+                    room.querySelector('h3').textContent = `Room ${roomNumber}`;
+                });
+            }
+
+            document.getElementById('add-room').addEventListener('click', function () {
+                roomCount += 1;
+                const roomForm = document.createElement('div');
+                roomForm.classList.add('room-form', 'p-4', 'border', 'rounded-lg', 'mb-4', 'bg-gray-100', 'dark:bg-gray-800');
+                roomForm.setAttribute('id', `room-${roomCount}`);
+                roomForm.innerHTML = `
+                    <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Room ${roomCount}</h3>
+                    <label for="room${roomCount}_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white hidden">Enter Room Name</label>
+                    <input type="text" name="room${roomCount}_name" id="room${roomCount}_name" 
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 mb-4" placeholder="Room Name" />
+
+                    <label for="room${roomCount}_picture" class="flex flex-col items-center justify-center mb-4 w-full h-[12rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                        <h3 class="block my-2 text-sm font-medium text-gray-900 dark:text-white">Upload Problem Room Picture</h3>
+                        <div class="flex flex-col items-center justify-center pt-2 pb-2">
+                            <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                            </svg>
+                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                        </div>
+                    </label>
+                    <input type="file" name="room${roomCount}_picture" id="room${roomCount}_picture" class="hidden" />
+                    <label for="room${roomCount}_ambient_logger" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ambient Logger, Serial Number</label>
+                    <input type="text" name="room${roomCount}_ambient_logger" id="room${roomCount}_ambient_logger" 
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 mb-4" />
+                    <label for="room${roomCount}_surface_logger" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Surface Logger, Serial Number</label>
+                    <input type="text" name="room${roomCount}_surface_logger" id="room${roomCount}_surface_logger" 
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 mb-4" />
+                    <label for="room${roomCount}_monitor_area" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monitor Area</label>
+                    <input type="text" name="room${roomCount}_monitor_area" id="room${roomCount}_monitor_area" 
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 mb-4" />
+                    <label for="room${roomCount}_mould_visible" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mould Visible</label>
+                    <input type="checkbox" name="room${roomCount}_mould_visible" id="room${roomCount}_mould_visible" 
+                        class="form-checkbox text-primary-600 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white mb-4" />
+                    <button type="button" class="remove-room shadow-md shadow-grey-800 text-red-500 hover:text-red-700 text-sm mt-4 inline-flex justify-center items-center py-3 px-4 text-base font-medium text-center rounded-lg bg-red-800 hover:bg-red-500 hover:text-black text-white focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900  mt-4 sm:mt-6  bg-primary-100  focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800">Remove Room ${roomCount}</button>
+                `;
+                document.getElementById('room-forms-container').appendChild(roomForm);
+
+                roomForm.querySelector('.remove-room').addEventListener('click', function () {
+                    roomForm.remove();
+                    updateRoomNumbers();
+                });
+
+                updateRoomNumbers();
+            });
+
+            updateRoomNumbers();
+        });
+    </script>
 
             {% endblock %}
         
