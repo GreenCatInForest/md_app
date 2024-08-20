@@ -11,6 +11,7 @@
                     <a href="" class="base-navbar-link">About</a>
                     <a href="" class="base-navbar-link">Services</a>
                     <a href="" class="base-navbar-link">Contacts</a>
+                    <a href="{% url 'report' %}" class="base-navbar-link">Reports</a>
                     <button id="dark-mode-btn-toggle"><img src="" alt="btn"/></button>
                     {% if user.is_authenticated %}
                         <div class="{% if user.is_authenticated %}inline-block{% else %}absolute{% endif %}">

@@ -1,3 +1,4 @@
 from django.shortcuts import render
 
-# Create your views here.
+report_view = lambda request: render(request, 'reports/report.html')
+
