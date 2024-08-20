@@ -1,6 +1,6 @@
 from django import forms
 from core.models import Report
-from django.forms import TextInput, FileInput, CheckboxInput, DateInput, IntegerField
+from django.forms import TextInput, FileInput, CheckboxInput, DateInput, IntegerField, formset_factory
 
 
 class ReportForm(forms.ModelForm): 
@@ -99,3 +99,14 @@ class ReportForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+
+class RoomForm(forms.Form):
+    room_name = forms.CharField(required=True, label='Room Name')
+    room_ambient_logger = forms.CharField(required=True, label='Ambient Logger Serial Number')
+    room_surface_logger = forms.CharField(required=True, label='Surface Logger Serial Number')
+    room_picture = forms.ImageField(required=False, label='Room Picture')
+    room_monitor_area = forms.CharField(required=False, label='Monitor Area')
+    room_mould_visible = forms.BooleanField(required=False, label='Mould Visible')
+
+   

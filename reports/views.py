@@ -1,4 +1,6 @@
 
+import logging
+
 from django.shortcuts import render, HttpResponse
 from django.utils import timezone
 from datetime import datetime
@@ -7,11 +9,16 @@ from core.models import Logger, Logger_Data
 from .config import ReportConfig
 from .utils import PCAdataTool
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 def report_view(request):
     if request.method == 'POST':
         form = ReportForm(request.POST, request.FILES)
         
         if form.is_valid():
+            logger.debug("Form is valid.")
             # Fetch data from form
             property_address = form.cleaned_data['property_address']
             company_name = form.cleaned_data['company']
@@ -41,6 +48,7 @@ def report_view(request):
             start_date_utc = timezone.make_aware(datetime.combine(start_date, datetime.min.time()), timezone.utc)
             end_date_utc = timezone.make_aware(datetime.combine(end_date, datetime.max.time()), timezone.utc)
 
+            logger.debug("Checking logger existence...")
             # Check logger existence
             external_logger = Logger.objects.filter(serial_number=external_logger_serial).first()
             ambient_logger = Logger.objects.filter(serial_number=ambient_logger_serial).first()
@@ -48,6 +56,8 @@ def report_view(request):
 
             if not (external_logger and ambient_logger and surface_logger):
                 return HttpResponse('One or more loggers not found.')
+            
+            logger.debug("Fetching logger data within the date range...")
 
             # Query Logger_Data for the date range
             try:
@@ -63,7 +73,8 @@ def report_view(request):
 
                 if not (external_logger_data.exists() and ambient_logger_data.exists() and surface_logger_data.exists()):
                     return HttpResponse('No data found for the specified date range and loggers.')
-
+                
+                logger.debug("Preparing data for PCA report generation...")
                 # Prepare report data for PCA processing
                 form_data = {
                     'property_address': property_address,
@@ -89,17 +100,21 @@ def report_view(request):
                     'company_logo': form.cleaned_data['company_logo'],
                     'room_picture': room_picture
                 }
-
+                logger.debug("Calling PCAdataTool.RPTGen to generate the report...")
+                # Process the report data
                 # Process the report data
                 PCAdataTool.RPTGen(form_data)
                 
                 return HttpResponse('Report generated successfully.')
 
             except Logger_Data.DoesNotExist:
+                logger.error("Logger_Data.DoesNotExist: Data not found.")
                 return HttpResponse('Data not found.')
 
         else:
             # If form is not valid, re-render the form with error messages
+            logger.error("Form validation failed.")
+            logger.error(f"Form validation failed with errors: {form.errors}")
             return render(request, 'reports/report.html', {'form': form})
 
     else:
