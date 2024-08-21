@@ -63,8 +63,13 @@ class ReportForm(forms.ModelForm):
                 'id':'notes'
             }),
            
-            'start_time': DateInput(attrs={'type': 'text', 'id':'start_time'}),
-            'end_time': DateInput(attrs={'type': 'text', 'id':'end_time'}),
+            'start_time': DateInput(attrs={'type': 'text', 
+                                           'id':'start_time',
+                                            'class': "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500", 
+                                            'placeholder': 'Select date start'}),
+            'end_time': DateInput(attrs={'type': 'text', 'id':'end_time',
+                                          'class': "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
+                                         'placeholder': 'Select date end'}),
         }
 
     def __init__(self, *args, **kwargs):
