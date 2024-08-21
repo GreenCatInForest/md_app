@@ -13,7 +13,7 @@
 {% load static %}
 <section class="log-in-wrapper container mx-auto">
     <p>Please enter your login to access your surveys</p>
-    <form class="login-form flex-col justify-center items-center bg-green-400" method="POST">
+    <form class="login-form flex-col justify-center items-center" method="POST">
         {% csrf_token %}
         {{ user_login_form.as_p }}
         <button class="actButton my-3 w-full xsdd:max-w-xs" type="submit">Login</button>

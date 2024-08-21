@@ -104,7 +104,12 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
+AUTH_USER_MODEL = 'core.User'
+AUTH_LOGGER_MODEL = 'core.Logger'
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -124,12 +129,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'core.User'
-AUTH_LOGGER_MODEL = 'core.Logger'
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-]
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
