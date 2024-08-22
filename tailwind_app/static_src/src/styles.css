@@ -15,8 +15,9 @@ form {
 }
 
 form p {
-  @apply flex flex-col small_tablet:flex-row flex-wrap items-center justify-center small_tablet:justify-between gap-8
-  border-b-2 border-light-accent3 pb-4 hover:shadow-xl shadow-blue-400;
+  @apply flex flex-col  flex-wrap items-center justify-center gap-4
+  
+  pb-4 shadow-blue-400;
 }
 
 input,

@@ -111,11 +111,15 @@ class RoomForm(forms.ModelForm):
                 'id':'room_mould_visible',
                 'type':'checkbox'
             }),
+            'room_picture': FileInput(attrs={
+                'class': 'hidden',
+                'id':'room_picture'
+            }),
+            
         }
 
 RoomFormSet = modelformset_factory(
     Room,
     form=RoomForm,  
-    extra=4,
-    can_delete=True
+    extra=1,
 )

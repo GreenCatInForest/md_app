@@ -142,7 +142,8 @@ def report_view(request):
             return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
 
     else:
+        room_formset = RoomFormSet(queryset=Room.objects.none(), prefix='rooms')
         form = ReportForm()
-        room_formset = RoomFormSet(prefix='rooms')
+     
 
     return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})

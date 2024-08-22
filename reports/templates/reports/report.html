@@ -8,7 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Request</title>
+    <title>Report</title>
     <!-- Bootstrap CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/5.0.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Datepicker CSS -->
@@ -113,15 +113,41 @@
                             </div>
                         </div>
                     </div>
-
-                    <div id="room-forms-container">
-                        {{ room_formset.management_form }}
-                        {% for form in room_formset %}
-                        {{ form.as_p }}
-                    {% endfor %}
+                    <div class="form-group sm:col-span-2">
+                        <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Rooms</h3>
+                        <div id="room-forms-container">
+                            {{ room_formset.management_form }}
+                            {% for form in room_formset %}
+                            <div class="room-form p-4 border rounded-lg mb-4 bg-gray-100 dark:bg-gray-800">
+                                {% for field in form %}
+                                    {% if field.name == 'id' %}
+                                        {{ field.as_hidden }}
+                                    {% elif field.name != 'room_picture' %}
+                                        <p>{{ field.label_tag }} {{ field }}</p>
+                                    {% endif %}
+                                {% endfor %}
+                                <div class="form-group flex items-center justify-center w-full">
+                                    <label for="external_picture" class="flex flex-col items-center justify-center w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                                        <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload External Picture</h3>
+                                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                            </svg>
+                                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                                        </div>
+                                        {{ form.room_picture }}
+                                    </label>
+                                </div>
+    
+                                <button type="button" class="delete-room btn btn-danger mt-2">Delete Room</button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" id="add-room">Add Room</button>
                     </div>
                 
-                    <button type="button" id="add-room">Add Room</button>
+                   
 
                 <!-- Company and Surveyor Form -->
                 <div class="form-group sm:col-span-2">
@@ -180,18 +206,60 @@
             });
         });
 
-        document.addEventListener('DOMContentLoaded', function () {
-    let roomCount = document.getElementById('id_rooms-TOTAL_FORMS').value;
+       
+
+    document.addEventListener('DOMContentLoaded', function () {
+    let roomCount = parseInt(document.getElementById('id_rooms-TOTAL_FORMS').value);
+    console.log(roomCount);
 
     document.getElementById('add-room').addEventListener('click', function () {
         const roomFormContainer = document.getElementById('room-forms-container');
-        const newRoomForm = roomFormContainer.querySelector('.room-form').cloneNode(true);
-        const formRegex = new RegExp(`rooms-(\\d+)-`, 'g');
-        newRoomForm.innerHTML = newRoomForm.innerHTML.replace(formRegex, `rooms-${roomCount}-`);
-        roomFormContainer.appendChild(newRoomForm);
+        const firstRoomForm = roomFormContainer.querySelector('.room-form');
 
-        roomCount++;
-        document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+        if (firstRoomForm) {
+            const newRoomForm = firstRoomForm.cloneNode(true);
+            const formRegex = new RegExp(`rooms-(\\d+)-`, 'g');
+            newRoomForm.innerHTML = newRoomForm.innerHTML.replace(formRegex, `rooms-${roomCount}-`);
+
+            // Clear the values in the cloned form
+            newRoomForm.querySelectorAll('input, select, textarea').forEach(input => {
+                input.value = '';
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    input.checked = false;
+                }
+            });
+
+            roomFormContainer.appendChild(newRoomForm);
+
+            // Rebind the delete event
+            newRoomForm.querySelector('.delete-room').addEventListener('click', function () {
+                if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
+                    alert('You cannot delete the last room form.');
+                    return;
+                }
+                newRoomForm.remove();
+                roomCount--;
+                document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+            });
+
+            roomCount++;
+            document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+        } else {
+            console.error('No room forms available to clone.');
+        }
+    });
+
+    document.querySelectorAll('.delete-room').forEach(button => {
+        button.addEventListener('click', function () {
+            const roomFormContainer = document.getElementById('room-forms-container');
+            if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
+                alert('You cannot delete the last room form.');
+                return;
+            }
+            button.closest('.room-form').remove();
+            roomCount--;
+            document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+        });
     });
 });
     </script>
