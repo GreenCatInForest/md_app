@@ -1,19 +1,27 @@
 import logging
 from django.shortcuts import render, HttpResponse
+from django.http import FileResponse
 from django.utils import timezone
-from datetime import datetime, timezone as dt_timezone  # Import timezone as dt_timezone to avoid confusion
+from datetime import datetime, timezone as dt_timezone
 from .forms import ReportForm, RoomFormSet
 from core.models import Logger, Logger_Data, Room, User
 from .config import ReportConfig
 from .utils import PCAdataTool
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+import pandas as pd
+from io import StringIO
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
+
+def fetch_logger_data(logger_serial, start_timestamp, end_timestamp):
+    logger = Logger.objects.get(serial_number=logger_serial)
+    data = Logger_Data.objects.filter(logger=logger, timestamp__range=(start_timestamp, end_timestamp))
+    return pd.DataFrame(list(data.values()))
 
 @login_required
 def report_view(request):
@@ -24,126 +32,77 @@ def report_view(request):
         if form.is_valid() and room_formset.is_valid():
             logger.debug("Form and formset are valid.")
 
-            # Check if the user exists in the database
-            if not User.objects.filter(id=request.user.id).exists():
-                return HttpResponse('User not found.', status=400)
-            
-            # Save the report instance
-            report = form.save(commit=False)
-            report.user = request.user  # Set the user to the currently logged-in user
-            report.save()
-
-            # Save the rooms and associate them with the report
-            rooms = room_formset.save(commit=False)
-            for room in rooms:
-                room.report = report
-                room.save()
-
-            logger.debug("Rooms have been saved.")
-
-            # Prepare logger serial numbers
-            ambient_logger_serials = []
-            surface_logger_serials = []
-
-            for room_data in room_formset.cleaned_data:
-                ambient_logger_serial = room_data.get('room_ambient_logger')
-                surface_logger_serial = room_data.get('room_surface_logger')
-                if ambient_logger_serial:
-                    ambient_logger_serials.append(ambient_logger_serial)
-                if surface_logger_serial:
-                    surface_logger_serials.append(surface_logger_serial)
-
-            # Fetch data from form
-            property_address = form.cleaned_data['property_address']
-            company_name = form.cleaned_data['company']
-            surveyor_name = form.cleaned_data['surveyor']
-            report_date = timezone.now()
-            external_picture = form.cleaned_data['external_picture']
-            
-            # Logger data from form
+            # Fetch logger data from form
             external_logger_serial = form.cleaned_data['external_logger']
-
-            # Additional data
-            occupied = form.cleaned_data['occupied']
-            occupied_during_all_monitoring = form.cleaned_data['occupied_during_all_monitoring']
-            number_of_occupants = form.cleaned_data['number_of_occupants']
-            notes = form.cleaned_data['notes']
-            
-            start_date = form.cleaned_data['start_time']
-            end_date = form.cleaned_data['end_time']
+            ambient_logger_serials = [room_data.get('room_ambient_logger') for room_data in room_formset.cleaned_data]
+            surface_logger_serials = [room_data.get('room_surface_logger') for room_data in room_formset.cleaned_data]
 
             # Convert dates to UTC datetime
-            start_date_utc = timezone.make_aware(datetime.combine(start_date, datetime.min.time()), dt_timezone.utc)
-            end_date_utc = timezone.make_aware(datetime.combine(end_date, datetime.max.time()), dt_timezone.utc)
+            start_date_utc = timezone.make_aware(datetime.combine(form.cleaned_data['start_time'], datetime.min.time()), dt_timezone.utc)
+            end_date_utc = timezone.make_aware(datetime.combine(form.cleaned_data['end_time'], datetime.max.time()), dt_timezone.utc)
 
-            logger.debug("Checking logger existence...")
-            # Check logger existence
-            external_logger = Logger.objects.filter(serial_number=external_logger_serial).first()
-            ambient_loggers = Logger.objects.filter(serial_number__in=ambient_logger_serials)
-            surface_loggers = Logger.objects.filter(serial_number__in=surface_logger_serials)
+            start_timestamp = int(start_date_utc.timestamp())
+            end_timestamp = int(end_date_utc.timestamp())
 
-            if not external_logger or not ambient_loggers.exists() or not surface_loggers.exists():
-                return HttpResponse('One or more loggers not found.')
-            
             logger.debug("Fetching logger data within the date range...")
 
-            # Query Logger_Data for the date range
-            try:
-                external_logger_data = Logger_Data.objects.filter(
-                    logger=external_logger, timestamp__range=(start_date_utc, end_date_utc)
-                )
-                ambient_logger_data = Logger_Data.objects.filter(
-                    logger__in=ambient_loggers, timestamp__range=(start_date_utc, end_date_utc)
-                )
-                surface_logger_data = Logger_Data.objects.filter(
-                    logger__in=surface_loggers, timestamp__range=(start_date_utc, end_date_utc)
-                )
+            # Fetching logger data
+            external_logger_data = fetch_logger_data(external_logger_serial, start_timestamp, end_timestamp)
+            combined_logger_data_list = []
 
-                if not (external_logger_data.exists() and ambient_logger_data.exists() and surface_logger_data.exists()):
-                    return HttpResponse('No data found for the specified date range and loggers.')
+            for ambient_serial, surface_serial in zip(ambient_logger_serials, surface_logger_serials):
+                ambient_logger_data = fetch_logger_data(ambient_serial, start_timestamp, end_timestamp)
+                surface_logger_data = fetch_logger_data(surface_serial, start_timestamp, end_timestamp)
                 
-                logger.debug("Preparing data for PCA report generation...")
-                # Prepare report data for PCA processing
-                form_data = {
-                    'property_address': property_address,
-                    'company_name': company_name,
-                    'surveyor_name': surveyor_name,
-                    'report_date': report_date,
-                    'external_picture': external_picture,
-                    'external_logger': external_logger,
-                    'ambient_logger': ambient_loggers,
-                    'surface_logger': surface_loggers,
-                    'start_date': start_date_utc,
-                    'end_date': end_date_utc,
-                    'external_logger_data': external_logger_data,
-                    'ambient_logger_data': ambient_logger_data,
-                    'surface_logger_data': surface_logger_data,
-                    'occupied': occupied,
-                    'occupied_during_all_monitoring': occupied_during_all_monitoring,
-                    'number_of_occupants': number_of_occupants,
-                    'notes': notes,
-                    'rooms': room_formset.cleaned_data, 
-                }
+                # Combine the logger data based on the timestamp
+                combined_data = pd.merge_asof(external_logger_data, ambient_logger_data, on='timestamp', direction='nearest')
+                combined_data = pd.merge_asof(combined_data, surface_logger_data, on='timestamp', direction='nearest')
                 
-                logger.debug("Calling PCAdataTool.RPTGen to generate the report...")
-                # Process the report data
-                PCAdataTool.RPTGen(form_data)
-                
-                return HttpResponse('Report generated successfully.')
+                logger.debug(f"Columns in combined_data after merge: {combined_data.columns.tolist()}")
 
-            except Logger_Data.DoesNotExist:
-                logger.error("Logger_Data.DoesNotExist: Data not found.")
-                return HttpResponse('Data not found.')
+                # Rename columns to match expected names
+                combined_data.rename(columns={
+                    'air_temperature_x': 'IndoorAirTemp',
+                    'humidity_x': 'IndoorRelativeH',
+                    'surface_temperature_x': 'SurfaceTemp',
+                    'air_temperature_y': 'OutdoorAirTemp',
+                    'humidity_y': 'OutdoorRelativeH',
+                    'surface_temperature': 'SurfaceTemp',
+                    # Add more mappings if needed
+                }, inplace=True)
+
+                # Print the columns to debug
+                print("Renamed Data Columns:", combined_data.columns)
+
+                # Check if expected columns exist
+                if all(col in combined_data.columns for col in ['IndoorAirTemp', 'IndoorRelativeH', 'SurfaceTemp', 'OutdoorAirTemp', 'OutdoorRelativeH']):
+                    # Ensure the correct column order
+                    combined_data = combined_data[['timestamp', 'IndoorAirTemp', 'IndoorRelativeH', 'SurfaceTemp', 'OutdoorAirTemp', 'OutdoorRelativeH']]
+                else:
+                    return HttpResponse(f"Expected columns not found in combined data: {combined_data.columns.tolist()}")
+
+                # Append the combined data to the list
+                combined_logger_data_list.append(combined_data)
+
+            # Concatenate all the room data into one DataFrame for simplicity
+            all_rooms_combined_data = pd.concat(combined_logger_data_list)
+
+            # If you want to allow the user to download the CSV for testing
+            csv_buffer = StringIO()
+            all_rooms_combined_data.to_csv(csv_buffer, index=False)
+            csv_buffer.seek(0)
+
+            # Return the CSV as a downloadable file
+            response = HttpResponse(csv_buffer, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="combined_logger_data.csv"'
+            return response
 
         else:
             # If form is not valid, re-render the form with error messages
             logger.error("Form or formset validation failed.")
-            logger.error(f"Form validation failed with errors: {form.errors}")
             return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
 
     else:
         room_formset = RoomFormSet(queryset=Room.objects.none(), prefix='rooms')
         form = ReportForm()
-     
-
-    return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+        return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
