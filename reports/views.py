@@ -78,6 +78,10 @@ def report_view(request):
             for ambient_serial, surface_serial in zip(ambient_logger_serials, surface_logger_serials):
                 ambient_logger_data = fetch_logger_data(ambient_serial, start_timestamp, end_timestamp)
                 surface_logger_data = fetch_logger_data(surface_serial, start_timestamp, end_timestamp)
+
+                # Assume unique renaming before merges
+                ambient_logger_data.rename(columns={'surface_temperature': 'AmbientSurfaceTemp'}, inplace=True)
+                surface_logger_data.rename(columns={'surface_temperature': 'SurfaceLoggerTemp'}, inplace=True)
                 
                 # Combine the logger data based on the timestamp
                 combined_data = pd.merge_asof(external_logger_data, ambient_logger_data, on='timestamp', direction='nearest')
@@ -89,10 +93,12 @@ def report_view(request):
                 combined_data.rename(columns={
                     'air_temperature_y': 'IndoorAirTemp',
                     'humidity_y': 'IndoorRelativeH',
-                    'surface_temperature_x': 'SurfaceTemp',
+   
                     'air_temperature_x': 'OutdoorAirTemp',
                     'humidity_x': 'OutdoorRelativeH',
-                    'surface_temperature': 'SurfaceTemp',
+
+                     'AmbientSurfaceTemp': 'SurfaceTempAmbient',  # this is air surface temp which is always empty
+                     'SurfaceLoggerTemp': 'SurfaceTemp',  # This is primary surface temp
                     
                     # Add more mappings if needed
                 }, inplace=True)
@@ -117,6 +123,17 @@ def report_view(request):
 
             all_rooms_combined_data = clean_data(all_rooms_combined_data)
 
+
+           
+            # Create an in-memory CSV file for checking the correct fetching data and passing to csv
+            # csv_buffer = StringIO()
+            # all_rooms_combined_data.to_csv(csv_buffer, index=False)
+            # csv_buffer.seek(0)
+                
+            # response = HttpResponse(csv_buffer, content_type='text/csv')
+            # response['Content-Disposition'] = 'attachment; filename=combined_logger_data.csv'
+            # return response
+
             # Collect images (ensure only available images are passed)
             image_indoor1 = room_formset.cleaned_data[0].get('room_picture') if len(room_formset.cleaned_data) > 0 and room_formset.cleaned_data[0].get('room_picture') else ''
             image_indoor2 = room_formset.cleaned_data[1].get('room_picture') if len(room_formset.cleaned_data) > 1 and room_formset.cleaned_data[1].get('room_picture') else ''
@@ -125,7 +142,7 @@ def report_view(request):
 
             app_logger.debug(f"Images collected: Image_indoor1={image_indoor1}, Image_indoor2={image_indoor2}, Image_indoor3={image_indoor3}, Image_indoor4={image_indoor4}")
             
-                       # Save DataFrame to a temporary CSV file if needed by RPTGen
+            # Save DataFrame to a temporary CSV file if needed by RPTGen
             with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmpfile:
                 all_rooms_combined_data.to_csv(tmpfile.name, index=False)
                 datafile_path = tmpfile.name
@@ -163,7 +180,6 @@ def report_view(request):
             finally:
                 os.remove(datafile_path)  # Clean up the temporary file
 
-           
         else:
             app_logger.error("Form or formset validation failed.")
             app_logger.error(f"Form errors: {form.errors}")
