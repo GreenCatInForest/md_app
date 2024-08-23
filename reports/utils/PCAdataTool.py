@@ -14,6 +14,7 @@ import textwrap as twp
 import re
 # coding: utf-8
 from enum import IntEnum
+import subprocess
 
 output_dir = '/code/imgs/'
 if not os.path.exists(output_dir):
@@ -1788,6 +1789,8 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     # pdf_name = datafile + '_t_' + dt_string + '.pdf'
     pdf_name = output_file_name + '_t_' + dt_string + '.pdf'
     pdf.output(pdf_name, 'F')
+    filename = None  # Initialize to ensure it's always defined
+
     try:
         print("file1:" + cover_pdf_file_name)
         print("file2:" + pdf_name)
@@ -1809,14 +1812,20 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
 
     except Exception as e:
         print("Error encountered during pdf merge and deletion: " + str(e))
+        filename = None  # Ensure filename is set to None if an error occurs
 
     # Cross-platform way to open the file
-    if popup:
+    if filename and popup:
         try:
             if os.name == 'nt':  # Windows
                 os.startfile(filename)
             elif os.name == 'posix':  # Unix-like systems (Linux, macOS)
-                os.system(f"open {filename}")
+                if os.system("command -v xdg-open") == 0:
+                    os.system(f"xdg-open {filename}")
+                elif os.system("command -v open") == 0:
+                    os.system(f"open {filename}")
+                else:
+                    print("No suitable command found to open the file on this system.")
             else:
                 print("Unsupported OS for opening files.")
         except Exception as e:
@@ -1824,8 +1833,10 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     else:
         print('Report pop-up is skipped.')
 
-    print(filename + ' generation is completed.')
-    return
+    if filename:
+        print(f"{filename} generation is completed.")
+    else:
+        print('Failed to generate the report.')
 
 # RPTGen('SensorsData.xlsx','Surveyor Paula','06/20/2020 16:20:58 ','6 Gower street,WC1E,6BT','2/19/2018  4:00:00 PM', 2,\
 # '3/5/2018  3:00:00 PM',500, pd.to_timedelta('1 days 06:05:01.00003'),'Bedroom A','floor',1,'imgs/Property.jpg','imgs/mould.jpeg','imgs/mould.jpeg','imgs/mould.jpeg',\

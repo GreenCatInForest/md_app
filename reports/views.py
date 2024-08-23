@@ -49,9 +49,18 @@ def clean_data(combined_data: pd.DataFrame) -> pd.DataFrame:
     
     return combined_data
 
+def save_uploaded_file(uploaded_file):
+    # Save the InMemoryUploadedFile to a temporary file and return the file path
+    if uploaded_file:
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1])
+        for chunk in uploaded_file.chunks():
+            temp_file.write(chunk)
+        temp_file.close()
+        return temp_file.name
+    return ''
+
 @login_required
 def report_view(request):
-    
     if request.method == 'POST':
         form = ReportForm(request.POST, request.FILES)
         room_formset = RoomFormSet(request.POST, request.FILES, prefix='rooms')
@@ -76,6 +85,14 @@ def report_view(request):
             # Fetching logger data
             external_logger_data = fetch_logger_data(external_logger_serial, start_timestamp, end_timestamp)
             combined_logger_data_list = []
+
+            app_logger.debug("Inspecting form data before generating the report:")
+            app_logger.debug(f"Form cleaned_data: {form.cleaned_data}")
+            for i, room in enumerate(room_formset.cleaned_data):
+                app_logger.debug(f"Room {i} data: {room}")
+                app_logger.debug(f"Room {i} name: {room.get('room_name')}")
+                app_logger.debug(f"Room {i} monitor area: {room.get('room_monitor_area')}")
+                app_logger.debug(f"Room {i} mould visible: {room.get('room_mould_visible')}")
 
             for index, room_data in enumerate(room_formset.cleaned_data):
                 # Extracting problem_room and monitor_area from the formset
@@ -143,10 +160,15 @@ def report_view(request):
             all_rooms_combined_data = clean_data(all_rooms_combined_data)
 
             # Collect images (ensure only available images are passed)
-            image_indoor1 = room_formset.cleaned_data[0].get('room_picture') if len(room_formset.cleaned_data) > 0 and room_formset.cleaned_data[0].get('room_picture') else ''
-            image_indoor2 = room_formset.cleaned_data[1].get('room_picture') if len(room_formset.cleaned_data) > 1 and room_formset.cleaned_data[1].get('room_picture') else ''
-            image_indoor3 = room_formset.cleaned_data[2].get('room_picture') if len(room_formset.cleaned_data) > 2 and room_formset.cleaned_data[2].get('room_picture') else ''
-            image_indoor4 = room_formset.cleaned_data[3].get('room_picture') if len(room_formset.cleaned_data) > 3 and room_formset.cleaned_data[3].get('room_picture') else ''
+           # Collect images (ensure only available images are passed)
+            image_property = save_uploaded_file(form.cleaned_data.get('external_picture'))
+            image_logo = save_uploaded_file(form.cleaned_data.get('company_logo'))
+            image_indoor1 = save_uploaded_file((form.cleaned_data.get('image_indoor1'))) if form.cleaned_data.get('image_indoor1') else ''
+            image_indoor2 = save_uploaded_file((form.cleaned_data.get('image_indoor2'))) if form.cleaned_data.get('image_indoor2') else ''
+            image_indoor3 = save_uploaded_file((form.cleaned_data.get('image_indoor3'))) if form.cleaned_data.get('image_indoor3') else ''
+            image_indoor4 = save_uploaded_file((form.cleaned_data.get('image_indoor4'))) if form.cleaned_data.get('image_indoor4') else ''
+        
+
 
             app_logger.debug(f"Images collected: Image_indoor1={image_indoor1}, Image_indoor2={image_indoor2}, Image_indoor3={image_indoor3}, Image_indoor4={image_indoor4}")
             
@@ -159,30 +181,7 @@ def report_view(request):
             with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmpfile:
                 all_rooms_combined_data.to_csv(tmpfile.name, index=False)
                 datafile_path = tmpfile.name
-
-             # Collect images (ensure only available images are passed)
-            images = []
-            for i, room_data in enumerate(room_formset.cleaned_data):
-                room_picture = room_data.get('room_picture')
-                if room_picture:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(room_picture.name)[1]) as tmp_img:
-                        for chunk in room_picture.chunks():
-                            tmp_img.write(chunk)
-                        images.append(tmp_img.name)
-            
-            image_property = None
-            if form.cleaned_data['external_picture']:
-                with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(form.cleaned_data['external_picture'].name)[1]) as tmp_img:
-                    for chunk in form.cleaned_data['external_picture'].chunks():
-                        tmp_img.write(chunk)
-                    image_property = tmp_img.name
-
-            company_logo = None
-            if form.cleaned_data['company_logo']:
-                with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(form.cleaned_data['company_logo'].name)[1]) as tmp_logo:
-                    for chunk in form.cleaned_data['company_logo'].chunks():
-                        tmp_logo.write(chunk)
-                    company_logo = tmp_logo.name
+                
 
                 form_data = {
                 'surveyor': form.cleaned_data['surveyor'],
@@ -195,34 +194,33 @@ def report_view(request):
                 'Problem_rooms': [room.get('room_name', 'Unknown Room') for room in room_formset.cleaned_data],
                 'Monitor_areas': [room.get('room_monitor_area', 'Unknown Area') for room in room_formset.cleaned_data],
                 'moulds': [room.get('room_mould_visible', 'No Data') for room in room_formset.cleaned_data],
-                'Image_property': image_property or '',
-                'Image_indoor1': images[0] if len(images) > 0 else '',
-                'Image_indoor2': images[1] if len(images) > 1 else '',
-                'Image_indoor3': images[2] if len(images) > 2 else '',
-                'Image_indoor4': images[3] if len(images) > 3 else '',
-                'Image_logo': company_logo or '',
+                'Image_property': image_property,
+                'Image_logo': image_logo,
+                'Image_indoor1': image_indoor1,
+                'Image_indoor2': image_indoor2,
+                'Image_indoor3': image_indoor3,
+                'Image_indoor4': image_indoor4,
                 'comment': form.cleaned_data['notes'],
-                'datafiles': [datafile_path],
+                'datafiles': [datafile_path]  # Pass the path to the CSV file
             }
 
             app_logger.debug("Form data prepared. Calling RPTGen...")
             app_logger.debug(f"Form data being sent to RPTGen: {form_data}")
+
+            app_logger.debug(f"Form data being sent to RPTGen: {form_data}")
+            for key, value in form_data.items():
+                if key.startswith('Image_'):
+                    app_logger.debug(f"{key} = {value}")
 
             # Generate the report
             try:
                 pdf_file_path = PCAdataTool.RPTGen(**form_data)
                 return FileResponse(open(pdf_file_path, 'rb'), content_type='application/pdf')
             except Exception as e:
-                app_logger.error(f"Error generating report: {str(e)}")  # Ensure e is converted to a string
+                app_logger.error(f"Error generating report: {e}")
                 return HttpResponse('Error generating report.', status=500)
             finally:
                 os.remove(datafile_path)  # Clean up the temporary file
-                if image_property:
-                    os.remove(image_property)
-                if company_logo:
-                    os.remove(company_logo)
-                for image in images:
-                    os.remove(image)
 
         else:
             app_logger.error("Form or formset validation failed.")
