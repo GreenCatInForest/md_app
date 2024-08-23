@@ -5,7 +5,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.dates import DayLocator, HourLocator
-from PyPDF2 import PdfFileMerger, PdfFileReader
+from PyPDF2 import PdfReader, PdfMerger
 import os
 import datetime
 from fpdf import FPDF
@@ -15,13 +15,21 @@ import re
 # coding: utf-8
 from enum import IntEnum
 
+output_dir = '/code/imgs/'
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+# Generate and save the figure
+fig, ax = plt.subplots()
+# (plotting code here)
+plt.savefig(os.path.join(output_dir, 'Fig1.0.png'))
+plt.close()
+
 
 class FontSize(IntEnum):
     CONTENT = 11
     HEADER = 14
     INDEX = 12
-
-
 
 
 class RoomData:
@@ -114,9 +122,24 @@ class RoomData:
         else:
             print(f'Read csv file {datafile} for analysis.')
             dataframe = pd.read_csv(datafile)
-            dataframe['Time'] = pd.to_datetime(dataframe['Time'], format='%d/%m/%Y %H:%M')
+            if 'timestamp' in dataframe.columns:
+                dataframe.rename(columns={'timestamp': 'Time'}, inplace=True)
+                dataframe['Time'] = pd.to_datetime(dataframe['Time'], format='%d/%m/%Y %H:%M:%S')
             # print(dataframe)
-            dataframe.dropna(inplace=True)
+                dataframe.dropna(inplace=True)
+
+        # Check if 'IndoorAirTemp' and 'IndoorRelativeH' exist
+        if 'IndoorAirTemp' in dataframe.columns and 'IndoorRelativeH' in dataframe.columns:
+            # Calculate 'IndoorDewPoint'
+            a = 17.27
+            b = 237.7
+            alpha = (a * dataframe['IndoorAirTemp']) / (b + dataframe['IndoorAirTemp']) + np.log(dataframe['IndoorRelativeH'] / 100.0)
+            dataframe['IndoorDewPoint'] = (b * alpha) / (a - alpha)
+        else:
+            # Handle missing columns
+            print("Warning: 'IndoorAirTemp' or 'IndoorRelativeH' column is missing from the data.")
+            dataframe['IndoorDewPoint'] = pd.Series([float('nan')] * len(dataframe))
+        
         # print("After dropna")
         # print(dataframe)
         TI = dataframe.Time
@@ -139,6 +162,7 @@ class RoomData:
 
         print(f'Debug room data problem room {self.problem_room}')
         self.monitor_area = monitor_area
+        print(f'Debug room data monitor area {self.monitor_area}')
 
         if start_time:
             self.STDH = str(start_time)
@@ -1458,18 +1482,22 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     def fix_q_and_a(title, answer):
         q_and_a(title, answer, 50)
 
+    print(f"occupied type: {type(occupied)}")
+    print(f"monitor_time type: {type(monitor_time)}")
+    print(f"occupant_number type: {type(occupant_number)}")
+
     fix_q_and_a('Building professional:', surveyor)
     fix_q_and_a('Company Name:', company)
     fix_q_and_a('Date of inspection:', str(inspectiontime))
     fix_q_and_a('Property Address:', Address)
     pdf.ln(10)
-    q_and_a('Occupied or empty (void)?:', occupied, 70)
-    q_and_a('During all the monitoring period?:', monitor_time, 70)
-    q_and_a('If occupied, how many occupants?:', occupant_number, 70)
+    q_and_a('Occupied or empty (void)?:', 'Yes' if occupied else 'No', 70)
+    q_and_a('During all the monitoring period?:', str(monitor_time), 70)
+    q_and_a('If occupied, how many occupants?:', str(occupant_number), 70)
     pdf.ln(10)
     fix_q_and_a('Monitored Problem room:', ', '.join(Problem_rooms))
     fix_q_and_a('Monitored Problem area:', ', '.join(Monitor_areas))
-    fix_q_and_a('Is there visible mould?:', ', '.join(moulds))
+    fix_q_and_a('Is there visible mould?:', ', '.join(map(str, moulds)))
 
     pdf.set_font('Arial', 'B', FontSize.CONTENT)
     pdf.ln(10)
@@ -1763,25 +1791,39 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     try:
         print("file1:" + cover_pdf_file_name)
         print("file2:" + pdf_name)
-        file1 = open(cover_pdf_file_name, 'rb')
-        file2 = open(pdf_name, 'rb')
-        f1 = PdfFileReader(file1)
-        f2 = PdfFileReader(file2)
-        merger = PdfFileMerger()
-        merger.append(f1)
-        merger.append(f2)
-        filename = output_file_name + dt_string + '.pdf'
-        merger.write(filename)
-        file1.close()
-        file2.close()
+
+        with open(cover_pdf_file_name, 'rb') as file1, open(pdf_name, 'rb') as file2:
+            reader1 = PdfReader(file1)
+            reader2 = PdfReader(file2)
+            merger = PdfMerger()
+            merger.append(reader1)
+            merger.append(reader2)
+
+            filename = output_file_name + dt_string + '.pdf'
+            with open(filename, 'wb') as output_file:
+                merger.write(output_file)
+
+        # Clean up temporary files
         os.remove(cover_pdf_file_name)
         os.remove(pdf_name)
-    except BaseException as e:
-        print("Error encounter during pdf merge and deletion:" + e)
+
+    except Exception as e:
+        print("Error encountered during pdf merge and deletion: " + str(e))
+
+    # Cross-platform way to open the file
     if popup:
-        os.startfile(filename)
+        try:
+            if os.name == 'nt':  # Windows
+                os.startfile(filename)
+            elif os.name == 'posix':  # Unix-like systems (Linux, macOS)
+                os.system(f"open {filename}")
+            else:
+                print("Unsupported OS for opening files.")
+        except Exception as e:
+            print("Error opening file: " + str(e))
     else:
         print('Report pop-up is skipped.')
+
     print(filename + ' generation is completed.')
     return
 
