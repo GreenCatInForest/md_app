@@ -57,6 +57,7 @@
                                     </div>
                                     {{ form.external_picture }}
                                 </label>
+                                <img id="external_picture" style="display:none;  min-width: 50px; max-width: 500px; height:auto; position:absolute;" />
                             </div> 
 
                             <div class="form-group w-full">
@@ -135,15 +136,9 @@
                                     </label>
                                     <!-- Render the input field outside the label -->
                                     {{ form.room_picture }}
+                                    <img id="room_picture_preview_{{ forloop.counter }}" class="room-picture-preview"  style="display:none; min-width: 50px; max-width: 500px; height:auto; position:absolute;" />
                                 </div>
-    
-                                <!-- Room Picture Preview -->
-                                {% if form.instance.room_picture %}
-                                    <div class="my-4">
-                                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Room Picture Preview:</label>
-                                        <img src="{{ form.instance.room_picture.url }}" alt="Room Picture" class="rounded-lg shadow-lg" width="200">
-                                    </div>
-                                {% endif %}
+                   
     
                                 <button type="button" class="delete-room btn btn-danger mt-2">Delete Room</button>
                             </div>
@@ -167,17 +162,11 @@
                                     <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
                                 </div>
                                 {{ form.company_logo }}
+                                <img id="company_logo_preview" style="display:none; min-width: 50px; max-width: 200px; height:auto; position:absolute;" />
                             </label>
+                            
                         </div> 
 
-                        <!-- Company Logo Preview -->
-                        {% if company_logo_preview %}
-                            <div class="my-4">
-                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Company Logo Preview:</label>
-                                <img src="{{ company_logo_preview }}" alt="Company Logo" class="rounded-lg shadow-lg" width="200">
-                            </div>
-                        {% endif %}
-                        
                         <div class="form-group w-full">
                             <label for="company" class="block mb-4 text-sm font-medium text-gray-900 dark:text-white">Company Name</label>
                             {{ form.company }}
@@ -273,6 +262,124 @@
             });
         });
     </script>
+
+<script>
+    // Function to handle image preview
+    function readURL(input, imgElementId) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var imgElement = document.getElementById(imgElementId);
+                if (imgElement) {  // Check if imgElement is found
+                    imgElement.src = e.target.result;
+                    imgElement.style.display = 'block';  // Make sure the image is visible
+                } else {
+                    console.error('Image element with ID ' + imgElementId + ' not found.'); // Debugging log
+                }
+            };
+
+            reader.readAsDataURL(input.files[0]); // Read the file as a data URL
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('DOM fully loaded and parsed'); // Debugging log
+
+        // External picture preview
+        const externalPictureInput = document.querySelector("input[name='external_picture']");
+        if (externalPictureInput) {
+            externalPictureInput.addEventListener("change", function() {
+                console.log('External picture input changed'); // Debugging log
+                readURL(this, 'external_picture'); // Ensure the ID matches your HTML for the external picture preview
+            });
+        } else {
+            console.error('External picture input not found'); // Debugging log
+        }
+
+        // Room picture previews
+        document.querySelectorAll("input[name$='room_picture']").forEach(function(inputElement) {
+            inputElement.addEventListener("change", function() {
+                console.log('Room picture input changed'); // Debugging log
+                var imgElement = this.closest('.room-form').querySelector('.room-picture-preview');
+                if (imgElement) {
+                    readURL(this, imgElement.id);
+                } else {
+                    console.error('Image element for room picture not found'); // Debugging log
+                }
+            });
+        });
+
+        // Company logo preview
+        const companyLogoInput = document.querySelector("input[name='company_logo']");
+        if (companyLogoInput) {
+            companyLogoInput.addEventListener("change", function() {
+                console.log('Company logo input changed'); // Debugging log
+                readURL(this, 'company_logo_preview'); // Ensure the ID matches your HTML for the company logo preview
+            });
+        } else {
+            console.error('Company logo input not found'); // Debugging log
+        }
+    });
+</script><script>
+    // Function to handle image preview
+    function readURL(input, imgElementId) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var imgElement = document.getElementById(imgElementId);
+                if (imgElement) {  // Check if imgElement is found
+                    imgElement.src = e.target.result;
+                    imgElement.style.display = 'block';  // Make sure the image is visible
+                } else {
+                    console.error('Image element with ID ' + imgElementId + ' not found.'); // Debugging log
+                }
+            };
+
+            reader.readAsDataURL(input.files[0]); // Read the file as a data URL
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('DOM fully loaded and parsed'); // Debugging log
+
+        // External picture preview
+        const externalPictureInput = document.querySelector("input[name='external_picture']");
+        if (externalPictureInput) {
+            externalPictureInput.addEventListener("change", function() {
+                console.log('External picture input changed'); // Debugging log
+                readURL(this, 'external_picture'); // Ensure the ID matches your HTML for the external picture preview
+            });
+        } else {
+            console.error('External picture input not found'); // Debugging log
+        }
+
+        // Room picture previews
+        document.querySelectorAll("input[name$='room_picture']").forEach(function(inputElement) {
+            inputElement.addEventListener("change", function() {
+                console.log('Room picture input changed'); // Debugging log
+                var imgElement = this.closest('.room-form').querySelector('.room-picture-preview');
+                if (imgElement) {
+                    readURL(this, imgElement.id);
+                } else {
+                    console.error('Image element for room picture not found'); // Debugging log
+                }
+            });
+        });
+
+        // Company logo preview
+        const companyLogoInput = document.querySelector("input[name='company_logo']");
+        if (companyLogoInput) {
+            companyLogoInput.addEventListener("change", function() {
+                console.log('Company logo input changed'); // Debugging log
+                readURL(this, 'company_logo_preview'); // Ensure the ID matches your HTML for the company logo preview
+            });
+        } else {
+            console.error('Company logo input not found'); // Debugging log
+        }
+    });
+</script>
 
     {% endblock %}
 </body>

@@ -316,3 +316,29 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px; 
 }
+
+#blur-container {
+  display: none;  /* Initially hidden */
+  position: fixed; /* Cover the entire screen */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(8px); /* Apply a blur effect */
+  background-color: rgba(255, 255, 255, 0.2); /* Slightly translucent */
+  z-index: 1; /* Ensure it is above other elements */
+  display: flex; /* Flexbox for centering the image */
+  align-items: center;
+  justify-content: center;
+}
+
+#company-logo-container.blur-background {
+  backdrop-filter: blur(8px); /* Adjust blur intensity */
+  background-color: rgba(255, 255, 255, 0.3); /* Adjust background color and transparency */
+}
+
+/* Additional styles for smooth transitions */
+#company-logo-container {
+  transition: backdrop-filter 0.3s ease, background-color 0.3s ease; /* Smooth transition for blur effect */
+}
+

@@ -85,14 +85,17 @@ def report_view(request):
 
             if 'external_picture' in request.FILES:
                 report_instance.external_picture = request.FILES['external_picture']
+                external_picture_preview = request.FILES['external_picture']
 
             if 'company_logo' in request.FILES:
                 report_instance.company_logo = request.FILES['company_logo']
+                preview_company_logo = request.FILES['company_logo']
 
             report_instance.save()
 
             # Initialize list to store room pictures
             room_pictures = []
+            
 
             # Save Room formset with the associated Report instance
             for room_form in room_formset:
