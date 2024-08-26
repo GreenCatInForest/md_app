@@ -59,12 +59,23 @@ def save_uploaded_file(uploaded_file):
         return temp_file.name
     return ''
 
+def save_uploaded_room_pic(uploaded_file):
+    # Save the InMemoryUploadedFile to a temporary file and return the file path
+    if uploaded_file:
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1])
+        for chunk in uploaded_file.chunks():
+            temp_file.write(chunk)
+        temp_file.close()
+        return temp_file.name
+    return ''
+
+
 @login_required
 def report_view(request):
     if request.method == 'POST':
         form = ReportForm(request.POST, request.FILES)
         room_formset = RoomFormSet(request.POST, request.FILES, prefix='rooms')
-        
+
         if form.is_valid() and room_formset.is_valid():
             app_logger.debug("Form and formset are valid.")
 
@@ -72,7 +83,6 @@ def report_view(request):
             report_instance = form.save(commit=False)
             report_instance.user = request.user
 
-            # Check if there are files in the POST request
             if 'external_picture' in request.FILES:
                 report_instance.external_picture = request.FILES['external_picture']
 
@@ -80,6 +90,24 @@ def report_view(request):
                 report_instance.company_logo = request.FILES['company_logo']
 
             report_instance.save()
+
+            # Initialize list to store room pictures
+            room_pictures = []
+
+            # Save Room formset with the associated Report instance
+            for room_form in room_formset:
+                room_instance = room_form.save(commit=False)
+                room_instance.report = report_instance
+
+                # Correctly handle room picture files
+                room_picture_file = room_form.cleaned_data.get('room_picture')
+                if room_picture_file:
+                    room_instance.room_picture = room_picture_file
+                    # Save uploaded file and store path
+                    room_picture_path = save_uploaded_file(room_picture_file)
+                    room_pictures.append(room_picture_path)
+
+                room_instance.save()
 
             # Fetch logger data from form
             external_logger_serial = normalize_logger_serial(form.cleaned_data['external_logger'])
@@ -98,7 +126,6 @@ def report_view(request):
             # Fetching logger data
             external_logger_data = fetch_logger_data(external_logger_serial, start_timestamp, end_timestamp)
             combined_logger_data_list = []
-            room_pictures = []
 
             app_logger.debug("Inspecting form data before generating the report:")
             app_logger.debug(f"Form cleaned_data: {form.cleaned_data}")
@@ -112,21 +139,21 @@ def report_view(request):
                 # Extracting problem_room and monitor_area from the formset
                 problem_room = room_data.get('room_name')
                 monitor_area = room_data.get('room_monitor_area')
-                
+
                 ambient_serial = normalize_logger_serial(room_data.get('room_ambient_logger'))
                 surface_serial = normalize_logger_serial(room_data.get('room_surface_logger'))
-                
+
                 ambient_logger_data = fetch_logger_data(ambient_serial, start_timestamp, end_timestamp)
                 surface_logger_data = fetch_logger_data(surface_serial, start_timestamp, end_timestamp)
 
                 # Assume unique renaming before merges
                 ambient_logger_data.rename(columns={'surface_temperature': 'AmbientSurfaceTemp'}, inplace=True)
                 surface_logger_data.rename(columns={'surface_temperature': 'SurfaceLoggerTemp'}, inplace=True)
-                
+
                 # Combine the logger data based on the timestamp
                 combined_data = pd.merge_asof(external_logger_data, ambient_logger_data, on='timestamp', direction='nearest')
                 combined_data = pd.merge_asof(combined_data, surface_logger_data, on='timestamp', direction='nearest')
-                
+
                 app_logger.debug(f"Columns in combined_data after merge: {combined_data.columns.tolist()}")
 
                 # Rename columns to match expected names
@@ -146,7 +173,7 @@ def report_view(request):
 
                 # Initialize RoomData with problem_room and monitor_area
                 app_logger.debug(f"Initializing RoomData with room_name={problem_room} and monitor_area={monitor_area}")
-                
+
                 room_data_instance = RoomData(
                     datafile=combined_data,
                     index=index,
@@ -164,55 +191,32 @@ def report_view(request):
                     combined_data = combined_data[['timestamp', 'IndoorAirTemp', 'IndoorRelativeH', 'SurfaceTemp', 'OutdoorAirTemp', 'OutdoorRelativeH']]
                 else:
                     return HttpResponse(f"Expected columns not found in combined data: {combined_data.columns.tolist()}")
-                
-                # Save room pictures
-                room_picture_file = room_data.get('room_picture')
-                if room_picture_file:
-                    saved_room_picture_path = save_uploaded_file(room_picture_file)
-                    room_pictures.append(saved_room_picture_path)
-                else:
-                    room_pictures.append('')
 
                 # Append the combined data to the list
                 combined_logger_data_list.append(combined_data)
-            
+
             # Concatenate all the room data into one DataFrame for simplicity
             all_rooms_combined_data = pd.concat(combined_logger_data_list)
 
             all_rooms_combined_data = clean_data(all_rooms_combined_data)
 
-             # Save the Room formset with the associated Report instance
-            for room_form in room_formset:
-                room_instance = room_form.save(commit=False)
-                room_instance.report = report_instance
-                room_instance.save()
-
             # Collect images (ensure only available images are passed)
-           # Collect images (ensure only available images are passed)
             image_property = save_uploaded_file(form.cleaned_data.get('external_picture'))
             image_logo = save_uploaded_file(form.cleaned_data.get('company_logo'))
-            image_indoor1 = save_uploaded_file((form.cleaned_data.get('image_indoor1'))) if form.cleaned_data.get('image_indoor1') else ''
-            image_indoor2 = save_uploaded_file((form.cleaned_data.get('image_indoor2'))) if form.cleaned_data.get('image_indoor2') else ''
-            image_indoor3 = save_uploaded_file((form.cleaned_data.get('image_indoor3'))) if form.cleaned_data.get('image_indoor3') else ''
-            image_indoor4 = save_uploaded_file((form.cleaned_data.get('image_indoor4'))) if form.cleaned_data.get('image_indoor4') else ''
-        
-            image_property = image_property if image_property else ''
-            image_logo = image_logo if image_logo else ''
-            image_indoor1 = image_indoor1 if image_indoor1 else ''
-            image_indoor2 = image_indoor2 if image_indoor2 else ''
-            image_indoor3 = image_indoor3 if image_indoor3 else ''
-            image_indoor4 = image_indoor4 if image_indoor4 else ''
+            image_indoor1 = room_pictures[0] if len(room_pictures) > 0 else ''
+            image_indoor2 = room_pictures[1] if len(room_pictures) > 1 else ''
+            image_indoor3 = room_pictures[2] if len(room_pictures) > 2 else ''
+            image_indoor4 = room_pictures[3] if len(room_pictures) > 3 else ''
+
             app_logger.debug(f"Images collected: Image_property={image_property}, image_logo={image_logo}")
             app_logger.debug(f"Images collected: Image_indoor1={image_indoor1}, Image_indoor2={image_indoor2}, Image_indoor3={image_indoor3}, Image_indoor4={image_indoor4}")
-            
+
             # Save DataFrame to a temporary CSV file if needed by RPTGen
             with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmpfile:
                 all_rooms_combined_data.to_csv(tmpfile.name, index=False)
                 datafile_path = tmpfile.name
 
-                
-
-                form_data = {
+            form_data = {
                 'surveyor': form.cleaned_data['surveyor'],
                 'inspectiontime': timezone.now(),
                 'company': form.cleaned_data['company'],
@@ -227,32 +231,26 @@ def report_view(request):
                 'Image_logo': image_logo,
                 'comment': form.cleaned_data['notes'],
                 'datafiles': [datafile_path],  # Pass the path to the CSV file
-                'room_pictures': room_pictures 
+                'room_pictures': room_pictures,
+                'Image_indoor1': image_indoor1,
+                'Image_indoor2': image_indoor2,
+                'Image_indoor3': image_indoor3,
+                'Image_indoor4': image_indoor4,
             }
 
             app_logger.debug("Form data prepared. Calling RPTGen...")
             app_logger.debug(f"Form data being sent to RPTGen: {form_data}")
 
-            app_logger.debug(f"Form data being sent to RPTGen: {form_data}")
-            for key, value in form_data.items():
-                if key.startswith('Image_'):
-                    app_logger.debug(f"{key} = {value}")
-
             # Generate the report
             try:
                 pdf_file_path = PCAdataTool.RPTGen(**form_data)
-                print(pdf_file_path)
                 if not pdf_file_path or not os.path.exists(pdf_file_path):
                     raise Exception("PDF file was not generated or found.")
                 app_logger.debug(f"Generated PDF file path: {pdf_file_path}")
                 return FileResponse(open(pdf_file_path, 'rb'), content_type='application/pdf', filename=os.path.basename(pdf_file_path))
-                
             except Exception as e:
                 app_logger.error(f"Error generating report: {e}")
                 return HttpResponse('Error generating report.', status=500)
-            # finally:
-            #     os.remove(datafile_path)  # Clean up the temporary file
-            
 
         else:
             app_logger.error("Form or formset validation failed.")

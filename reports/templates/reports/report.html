@@ -117,6 +117,7 @@
                         <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Rooms</h3>
                         <div id="room-forms-container">
                             {{ room_formset.management_form }}
+                            
                             {% for form in room_formset %}
                             <div class="room-form p-4 border rounded-lg mb-4 bg-gray-100 dark:bg-gray-800">
                                 {% for field in form %}
@@ -126,8 +127,10 @@
                                     <p>{{ field.label_tag }} {{ field }}</p>
                                 {% endif %}
                                 {% endfor %}
+                                
                                 <div class="form-group flex items-center justify-center w-full">
-                                    <label for="external_picture" class="flex flex-col items-center justify-center w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                                    <!-- Correct the 'for' attribute in the label -->
+                                    <label for="{{ form.room_picture.id_for_label }}" class="flex flex-col items-center justify-center w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
                                         <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload Room Picture</h3>
                                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                             <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
@@ -136,8 +139,9 @@
                                             <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
                                             <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
                                         </div>
-                                        {{ form.room_picture }}
                                     </label>
+                                    <!-- Render the input field outside the label -->
+                                    {{ form.room_picture }}
                                 </div>
     
                                 <button type="button" class="delete-room btn btn-danger mt-2">Delete Room</button>

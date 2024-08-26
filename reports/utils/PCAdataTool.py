@@ -927,7 +927,7 @@ class RoomData:
 
 def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
            occupied, monitor_time, occupant_number, Problem_rooms, Monitor_areas, moulds, Image_property, room_pictures,
-           Image_logo, comment, popup=True):
+           Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4,Image_logo, comment, popup=True):
     # global DATA
 
     output_file_name = os.path.join(output_report_dir, "PCA_BMI_Report")
@@ -941,17 +941,31 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
               f'len(Monitor_areas):{len(Monitor_areas)}')
         return
     
-    if Image_property or any(room_pictures):  # Check if there is at least one image
-        image_list = []
+    image_list = []
 
+    if Image_property:
+        image_list.append([Image_property, 'Outdoor Image'])
+    for idx, image in enumerate([Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4]):
+        if image:
+            image_list.append([image, f'Indoor Image {idx + 1}'])
+
+    if Image_property or any([Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4]):  # Check if there is at least one image
         if Image_property:
             image_list.append([Image_property, 'Outdoor Image'])
+        if Image_indoor1:
+            image_list.append([Image_indoor1, 'Indoor Image'])
+        if Image_indoor2:
+            image_list.append([Image_indoor2, 'Indoor Image'])
+        if Image_indoor3:
+            image_list.append([Image_indoor3, 'Indoor Image'])
+        if Image_indoor4:
+            image_list.append([Image_indoor4, 'Indoor Image'])
 
 
-        # Add room images
-        for room_index, room_picture in enumerate(room_pictures):
-            if room_picture:  # Only if the room image is provided
-                image_list.append([room_picture, f'Room {room_index + 1} Image'], 'Indoor Image')
+        # # Add room images
+        # for room_index, room_picture in enumerate(room_pictures):
+        #     if room_picture:  # Only if the room image is provided
+        #         image_list.append([room_picture, f'Room {room_index + 1} Image'], 'Indoor Image')
 
 
 
@@ -1016,7 +1030,7 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
                 self.write(5, text[0])
             self.write(5, '\n')
 
-    def section4(room_data: RoomData, room_pictures: list):
+    def section4(room_data: RoomData, image_list):
 
         pdf.add_page()
 
@@ -1535,15 +1549,10 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     pdf.set_font('Arial', '', FontSize.CONTENT)
     pdf.multi_cell(0, 6, comment, 'J')
 
-    if Image_property or any(room_pictures):  # Check if there is at least one image
-        image_list = []
+    print("Full image_list:", image_list)
 
-        if Image_property:
-            image_list.append([Image_property, 'Outdoor Image'])
-# Dynamically add room images from room_pictures array
-        for room_index, room_images in enumerate(room_pictures):
-            for image_index, image_path in enumerate(room_images):
-                image_list.append([image_path, f'Indoor Image {room_index + 1}.{image_index + 1}'])
+    if Image_property or any(image_list):  # Check if there is at least one image
+        print("Full image_list:", image_list)
 
         pdf.set_font('Arial', '', FontSize.CONTENT)
         IMAGE_WIDTH = 80
@@ -1585,12 +1594,12 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         
 
      # Process each room's data and images
-    for room_index, room_data in enumerate(room_data_list):
-        # Extract images for the current room
-        current_room_pictures = room_pictures[room_index] if room_index < len(room_pictures) else []
+    # for room_index, room_data in enumerate(room_data_list):
+    #     # Extract images for the current room
+    #     current_room_pictures = room_pictures[room_index] if room_index < len(room_pictures) else []
 
-        # Pass the images to the section4 function to handle them
-        section4(room_data, current_room_pictures)
+    #     # Pass the images to the section4 function to handle them
+    #     section4(room_data, current_room_pictures)
 
     def gen_cause_recommendation_summary(data: RoomData):
         cause_recommendation = None

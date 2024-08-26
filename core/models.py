@@ -88,11 +88,9 @@ def property_photo_upload_path(instance, filename):
 
 def room_photo_upload_path(instance, filename):
     # Get the company ID
-        property = instance.property
-        property_address = property.address if property.address else 'temp'
-        room_name = instance.room_name if instance.room_name else 'temp'
+        report = instance.report if instance.report else 'temp'
     # Generate the upload path
-        return os.path.join('img', 'properties_img', property_address, str(room_name), filename)
+        return os.path.join('img', 'rooms_img', str(report), filename)
 
 def report_property_photo_upload_path(instance, filename):
     property_address = instance.property_address if instance.property_address else 'temp'
