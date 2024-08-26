@@ -926,7 +926,7 @@ class RoomData:
 
 
 def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
-           occupied, monitor_time, occupant_number, Problem_rooms, Monitor_areas, moulds, Image_property, room_pictures,
+           occupied, monitor_time, occupied_during_all_monitoring, occupant_number, Problem_rooms, Monitor_areas, moulds, Image_property, room_pictures,
            Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4,Image_logo, comment, popup=True):
     # global DATA
 
@@ -1261,7 +1261,7 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         cover_pdf.set_font('Arial', '', FontSize.HEADER)
         cover_pdf.cell(60, 6, 'Date of Inspection:', 0, 0, 'L')
         cover_pdf.set_font('Arial', '', FontSize.CONTENT)
-        formatted_inspectiontime = inspectiontime.strftime('%d/%m/%Y %H:%M:%S')
+        formatted_inspectiontime = inspectiontime.strftime('%-d %B %Y %H:%M:%S')
         cover_pdf.cell(60, 6, str(formatted_inspectiontime), 0, 1, 'L')
         # cell(self, w, h=0, txt='', border=0, ln=0, align='', fill=0, link=''):
         # cover_pdf.add_page()
@@ -1519,8 +1519,6 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     days = monitor_time.days
     hours, remainder = divmod(monitor_time.seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
-    formatted_monitor_time = f"{days} days {hours:02} hours {minutes:02} minutes {seconds:02} seconds"
-    q_and_a('During all the monitoring period?:', formatted_monitor_time, 70)
 
     print(f"occupied type: {type(occupied)}")
     print(f"monitor_time type: {type(monitor_time)}")
@@ -1528,13 +1526,15 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
 
     fix_q_and_a('Building professional:', surveyor)
     fix_q_and_a('Company Name:', company)
-    formatted_inspectiontime = inspectiontime.strftime('%d/%m/%Y %H:%M:%S')
+    formatted_inspectiontime = inspectiontime.strftime('%-d %B %Y %H:%M:%S')
     fix_q_and_a('Date of inspection:', formatted_inspectiontime)
     # fix_q_and_a('Date of inspection:', str(inspectiontime))
     fix_q_and_a('Property Address:', Address)
     pdf.ln(10)
-    q_and_a('Occupied or empty (void)?:', 'Yes' if occupied else 'No', 70)
-    q_and_a('During all the monitoring period?:', str(formatted_monitor_time), 70)
+    q_and_a('Occupied or empty?:', 'Occupied' if occupied else 'Empty', 70)
+    q_and_a('During all monitoring period?:', 'Yes' if occupied_during_all_monitoring else 'No', 70)
+    formatted_monitor_time = f"{days} days {hours:02} hours {minutes:02} minutes"
+    q_and_a('Monitoring period:', str(formatted_monitor_time), 70)
     q_and_a('If occupied, how many occupants?:', str(occupant_number), 70)
     pdf.ln(10)
     fix_q_and_a('Monitored Problem room:', ', '.join(Problem_rooms))

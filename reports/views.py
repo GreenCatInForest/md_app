@@ -91,7 +91,7 @@ def report_view(request):
 
             report_instance.save()
 
-            # Initialize list to store room pictures and previews
+            # Initialize list to store room pictures
             room_pictures = []
 
             # Save Room formset with the associated Report instance
@@ -223,6 +223,7 @@ def report_view(request):
                 'Address': form.cleaned_data['property_address'],
                 'occupied': form.cleaned_data['occupied'],
                 'monitor_time': end_date_utc - start_date_utc,
+                'occupied_during_all_monitoring': form.cleaned_data['occupied_during_all_monitoring'],
                 'occupant_number': form.cleaned_data['number_of_occupants'],
                 'Problem_rooms': [room.get('room_name', 'Unknown Room') for room in room_formset.cleaned_data],
                 'Monitor_areas': [room.get('room_monitor_area', 'Unknown Area') for room in room_formset.cleaned_data],

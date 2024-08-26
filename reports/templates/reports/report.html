@@ -2,7 +2,6 @@
 {% block title %}Report - Maple Diagnostics {% endblock %}
 {% load static %}  
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,13 +17,11 @@
     {% block content %}
     <div class="user-content">
         <article id="report-constructor">
-
             <section class="dark:bg-blue-950">
                 <div class="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16">
                     <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">Report Constructor</h1>
                     <p class="mb-8 text-lg font-normal text-gray-300 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-300">Please enter your data here to generate the report.</p>
-                    <p class="mb-8 text-lg font-normal text-gray-300 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-300">Innovative Maple Diagnostic method based of Cambridge Scientific investigation report-2024.
-                        The report generation based on the data you provide. Please fill the data below accurately.</p>
+                    <p class="mb-8 text-lg font-normal text-gray-300 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-300">Innovative Maple Diagnostic method based on Cambridge Scientific investigation report-2024. The report generation is based on the data you provide. Please fill in the data below accurately.</p>
                     <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0">
                         <a href="#" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
                             Instructions
@@ -40,7 +37,7 @@
             </section>
             <section class="dark:bg-blue-950">
                 <div class="py-8 px-4 mx-auto max-w-4xl lg:py-8">
-                    <form method="post" enctype="multipart/form-data" > 
+                    <form method="post" enctype="multipart/form-data"> 
                         {% csrf_token %}
                         <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
                             <div class="form-group sm:col-span-2">
@@ -84,11 +81,7 @@
                                {{ form.notes }}
                             </div>
 
-                            
-
                         <!-- Date Picker -->
-
-
                         <div class="w-full sm:col-span-2">
                         <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Date Range</h3>
                         <div id="date-range-picker" class="flex items-center">
@@ -144,14 +137,20 @@
                                     {{ form.room_picture }}
                                 </div>
     
+                                <!-- Room Picture Preview -->
+                                {% if form.instance.room_picture %}
+                                    <div class="my-4">
+                                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Room Picture Preview:</label>
+                                        <img src="{{ form.instance.room_picture.url }}" alt="Room Picture" class="rounded-lg shadow-lg" width="200">
+                                    </div>
+                                {% endif %}
+    
                                 <button type="button" class="delete-room btn btn-danger mt-2">Delete Room</button>
                             </div>
                             {% endfor %}
                         </div>
                         <button type="button" id="add-room">Add Room</button>
                     </div>
-                
-                   
 
                 <!-- Company and Surveyor Form -->
                 <div class="form-group sm:col-span-2">
@@ -170,6 +169,15 @@
                                 {{ form.company_logo }}
                             </label>
                         </div> 
+
+                        <!-- Company Logo Preview -->
+                        {% if company_logo_preview %}
+                            <div class="my-4">
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Company Logo Preview:</label>
+                                <img src="{{ company_logo_preview }}" alt="Company Logo" class="rounded-lg shadow-lg" width="200">
+                            </div>
+                        {% endif %}
+                        
                         <div class="form-group w-full">
                             <label for="company" class="block mb-4 text-sm font-medium text-gray-900 dark:text-white">Company Name</label>
                             {{ form.company }}
@@ -210,65 +218,62 @@
             });
         });
 
-       
+        document.addEventListener('DOMContentLoaded', function () {
+            let roomCount = parseInt(document.getElementById('id_rooms-TOTAL_FORMS').value);
+            console.log(roomCount);
 
-    document.addEventListener('DOMContentLoaded', function () {
-    let roomCount = parseInt(document.getElementById('id_rooms-TOTAL_FORMS').value);
-    console.log(roomCount);
+            document.getElementById('add-room').addEventListener('click', function () {
+                const roomFormContainer = document.getElementById('room-forms-container');
+                const firstRoomForm = roomFormContainer.querySelector('.room-form');
 
-    document.getElementById('add-room').addEventListener('click', function () {
-        const roomFormContainer = document.getElementById('room-forms-container');
-        const firstRoomForm = roomFormContainer.querySelector('.room-form');
+                if (firstRoomForm) {
+                    const newRoomForm = firstRoomForm.cloneNode(true);
+                    const formRegex = new RegExp(`rooms-(\\d+)-`, 'g');
+                    newRoomForm.innerHTML = newRoomForm.innerHTML.replace(formRegex, `rooms-${roomCount}-`);
 
-        if (firstRoomForm) {
-            const newRoomForm = firstRoomForm.cloneNode(true);
-            const formRegex = new RegExp(`rooms-(\\d+)-`, 'g');
-            newRoomForm.innerHTML = newRoomForm.innerHTML.replace(formRegex, `rooms-${roomCount}-`);
+                    // Clear the values in the cloned form
+                    newRoomForm.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.value = '';
+                        if (input.type === 'checkbox' || input.type === 'radio') {
+                            input.checked = false;
+                        }
+                    });
 
-            // Clear the values in the cloned form
-            newRoomForm.querySelectorAll('input, select, textarea').forEach(input => {
-                input.value = '';
-                if (input.type === 'checkbox' || input.type === 'radio') {
-                    input.checked = false;
+                    roomFormContainer.appendChild(newRoomForm);
+
+                    // Rebind the delete event
+                    newRoomForm.querySelector('.delete-room').addEventListener('click', function () {
+                        if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
+                            alert('You cannot delete the last room form.');
+                            return;
+                        }
+                        newRoomForm.remove();
+                        roomCount--;
+                        document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+                    });
+
+                    roomCount++;
+                    document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+                } else {
+                    console.error('No room forms available to clone.');
                 }
             });
 
-            roomFormContainer.appendChild(newRoomForm);
-
-            // Rebind the delete event
-            newRoomForm.querySelector('.delete-room').addEventListener('click', function () {
-                if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
-                    alert('You cannot delete the last room form.');
-                    return;
-                }
-                newRoomForm.remove();
-                roomCount--;
-                document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+            document.querySelectorAll('.delete-room').forEach(button => {
+                button.addEventListener('click', function () {
+                    const roomFormContainer = document.getElementById('room-forms-container');
+                    if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
+                        alert('You cannot delete the last room form.');
+                        return;
+                    }
+                    button.closest('.room-form').remove();
+                    roomCount--;
+                    document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+                });
             });
-
-            roomCount++;
-            document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
-        } else {
-            console.error('No room forms available to clone.');
-        }
-    });
-
-    document.querySelectorAll('.delete-room').forEach(button => {
-        button.addEventListener('click', function () {
-            const roomFormContainer = document.getElementById('room-forms-container');
-            if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
-                alert('You cannot delete the last room form.');
-                return;
-            }
-            button.closest('.room-form').remove();
-            roomCount--;
-            document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
         });
-    });
-});
     </script>
 
-            {% endblock %}
-        
-        </body>
-        </html>
+    {% endblock %}
+</body>
+</html>
