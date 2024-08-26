@@ -926,9 +926,8 @@ class RoomData:
 
 
 def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
-           # start_time, start_index, end_time, end_index, timeinterval,
-           occupied, monitor_time, occupant_number, Problem_rooms, Monitor_areas, moulds, Image_property,
-           Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4, Image_logo, comment, popup=True):
+           occupied, monitor_time, occupant_number, Problem_rooms, Monitor_areas, moulds, Image_property, room_pictures,
+           Image_logo, comment, popup=True):
     # global DATA
 
     output_file_name = os.path.join(output_report_dir, "PCA_BMI_Report")
@@ -941,6 +940,20 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         print(f'ERROR: Mismatch of input data len(datafiles):{len(datafiles)}, len(Problem_rooms):{len(Problem_rooms)},'
               f'len(Monitor_areas):{len(Monitor_areas)}')
         return
+    
+    if Image_property or any(room_pictures):  # Check if there is at least one image
+        image_list = []
+
+        if Image_property:
+            image_list.append([Image_property, 'Outdoor Image'])
+
+
+        # Add room images
+        for room_index, room_picture in enumerate(room_pictures):
+            if room_picture:  # Only if the room image is provided
+                image_list.append([room_picture, f'Room {room_index + 1} Image'], 'Indoor Image')
+
+
 
     # if len(datafiles) == 1:
     #     output_file_name = datafiles[0]
@@ -1003,7 +1016,7 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
                 self.write(5, text[0])
             self.write(5, '\n')
 
-    def section4(room_data: RoomData):
+    def section4(room_data: RoomData, room_pictures: list):
 
         pdf.add_page()
 
@@ -1017,6 +1030,7 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
             pdf.cell(70, 8, section4_main_title, 0, 1, 'L', True)
 
         pdf.ln(5)
+        
 
         suffix = f'{room_data.suffix}'
         section4_title = f'4{suffix}. {room_data.problem_room}'
@@ -1521,36 +1535,34 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     pdf.set_font('Arial', '', FontSize.CONTENT)
     pdf.multi_cell(0, 6, comment, 'J')
 
-    if (Image_property or Image_indoor1 or Image_indoor2 or Image_indoor3 or Image_indoor4) != '':
-
+    if Image_property or any(room_pictures):  # Check if there is at least one image
         image_list = []
-        if Image_property != '':
+
+        if Image_property:
             image_list.append([Image_property, 'Outdoor Image'])
-        if Image_indoor1 != '':
-            image_list.append([Image_indoor1, 'Indoor Image 1'])
-        if Image_indoor2 != '':
-            image_list.append([Image_indoor2, 'Indoor Image 2'])
-        if Image_indoor3 != '':
-            image_list.append([Image_indoor3, 'Indoor Image 3'])
-        if Image_indoor4 != '':
-            image_list.append([Image_indoor4, 'Indoor Image 4'])
+# Dynamically add room images from room_pictures array
+        for room_index, room_images in enumerate(room_pictures):
+            for image_index, image_path in enumerate(room_images):
+                image_list.append([image_path, f'Indoor Image {room_index + 1}.{image_index + 1}'])
 
         pdf.set_font('Arial', '', FontSize.CONTENT)
         IMAGE_WIDTH = 80
-        IMAGE_HEIGHT = 0  ## Unspecified
+        IMAGE_HEIGHT = 0  # Unspecified, dynamically set based on image aspect ratio
         pdf.add_page()
         image_count = 0
         no_of_image_page = 1
+
         for image in image_list:
             image_tile = image[1]
             image_file = image[0]
-            image_count = image_count + 1
+            image_count += 1
             print(f"List of image({image_count}): {','.join(image)}")
             quotient, remainder = divmod(image_count, 4)
-            # print(f"image count:{image_count}, quotient:{quotient}, remainder:{remainder}")
+
             if quotient == no_of_image_page and remainder == 1:
                 pdf.add_page()
-                no_of_image_page = no_of_image_page + 1
+                no_of_image_page += 1
+
             if remainder == 1:  # upper left
                 pdf.cell(90, 10, image_tile, 0, 0, 'L')
                 pdf.image(image_file, 20, 40, IMAGE_WIDTH, IMAGE_HEIGHT)
@@ -1569,8 +1581,16 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         pdf.ln(10)
         pdf.cell(50, 6, 'Some images, drawings, maps or plans could be added to the report in this section', 0, 0, 'L')
 
-    for room_data in room_data_list:
-        section4(room_data)
+        pdf.set_font('Arial', '', FontSize.CONTENT)
+        
+
+     # Process each room's data and images
+    for room_index, room_data in enumerate(room_data_list):
+        # Extract images for the current room
+        current_room_pictures = room_pictures[room_index] if room_index < len(room_pictures) else []
+
+        # Pass the images to the section4 function to handle them
+        section4(room_data, current_room_pictures)
 
     def gen_cause_recommendation_summary(data: RoomData):
         cause_recommendation = None

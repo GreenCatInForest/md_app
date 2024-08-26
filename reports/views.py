@@ -68,6 +68,19 @@ def report_view(request):
         if form.is_valid() and room_formset.is_valid():
             app_logger.debug("Form and formset are valid.")
 
+            # Save the Report object first
+            report_instance = form.save(commit=False)
+            report_instance.user = request.user
+
+            # Check if there are files in the POST request
+            if 'external_picture' in request.FILES:
+                report_instance.external_picture = request.FILES['external_picture']
+
+            if 'company_logo' in request.FILES:
+                report_instance.company_logo = request.FILES['company_logo']
+
+            report_instance.save()
+
             # Fetch logger data from form
             external_logger_serial = normalize_logger_serial(form.cleaned_data['external_logger'])
             ambient_logger_serials = [normalize_logger_serial(room_data.get('room_ambient_logger')) for room_data in room_formset.cleaned_data]
@@ -85,6 +98,7 @@ def report_view(request):
             # Fetching logger data
             external_logger_data = fetch_logger_data(external_logger_serial, start_timestamp, end_timestamp)
             combined_logger_data_list = []
+            room_pictures = []
 
             app_logger.debug("Inspecting form data before generating the report:")
             app_logger.debug(f"Form cleaned_data: {form.cleaned_data}")
@@ -150,6 +164,14 @@ def report_view(request):
                     combined_data = combined_data[['timestamp', 'IndoorAirTemp', 'IndoorRelativeH', 'SurfaceTemp', 'OutdoorAirTemp', 'OutdoorRelativeH']]
                 else:
                     return HttpResponse(f"Expected columns not found in combined data: {combined_data.columns.tolist()}")
+                
+                # Save room pictures
+                room_picture_file = room_data.get('room_picture')
+                if room_picture_file:
+                    saved_room_picture_path = save_uploaded_file(room_picture_file)
+                    room_pictures.append(saved_room_picture_path)
+                else:
+                    room_pictures.append('')
 
                 # Append the combined data to the list
                 combined_logger_data_list.append(combined_data)
@@ -158,6 +180,12 @@ def report_view(request):
             all_rooms_combined_data = pd.concat(combined_logger_data_list)
 
             all_rooms_combined_data = clean_data(all_rooms_combined_data)
+
+             # Save the Room formset with the associated Report instance
+            for room_form in room_formset:
+                room_instance = room_form.save(commit=False)
+                room_instance.report = report_instance
+                room_instance.save()
 
             # Collect images (ensure only available images are passed)
            # Collect images (ensure only available images are passed)
@@ -174,7 +202,7 @@ def report_view(request):
             image_indoor2 = image_indoor2 if image_indoor2 else ''
             image_indoor3 = image_indoor3 if image_indoor3 else ''
             image_indoor4 = image_indoor4 if image_indoor4 else ''
-
+            app_logger.debug(f"Images collected: Image_property={image_property}, image_logo={image_logo}")
             app_logger.debug(f"Images collected: Image_indoor1={image_indoor1}, Image_indoor2={image_indoor2}, Image_indoor3={image_indoor3}, Image_indoor4={image_indoor4}")
             
             # Save DataFrame to a temporary CSV file if needed by RPTGen
@@ -182,10 +210,6 @@ def report_view(request):
                 all_rooms_combined_data.to_csv(tmpfile.name, index=False)
                 datafile_path = tmpfile.name
 
-            # Save DataFrame to a temporary CSV file if needed by RPTGen
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmpfile:
-                all_rooms_combined_data.to_csv(tmpfile.name, index=False)
-                datafile_path = tmpfile.name
                 
 
                 form_data = {
@@ -201,12 +225,9 @@ def report_view(request):
                 'moulds': [room.get('room_mould_visible', 'No Data') for room in room_formset.cleaned_data],
                 'Image_property': image_property,
                 'Image_logo': image_logo,
-                'Image_indoor1': image_indoor1,
-                'Image_indoor2': image_indoor2,
-                'Image_indoor3': image_indoor3,
-                'Image_indoor4': image_indoor4,
                 'comment': form.cleaned_data['notes'],
-                'datafiles': [datafile_path]  # Pass the path to the CSV file
+                'datafiles': [datafile_path],  # Pass the path to the CSV file
+                'room_pictures': room_pictures 
             }
 
             app_logger.debug("Form data prepared. Calling RPTGen...")

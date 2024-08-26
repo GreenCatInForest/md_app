@@ -95,11 +95,9 @@ def room_photo_upload_path(instance, filename):
         return os.path.join('img', 'properties_img', property_address, str(room_name), filename)
 
 def report_property_photo_upload_path(instance, filename):
-        property = instance.property
-        property_address = property.address if property.address else 'temp'
+    property_address = instance.property_address if instance.property_address else 'temp'
     # Generate the upload path
-        return os.path.join('img', 'properties_img', str(property_address), filename)
-
+    return os.path.join('img', 'properties_img', str(property_address), filename)
 class Logger (models.Model):
     serial_number = models.CharField(max_length=255, unique=True)
     registered_date = models.DateTimeField(auto_now=True)
