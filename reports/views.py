@@ -91,7 +91,7 @@ def report_view(request):
 
             report_instance.save()
 
-            # Initialize list to store room pictures
+            # Initialize list to store room pictures and previews
             room_pictures = []
 
             # Save Room formset with the associated Report instance
