@@ -1233,7 +1233,8 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         cover_pdf.set_font('Arial', '', FontSize.HEADER)
         cover_pdf.cell(60, 6, 'Date of Inspection:', 0, 0, 'L')
         cover_pdf.set_font('Arial', '', FontSize.CONTENT)
-        cover_pdf.cell(60, 6, str(inspectiontime), 0, 1, 'L')
+        formatted_inspectiontime = inspectiontime.strftime('%d/%m/%Y %H:%M:%S')
+        cover_pdf.cell(60, 6, str(formatted_inspectiontime), 0, 1, 'L')
         # cell(self, w, h=0, txt='', border=0, ln=0, align='', fill=0, link=''):
         # cover_pdf.add_page()
         # cover_pdf.image('imgs/Contents-Page-Index-Image.jpg', 20, 70, 170)
@@ -1487,17 +1488,25 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     def fix_q_and_a(title, answer):
         q_and_a(title, answer, 50)
 
+    days = monitor_time.days
+    hours, remainder = divmod(monitor_time.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    formatted_monitor_time = f"{days} days {hours:02} hours {minutes:02} minutes {seconds:02} seconds"
+    q_and_a('During all the monitoring period?:', formatted_monitor_time, 70)
+
     print(f"occupied type: {type(occupied)}")
     print(f"monitor_time type: {type(monitor_time)}")
     print(f"occupant_number type: {type(occupant_number)}")
 
     fix_q_and_a('Building professional:', surveyor)
     fix_q_and_a('Company Name:', company)
-    fix_q_and_a('Date of inspection:', str(inspectiontime))
+    formatted_inspectiontime = inspectiontime.strftime('%d/%m/%Y %H:%M:%S')
+    fix_q_and_a('Date of inspection:', formatted_inspectiontime)
+    # fix_q_and_a('Date of inspection:', str(inspectiontime))
     fix_q_and_a('Property Address:', Address)
     pdf.ln(10)
     q_and_a('Occupied or empty (void)?:', 'Yes' if occupied else 'No', 70)
-    q_and_a('During all the monitoring period?:', str(monitor_time), 70)
+    q_and_a('During all the monitoring period?:', str(formatted_monitor_time), 70)
     q_and_a('If occupied, how many occupants?:', str(occupant_number), 70)
     pdf.ln(10)
     fix_q_and_a('Monitored Problem room:', ', '.join(Problem_rooms))
