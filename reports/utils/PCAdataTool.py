@@ -1511,7 +1511,9 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     pdf.ln(10)
     fix_q_and_a('Monitored Problem room:', ', '.join(Problem_rooms))
     fix_q_and_a('Monitored Problem area:', ', '.join(Monitor_areas))
-    fix_q_and_a('Is there visible mould?:', ', '.join(map(str, moulds)))
+    formatted_moulds = ['Yes' if mould == True else 'No' for mould in moulds]
+    fix_q_and_a('Is there visible mould?:', ', '.join(formatted_moulds))
+    # fix_q_and_a('Is there visible mould?:', ', '.join(map(str, moulds)))
 
     pdf.set_font('Arial', 'B', FontSize.CONTENT)
     pdf.ln(10)
