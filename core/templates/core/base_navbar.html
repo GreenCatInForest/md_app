@@ -12,7 +12,7 @@
                     <a href="" class="base-navbar-link">Services</a>
                     <a href="" class="base-navbar-link">Contacts</a>
                     <a href="{% url 'report' %}" class="base-navbar-link">Reports</a>
-                    <button id="dark-mode-btn-toggle"><img src="" alt="btn"/></button>
+                    <!-- <button id="dark-mode-btn-toggle"><img src="" alt="btn"/></button> -->
                     {% if user.is_authenticated %}
                         <div class="{% if user.is_authenticated %}inline-block{% else %}absolute{% endif %}">
                             <a href="" class="w-8 h-8 rounded-full bg-pink-600 flex items-center justify-center">{{ user.name|slice:":1" }}</p> 
