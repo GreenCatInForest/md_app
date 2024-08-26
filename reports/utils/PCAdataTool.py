@@ -20,6 +20,10 @@ output_dir = '/code/imgs/'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
+output_report_dir = '/code/reports_save/'
+if not os.path.exists(output_report_dir):
+    os.makedirs(output_report_dir)
+
 # Generate and save the figure
 fig, ax = plt.subplots()
 # (plotting code here)
@@ -927,7 +931,7 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
            Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4, Image_logo, comment, popup=True):
     # global DATA
 
-    output_file_name = "PCA_BMI_Report"
+    output_file_name = os.path.join(output_report_dir, "PCA_BMI_Report")
 
     table_of_content = []
 
@@ -1805,38 +1809,23 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
             filename = output_file_name + dt_string + '.pdf'
             with open(filename, 'wb') as output_file:
                 merger.write(output_file)
+                
+         
 
         # Clean up temporary files
         os.remove(cover_pdf_file_name)
         os.remove(pdf_name)
+        return filename
 
     except Exception as e:
         print("Error encountered during pdf merge and deletion: " + str(e))
         filename = None  # Ensure filename is set to None if an error occurs
 
     # Cross-platform way to open the file
-    if filename and popup:
-        try:
-            if os.name == 'nt':  # Windows
-                os.startfile(filename)
-            elif os.name == 'posix':  # Unix-like systems (Linux, macOS)
-                if os.system("command -v xdg-open") == 0:
-                    os.system(f"xdg-open {filename}")
-                elif os.system("command -v open") == 0:
-                    os.system(f"open {filename}")
-                else:
-                    print("No suitable command found to open the file on this system.")
-            else:
-                print("Unsupported OS for opening files.")
-        except Exception as e:
-            print("Error opening file: " + str(e))
-    else:
-        print('Report pop-up is skipped.')
-
-    if filename:
+    if filename and os.path.exists(filename):
         print(f"{filename} generation is completed.")
     else:
-        print('Failed to generate the report.')
+        print('Failed to generate the report. Please check the logs for more details.')
 
 # RPTGen('SensorsData.xlsx','Surveyor Paula','06/20/2020 16:20:58 ','6 Gower street,WC1E,6BT','2/19/2018  4:00:00 PM', 2,\
 # '3/5/2018  3:00:00 PM',500, pd.to_timedelta('1 days 06:05:01.00003'),'Bedroom A','floor',1,'imgs/Property.jpg','imgs/mould.jpeg','imgs/mould.jpeg','imgs/mould.jpeg',\

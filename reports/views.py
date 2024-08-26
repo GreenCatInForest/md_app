@@ -168,7 +168,12 @@ def report_view(request):
             image_indoor3 = save_uploaded_file((form.cleaned_data.get('image_indoor3'))) if form.cleaned_data.get('image_indoor3') else ''
             image_indoor4 = save_uploaded_file((form.cleaned_data.get('image_indoor4'))) if form.cleaned_data.get('image_indoor4') else ''
         
-
+            image_property = image_property if image_property else ''
+            image_logo = image_logo if image_logo else ''
+            image_indoor1 = image_indoor1 if image_indoor1 else ''
+            image_indoor2 = image_indoor2 if image_indoor2 else ''
+            image_indoor3 = image_indoor3 if image_indoor3 else ''
+            image_indoor4 = image_indoor4 if image_indoor4 else ''
 
             app_logger.debug(f"Images collected: Image_indoor1={image_indoor1}, Image_indoor2={image_indoor2}, Image_indoor3={image_indoor3}, Image_indoor4={image_indoor4}")
             
@@ -215,12 +220,18 @@ def report_view(request):
             # Generate the report
             try:
                 pdf_file_path = PCAdataTool.RPTGen(**form_data)
-                return FileResponse(open(pdf_file_path, 'rb'), content_type='application/pdf')
+                print(pdf_file_path)
+                if not pdf_file_path or not os.path.exists(pdf_file_path):
+                    raise Exception("PDF file was not generated or found.")
+                app_logger.debug(f"Generated PDF file path: {pdf_file_path}")
+                return FileResponse(open(pdf_file_path, 'rb'), content_type='application/pdf', filename=os.path.basename(pdf_file_path))
+                
             except Exception as e:
                 app_logger.error(f"Error generating report: {e}")
                 return HttpResponse('Error generating report.', status=500)
-            finally:
-                os.remove(datafile_path)  # Clean up the temporary file
+            # finally:
+            #     os.remove(datafile_path)  # Clean up the temporary file
+            
 
         else:
             app_logger.error("Form or formset validation failed.")
