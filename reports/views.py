@@ -1,12 +1,14 @@
 import logging
 import os
 import tempfile
-from django.shortcuts import render, HttpResponse
-from django.http import FileResponse
+from django.conf import settings
+from django.shortcuts import render, HttpResponse, get_object_or_404
+from django.http import FileResponse, Http404
 from django.utils import timezone
+from django.utils._os import safe_join
 from datetime import datetime, timezone as dt_timezone
 from .forms import ReportForm, RoomFormSet
-from core.models import Logger as LoggerModel, Logger_Data, Room
+from core.models import Logger as LoggerModel, Logger_Data, Room, Report
 from .utils import PCAdataTool  
 from .utils.room_data import RoomData
 from django.contrib.auth.decorators import login_required
@@ -268,5 +270,25 @@ def report_view(request):
         room_formset = RoomFormSet(queryset=Room.objects.none(), prefix='rooms')
         form = ReportForm()
         return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
-    
-    
+
+@login_required
+def historical_reports_view(request):
+    reports = Report.objects.filter(report_file__isnull=False)
+    return render(request, 'reports/historical_reports.html', {'reports': reports})
+
+@login_required
+def download_report(request, report_id):
+    try:
+        report = Report.objects.get(id=report_id)
+        file_path = safe_join(settings.MEDIA_ROOT, report.report_file.name)
+        if not report.report_file:
+            raise Http404("No file found.")
+        
+        if os.path.exists(file_path):
+            return FileResponse(open(file_path, 'rb'), as_attachment=True)
+        else:
+            raise Http404("No file found.")
+    except Report.DoesNotExist:
+        raise Http404("Report does not exist.")
+    except ValueError:
+        raise Http404("Invalid file path.")
