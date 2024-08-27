@@ -949,17 +949,17 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         if image:
             image_list.append([image, f'Indoor Image {idx + 1}'])
 
-    if Image_property or any([Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4]):  # Check if there is at least one image
-        if Image_property:
-            image_list.append([Image_property, 'Outdoor Image'])
-        if Image_indoor1:
-            image_list.append([Image_indoor1, 'Indoor Image'])
-        if Image_indoor2:
-            image_list.append([Image_indoor2, 'Indoor Image'])
-        if Image_indoor3:
-            image_list.append([Image_indoor3, 'Indoor Image'])
-        if Image_indoor4:
-            image_list.append([Image_indoor4, 'Indoor Image'])
+    # if Image_property or any([Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4]):  # Check if there is at least one image
+    #     if Image_property:
+    #         image_list.append([Image_property, 'Outdoor Image'])
+    #     if Image_indoor1:
+    #         image_list.append([Image_indoor1, 'Indoor Image'])
+    #     if Image_indoor2:
+    #         image_list.append([Image_indoor2, 'Indoor Image'])
+    #     if Image_indoor3:
+    #         image_list.append([Image_indoor3, 'Indoor Image'])
+    #     if Image_indoor4:
+    #         image_list.append([Image_indoor4, 'Indoor Image'])
 
 
         # # Add room images
