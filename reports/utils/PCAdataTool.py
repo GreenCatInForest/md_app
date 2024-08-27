@@ -1030,7 +1030,7 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
                 self.write(5, text[0])
             self.write(5, '\n')
 
-    def section4(room_data: RoomData, image_list):
+    def section4(room_data: RoomData):
 
         pdf.add_page()
 
@@ -1598,8 +1598,9 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     #     # Extract images for the current room
     #     current_room_pictures = room_pictures[room_index] if room_index < len(room_pictures) else []
 
-    #     # Pass the images to the section4 function to handle them
-    #     section4(room_data, current_room_pictures)
+        # Pass the images to the section4 function to handle them
+    for room_data in room_data_list:
+        section4(room_data)
 
     def gen_cause_recommendation_summary(data: RoomData):
         cause_recommendation = None
