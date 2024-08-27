@@ -161,6 +161,53 @@ select {
   @apply flex flex-col flex-wrap gap-8 sm:gap-2 justify-center items-center w-full sm:w-1/4;
 }
 
+
+/* Layout Logged in */
+#index-main-wrapper {
+  @apply shadow-xl  shadow-blue-400 dark:bg-blue-950 flex flex-col flex-wrap mb-8 justify-center;
+}
+
+.banner-index-text {
+  @apply text-4xl font-bold text-center text-whiteSmoke my-20;
+}
+
+/* Featured Section */
+
+.featured-products {
+  @apply flex flex-col xsdd:flex-row flex-wrap gap-2 justify-around items-center;
+}
+
+.featured-product {
+  @apply flex flex-col text-center flex-wrap gap-8 sm:gap-2 justify-center items-center w-full sm:w-1/4 min-h-16 line-clamp-1 z-[100];
+}
+
+.featured-product img {
+  @apply w-[2rem] h-auto m-4 transition-transform duration-300 ease-in-out bg-blend-multiply;
+}
+
+.featured-product:hover img {
+  @apply scale-125 ; /* Slightly zoom in the image on hover */
+}
+
+@media (max-width: 768px) {
+  .featured-product {
+      width: 100%; /* Full width for smaller screens */
+      margin: 0 0 20px 0; /* Add margin bottom for spacing */
+  }
+}
+
+.forgot-password, .register-form {
+  @apply text-center mt-8;
+}
+
+.forgot-password a, .register-form a {
+  @apply text-blue-500 hover:text-white font-medium transition-colors duration-300 ease-in-out;
+}
+
+.register-form button {
+  @apply bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 ease-in-out mt-4 inline-block;
+}
+
 /* Components */
 
 /* Base NavBar */
@@ -342,3 +389,15 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
   transition: backdrop-filter 0.3s ease, background-color 0.3s ease; /* Smooth transition for blur effect */
 }
 
+#loading-spinner {
+  display: none; /* Hidden by default */
+  justify-content: center;
+  align-items: center;
+  position: absolute; /* Position it absolutely over the form */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8); /* Light background to give emphasis */
+  z-index: 1000; /* Make sure it covers the form */
+}
