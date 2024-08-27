@@ -14,3 +14,5 @@ class UserLoginForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
     
+class PasswordResetRequestForm(forms.Form):
+    email = forms.EmailField(label="Enter your email", max_length=254)
