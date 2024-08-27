@@ -251,6 +251,8 @@ def report_view(request):
                 if not pdf_file_path or not os.path.exists(pdf_file_path):
                     raise Exception("PDF file was not generated or found.")
                 app_logger.debug(f"Generated PDF file path: {pdf_file_path}")
+                report_instance.report_file = pdf_file_path
+                report_instance.save()
                 return FileResponse(open(pdf_file_path, 'rb'), content_type='application/pdf', filename=os.path.basename(pdf_file_path))
             except Exception as e:
                 app_logger.error(f"Error generating report: {e}")
@@ -266,3 +268,5 @@ def report_view(request):
         room_formset = RoomFormSet(queryset=Room.objects.none(), prefix='rooms')
         form = ReportForm()
         return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+    
+    

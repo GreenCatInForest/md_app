@@ -186,20 +186,32 @@ class Report (models.Model):
     occupied = models.BooleanField(default=False)
     occupied_during_all_monitoring = models.BooleanField(default=False)
     number_of_occupants = models.IntegerField(default=0)
-    report_file = models.FileField(upload_to='reports/<report_id>/')
+    report_file = models.FileField(upload_to='reports_save/%Y/%m/%d/', null=True, blank=True)
+
+      # Ensure the file path is correctly formatted using instance-specific information
+    def save(self, *args, **kwargs):
+        if not self.report_file:
+            self.report_file = f'reports/{self.id}/{self.property_address}_{self.start_time.strftime("%Y%m%d%H%M%S")}.pdf'
+        super().save(*args, **kwargs)
+
+
+    # def __str__(self):
+    #     return self.start_time.strftime("%Y%m%d-%H:%M:%S")
 
     def __str__(self):
-        return self.start_time.strftime("%Y%m%d-%H:%M:%S")
+        return f"Report {self.property_address} - {self.start_time.strftime('%Y-%m-%d')}"
 
     def add_report (cls, start_time, end_time, property, property_photo, company, surveyor, notes, report_file, report_requirements):
         report = Report(start_time=start_time, end_time=end_time, property=property, property_photo=property_photo, company=company, surveyor=surveyor, notes=notes, report_file=report_file, report_requirements=report_requirements)
         report.save()
         return report 
-
+    
+    # Additional logic for validation or processing
     def clean(self):
-        # Ensure end_time is after start_time
         if self.end_time and self.start_time and self.end_time <= self.start_time:
             raise ValidationError(_('End time must be after start time.'))
+
+   
 
 
 class Room(models.Model):
