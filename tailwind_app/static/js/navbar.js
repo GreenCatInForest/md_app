@@ -55,6 +55,7 @@ const handleDarkModeBtnToggle = (event) => {
   localStorage.setItem("isLightMode", isLightMode);
 };
 
+
 const handleDarkModeInLs = (event) => {
   event.preventDefault();
   let isLightMode=localStorage.getItem("isLightMode");
