@@ -166,7 +166,7 @@ select {
 }
 
 #index-main-wrapper.light p.light {
-  @apply text-gray-500;
+  @apply text-blue-950;
 }
 
 .banner-index-text {
@@ -187,6 +187,9 @@ select {
   @apply flex flex-col flex-wrap gap-8 sm:gap-2 justify-center items-center w-full sm:w-1/4;
 }
 
+.featured-product img.light {
+  filter: invert(37%) sepia(89%) saturate(7344%) hue-rotate(211deg) brightness(80%) contrast(136%);
+}
 
 /* Layout Logged in */
 #index-main-wrapper {
@@ -208,7 +211,7 @@ select {
 }
 
 .featured-product img {
-  @apply w-[2rem] h-auto m-4 transition-transform duration-300 ease-in-out bg-blend-multiply;
+  @apply w-[2rem] h-auto m-4 transition-transform duration-300 ease-in-out bg-blend-multiply ;
 }
 
 .featured-product:hover img {
