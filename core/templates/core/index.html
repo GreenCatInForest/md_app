@@ -20,8 +20,8 @@
     </linearGradient>
     </defs>
     </svg>
-    <div class="center">
-        <div class="drop"></div>
+    <div class="center z-[100] cursor-pointer">
+        <div class="drop z-[100] cursor-pointer"></div>
       </div>
         <div id="index-main-wrapper">
           <section class="z-50">
@@ -62,7 +62,7 @@
                 </div>
                 <div class="featured-product">
                     <img src="{% static 'images/icons8-graph-report-50.png' %}" alt="Featured Product 2"/>
-                    <h5>Connect the loggers to your PC or phone</h5>
+                    <h5>Connect the sensors to your PC to upload data securely to the cloud</h5>
                     <p>Automatically generated reports, using your data</p>
                     <p class="group flex items-center gap-2"><span class="text-xl align-middle group-hover:text-light-accent3">∞ </span> Unlimited number of reports</p>
                     
@@ -77,17 +77,6 @@
             </article>
         </section>
         
-        
-
-              <div class="forgot-password">
-                  <a  href="">Forgot the Password?</a>
-              </div> 
-
-              <div class="register-form mt-12">
-                  <p class="">Don't have an account?</p>
-                  <button class="actButton my-3 w-full small_tablet:max-w-xs" ><a href="{% url 'register' %}">Register</a></button>
-              </div> 
-        </section>
       </div>  
       
 {% endblock %}  

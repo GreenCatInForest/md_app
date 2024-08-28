@@ -3,11 +3,15 @@
 @tailwind utilities;
 
 * {
-    @apply m-0 p-0 transition-all duration-100 ease-in-out;
+    @apply m-0 p-0 transition-all duration-100 ease-in-out box-border;
 }
 
 body {
-    @apply font-sans antialiased bg-blue-950  text-light-basic_bg;
+    @apply font-sans antialiased
+      text-light-basic_bg;
+      background-image: url('/static/images/david-clode-9XrGQY_2Ssw-unsplash.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
 }
 
 form {
@@ -73,6 +77,7 @@ select {
     grid-template-rows: repeat 
     auto minmax(5rem, auto) 1fr;
     min-height: 100vh;
+  
   }
 
   @media (max-width: 768px) {
@@ -147,9 +152,9 @@ select {
     }*/
 
 
-/* Layout Logged Out */
 #index-main-wrapper{
-  @apply shadow-xl  shadow-blue-400 flex flex-col flex-wrap justify-center;
+  @apply  flex flex-col flex-wrap justify-center;
+  background-image: url('/static_src/src/images/hero-img.png');
 }
 
 #index-main-wrapper.light, 
@@ -158,7 +163,7 @@ select {
 #index-main-wrapper.light #index-main-wrapper div a,
 #index-main-wrapper.light #index-main-wrapper div a:hover,
 #index-main-wrapper.light #index-main-wrapper div a.active {
-  @apply shadow-xl bg-white text-blue-950 flex flex-col flex-wrap justify-center;
+  @apply bg-white text-blue-950 flex flex-col flex-wrap justify-center;
 }
 
 #index-main-wrapper.light p {
@@ -193,7 +198,7 @@ select {
 
 /* Layout Logged in */
 #index-main-wrapper {
-  @apply shadow-xl  shadow-blue-400 dark:bg-blue-950 flex flex-col flex-wrap mb-8 justify-center;
+  @apply  dark:bg-blue-950 flex flex-col flex-wrap mb-8 justify-center;
 }
 
 .banner-index-text {
@@ -267,23 +272,23 @@ header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
   }
 
   .base-navbar-link.active:after {
-    content: '⏷'; /* Symbol to display underneath */
+    content: '•'; /* Symbol to display underneath */
     position: absolute;
     bottom: -1.5em;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 18px;
-    color: #08EEE0; 
+    font-size: 32px;
+    @apply text-blue-700 
   }
 
   .base-navbar-link:hover:before {
-    content: '⏷'; /* Symbol to display underneath */
+    content: '•'; /* Symbol to display underneath */
     position: absolute;
-    bottom: -1.5em;
+    bottom: -1em;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 18px;
-    color: #08EEE0; 
+    font-size: 32px;
+    @apply text-blue-700 
   }
 
 

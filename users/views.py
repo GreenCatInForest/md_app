@@ -70,7 +70,6 @@ def user_logout(request):
     logout(request)
     return redirect('register')
 
-
 def password_reset_request_view(request):
     if request.method == "POST":
         form = PasswordResetRequestForm(request.POST)
@@ -121,3 +120,4 @@ def password_reset_confirm_view(request, uidb64, token):
     else:
         messages.error(request, "The password reset link is invalid or has expired.")
         return redirect("password_reset_request")
+    
