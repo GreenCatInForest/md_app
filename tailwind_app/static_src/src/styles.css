@@ -7,11 +7,13 @@
 }
 
 body {
-    @apply font-sans antialiased
+    @apply font-sans antialiased m-0 p-0 
       text-light-basic_bg;
-      background-image: url('/static/images/david-clode-9XrGQY_2Ssw-unsplash.jpg');
+      /* background-image: url('/static/images/david-clode-unsplash.jpg');
       background-size: cover;
       background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-position: center; */
 }
 
 form {
@@ -513,4 +515,76 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
   height: 4px; /* Adjust size of reflection */
   top: 45px; /* Adjust position */
   left: 22px; /* Adjust position */
+}
+
+.log-in-container {
+  @apply flex flex-col flex-wrap gap-4 justify-center items-center h-[100vh];
+  /* background-image: url('/static/images/hydra-unsplash.jpg'); */
+  /* background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center; */
+  position: relative; /* Make sure the container is positioned relatively to contain the pseudo-element */
+}
+
+.log-in-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /*background-color: rgba(0, 0, 180, 0.5);  Adjust the blue color and opacity here */
+  pointer-events: none; /* Ensure that the overlay does not block interactions with other elements */
+  z-index: 1; /* Position the overlay above the background image but below other content */
+}
+
+.log-in-container > * {
+  position: relative; /* Position all children relative to bring them above the overlay */
+  z-index: 2; /* Ensure that text and other content appear above the overlay */
+}
+
+.col-1 {
+@apply flex items-center flex-col justify-center h-[100vh] absolute left-0 bg-blue-700/30;
+/* background-color: rgba(255, 255, 255, 0.3); */
+backdrop-filter: blur(30px);
+border-radius: 0 30% 20% 0;
+transition: border-radius .3s;
+width: 55%;
+/* opacity: 0.8; */
+}
+
+.col-2 {
+  position: relative;
+  width: 45%;
+  padding: 20px;
+}
+
+.btn-box {
+  @apply flex justify-center gap-3 my-[20px];
+}
+
+.btn-form {
+  @apply font-bold text-white py-[5px] px-[30px] rounded-[30px] cursor-pointer transition duration-200 ease-in-out
+  hover:opacity-75;
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-login-form {
+@apply bg-blue-950
+}
+
+.login-form {
+  @apply flex flex-col items-center gap-4 w-full;
+  padding: 0 4vw;
+}
+
+.login-form-title {
+  @apply my-[40px] text-2xl font-bold text-white;
+}
+
+.input-icon-container {
+  @apply relative w-full;
 }

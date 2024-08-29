@@ -1,6 +1,5 @@
-
-{% load static %}
 {% extends 'base.html' %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -15,8 +14,49 @@
 
 
 <div class="log-in-container">
-    <div class="col col-1"></div>
-    <div class="col col-2"></div>
+    <div class="col col-1">
+   
+    </div>
+    <div class="col col-2">
+        <div class="btn-box">
+            <button class="btn-form btn-login-form" id="btn-login-form">Login</button>
+            <button class="btn-form btn-register-form" id="btn-register-form">Register</button>
+        </div>
+        <div class="login-form">
+            <h3 class="login-form-title">Login</h3>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ user_login_form.non_field_errors }}
+                    <!-- Email Field with User Icon -->
+            <div class="input-icon-container ">
+                <img src="{% static 'images/user.png'%}" class="w-[40px] h-[40px] bg-gray-700 p-[2px] rounded-[10px]"/>
+                {{ user_login_form.email }}
+                {{ user_login_form.email.errors }}
+            </div>
+
+            <!-- Password Field with Lock Icon -->
+            <div class="input-icon-container">
+                <img src="{% static 'images/lock.png'%}" class="w-[40px] h-[40px] bg-gray-700 p-[2px] rounded-[10px]"/>
+                {{ user_login_form.password }}
+                {{ user_login_form.password.errors }}
+            </div>
+                    <div class="forgot-password">
+                        <a href="">Forgot the Password?</a>
+                    </div>
+                    <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0">
+                        <button type="submit" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 ">Login
+                            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                            </svg>
+                        </button>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="register-form"></div>
+
+    </div>
 
 </div>
 
@@ -40,7 +80,7 @@
         {% csrf_token %}
         <button class="actButton my-3 w-full xsdd:max-w-xs" type="submit">Logout</button>
     </form> {% endcomment %}
-
+ -
 </section>
 {% endblock %}
 </body>
