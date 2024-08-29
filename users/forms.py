@@ -1,16 +1,65 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.forms import EmailField, TextInput
+from django.forms import EmailField, TextInput, PasswordInput
 from core.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 
 class UserRegisterForm(UserCreationForm):
-    email = forms.EmailField()
+    model = User
+    email = forms.EmailField(
+        widget=forms.EmailInput(
+            attrs={
+                'class': 'input-field',
+                'placeholder': 'Enter your email',
+                'id': 'email',
+                'required': True,
+            }
+        )
+    )
+    name = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'input-field',
+                'placeholder': 'Enter your name',
+                'id': 'name',
+                'required': True,
+            }
+        )
+    )
+    surname = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'input-field',
+                'placeholder': 'Enter your surname',
+                'id': 'surname',
+                'required': True,
+            }
+        )
+    )
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'input-field',
+                'placeholder': 'Enter your password',
+                'id': 'password1',
+                'required': True,
+            }
+        )
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'input-field',
+                'placeholder': 'Confirm your password',
+                'id': 'password2',
+                'required': True,
+            }
+        )
+    )
 
-    class Meta:
-        model = User
-        fields = ['email', 'name', 'surname', 'password1', 'password2']
+    
+
 
 
 class UserLoginForm(forms.Form):
@@ -35,7 +84,6 @@ class UserLoginForm(forms.Form):
             }
         )
     )
-
     def clean(self):
         cleaned_data = super().clean()
         email = cleaned_data.get('email')

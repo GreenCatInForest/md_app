@@ -30,22 +30,22 @@ import os
 
 def user_register(request):
     if request.method == 'POST': 
-        user_register_form = UserRegisterForm(request.POST) # Create a new user form
-        if user_register_form.is_valid(): # Check if the form is valid
-            user = user_register_form.save(commit=False) # Create a new user object but avoid saving it yet
-            user.set_password(user_register_form.cleaned_data['password1']) # Hash the password
+        user_register_form = UserRegisterForm(request.POST)  # Create a new user form with POST data
+        if user_register_form.is_valid():  # Check if the form is valid
+            user = user_register_form.save(commit=False)  # Create a new user object but avoid saving it yet
+            user.set_password(user_register_form.cleaned_data['password1'])  # Hash the password
             user.save()  # Save the user to the database
-            messages.success(request, 'Your account has been created! You will be now log in.')
+            messages.success(request, 'Your account has been created! You will be now logged in.')
             login(request, user)  # Log in the user
-            # return HttpResponse('Hello '+user.name+' '+user.surname + ' You have successfully registered!')
             return redirect('report')  # Redirect to user account page
     else:
-        user_register_form = UserRegisterForm() # Create a new user form
+        user_register_form = UserRegisterForm()  # Create a new user form for GET request
     return render(request, 'users/register.html', {'user_register_form': user_register_form}) 
 
 def user_login(request):
     if request.method == 'POST': 
         user_login_form = UserLoginForm(request.POST)
+        user_register_form = UserRegisterForm()
         if user_login_form.is_valid():
             email = user_login_form.cleaned_data.get('email')
             password = user_login_form.cleaned_data.get('password')
@@ -61,8 +61,12 @@ def user_login(request):
                 print("Invalid email or password")
     else:
         user_login_form = UserLoginForm()
+        user_register_form = UserRegisterForm()
     
-    return render(request, 'users/login.html', {'user_login_form': user_login_form})
+    return render(request, 'users/login.html', {
+        'user_login_form': user_login_form,
+        'user_register_form': user_register_form  # Add the register form to the context
+    })
 
 
 def user_logout(request):

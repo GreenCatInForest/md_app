@@ -592,13 +592,15 @@ transition: border-radius .3s;
   color: rgba(255, 255, 255, 0.8);
 }
 
-.login-form-inputs {
+.login-form-inputs,
+.register-form-inputs {
   @apply w-full;
 }
 
 .input-icon-container {
   @apply relative;
 }
+
 
 .input-field {
   @apply w-full h-[55px] p-[15px] my-[10px] text-white;
@@ -624,7 +626,6 @@ transition: border-radius .3s;
 .forgot-password {
 @apply flex justify-end gap-[5px];
 }
-
 
 
 .forgot-password a {

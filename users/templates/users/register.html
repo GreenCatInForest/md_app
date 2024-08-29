@@ -1,5 +1,3 @@
-{% extends 'base.html' %}
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,7 +6,63 @@
 <body>
     {% block content %}
     {% load static %}
-    <section class="registration-page-wrapper">
+
+    <div class="register-form bg-blue-950">
+        <h3 class="register-form-title">Create new <span class="font-extrabold text-blue-400">account</span></h3>
+        <form method="POST">
+            {% csrf_token %}
+            {{ user_register_form.non_field_errors }}
+            <div class="register-form-inputs">
+                <!-- Email Field with User Icon -->
+                <div class="input-icon-container">
+                    <img src="{% static 'images/user.png' %}" class="icon">
+                    {{ user_register_form.email }}
+                    {{ user_register_form.email.errors }}
+                </div>
+    
+                <!-- Name Field with User Icon -->
+                <div class="input-icon-container">
+                    <img src="{% static 'images/user.png' %}" class="icon">
+                    {{ user_register_form.name }}
+                    {{ user_register_form.name.errors }}
+                </div>
+    
+                <!-- Surname Field with User Icon -->
+                <div class="input-icon-container">
+                    <img src="{% static 'images/user.png' %}" class="icon">
+                    {{ user_register_form.surname }}
+                    {{ user_register_form.surname.errors }}
+                </div>
+    
+                <!-- Password1 Field with Lock Icon -->
+                <div class="input-icon-container">
+                    <img src="{% static 'images/lock.png' %}" class="icon"/>
+                    {{ user_register_form.password1 }}
+                    {{ user_register_form.password1.errors }}
+                </div>
+    
+                <!-- Password2 Field with Lock Icon -->
+                <div class="input-icon-container">
+                    <img src="{% static 'images/lock.png' %}" class="icon"/>
+                    {{ user_register_form.password2 }}
+                    {{ user_register_form.password2.errors }}
+                </div>
+    
+                <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 my-[10px] ">
+                    <button type="submit" class="inline-flex justify-center items-center py-6 px-6 w-full text-base font-semibold text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 ">Register 
+                        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+
+
+
+    <!-- <section class="registration-page-wrapper">
         <p class="my-4 wrapper-overlay-gradient">Please enter your e-mail and password to register</p>
         <p class="my-4 mx-auto w-full xsd:w-2/3">Please register to access a wider range of facilities on our website. Registration is free and any information you provide will not be shared with any third party.
     
@@ -19,7 +73,7 @@
         {{ user_register_form.as_p }}
         <button button class="actButton my-3 w-full xsdd:max-w-xs" type="submit">Register</button>
     </form>
-    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+    </section> -->
     {% endblock %}
 </body>
 </html>
