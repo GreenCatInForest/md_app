@@ -11,7 +11,7 @@ class UserRegisterForm(UserCreationForm):
         widget=forms.EmailInput(
             attrs={
                 'class': 'input-field',
-                'placeholder': 'Enter your email',
+                'placeholder': 'Email',
                 'id': 'email',
                 'required': True,
             }
@@ -21,7 +21,7 @@ class UserRegisterForm(UserCreationForm):
         widget=forms.TextInput(
             attrs={
                 'class': 'input-field',
-                'placeholder': 'Enter your name',
+                'placeholder': 'Name',
                 'id': 'name',
                 'required': True,
             }
@@ -31,7 +31,7 @@ class UserRegisterForm(UserCreationForm):
         widget=forms.TextInput(
             attrs={
                 'class': 'input-field',
-                'placeholder': 'Enter your surname',
+                'placeholder': 'Surname',
                 'id': 'surname',
                 'required': True,
             }
@@ -41,7 +41,7 @@ class UserRegisterForm(UserCreationForm):
         widget=forms.PasswordInput(
             attrs={
                 'class': 'input-field',
-                'placeholder': 'Enter your password',
+                'placeholder': 'Password',
                 'id': 'password1',
                 'required': True,
             }
