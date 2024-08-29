@@ -232,7 +232,8 @@ select {
   }
 }
 
-.forgot-password, .register-form {
+/* .forgot-password,  */
+.register-form {
   @apply text-center mt-8;
 }
 
@@ -518,7 +519,7 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
 }
 
 .log-in-container {
-  @apply flex flex-col flex-wrap gap-4 justify-center items-center h-[100vh];
+  @apply flex flex-col sm:flex-row gap-4 justify-center items-center h-[100vh] bg-blue-950 relative;
   /* background-image: url('/static/images/hydra-unsplash.jpg'); */
   /* background-size: cover;
   background-repeat: no-repeat;
@@ -544,20 +545,24 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
   z-index: 2; /* Ensure that text and other content appear above the overlay */
 }
 
+
 .col-1 {
-@apply flex items-center flex-col justify-center h-[100vh] absolute left-0 bg-blue-700/30;
+@apply flex items-center flex-col w-full sm:w-[45%] justify-center h-[100vh] relative left-0 bg-blue-700/30;
 /* background-color: rgba(255, 255, 255, 0.3); */
 backdrop-filter: blur(30px);
-border-radius: 0 30% 20% 0;
+border-radius: 0 10% 8% 0;
 transition: border-radius .3s;
-width: 55%;
 /* opacity: 0.8; */
 }
 
 .col-2 {
+  @apply flex items-center flex-col w-full sm:w-[45%] h-[100vh] ;
   position: relative;
-  width: 45%;
   padding: 20px;
+}
+
+.login-form form {
+  @apply w-full;
 }
 
 .btn-box {
@@ -581,10 +586,67 @@ width: 55%;
   padding: 0 4vw;
 }
 
-.login-form-title {
-  @apply my-[40px] text-2xl font-bold text-white;
+.login-form-title,
+.register-form-title {
+  @apply my-[40px] text-2xl font-medium;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.login-form-inputs {
+  @apply w-full;
 }
 
 .input-icon-container {
-  @apply relative w-full;
+  @apply relative;
+}
+
+.input-field {
+  @apply w-full h-[55px] p-[15px] my-[10px] text-white;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  backdrop-filter: blur(30px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+::placeholder {
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.input-icon-container .icon {
+  @apply absolute top-[50%] right-[50px] w-[25px] z-50;
+  transform: translateY(-50%);
+}
+
+.forgot-password {
+@apply flex justify-end gap-[5px];
+}
+
+
+
+.forgot-password a {
+  @apply text-white hover:scale-110 hover:text-blue-400 transition-all duration-300 ease-in-out ;
+  text-decoration: none;
+  position: relative; 
+  padding-left: 15px; 
+}
+
+.forgot-password a::before {
+  content: ''; 
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%); 
+  width: 5px; 
+  height: 5px; 
+  border-radius: 50%; 
+  transition: background-color 0.3s ease-in-out; 
+  @apply bg-blue-700 
+}
+
+.forgot-password a:hover::before {
+ @apply bg-blue-400;
 }

@@ -15,7 +15,7 @@
 
 <div class="log-in-container">
     <div class="col col-1">
-   
+   <img src="{% static 'images/maple-logger.png'%}" alt="login" class="maple-logger-img w-1/3">
     </div>
     <div class="col col-2">
         <div class="btn-box">
@@ -23,38 +23,81 @@
             <button class="btn-form btn-register-form" id="btn-register-form">Register</button>
         </div>
         <div class="login-form">
-            <h3 class="login-form-title">Login</h3>
+            <h3 class="login-form-title">Sign in to access your <span class="font-extrabold text-blue-400">surveys</span></h3>
                 <form method="POST">
                     {% csrf_token %}
                     {{ user_login_form.non_field_errors }}
                     <!-- Email Field with User Icon -->
-            <div class="input-icon-container ">
-                <img src="{% static 'images/user.png'%}" class="w-[40px] h-[40px] bg-gray-700 p-[2px] rounded-[10px]"/>
-                {{ user_login_form.email }}
-                {{ user_login_form.email.errors }}
-            </div>
+            <div class="login-form-inputs">
+                
+                <div class="input-icon-container">
+                    <img src="{% static 'images/user.png'%}" class="icon">
+                    {{ user_login_form.email }}
+                    {{ user_login_form.email.errors }}
+                </div>
 
-            <!-- Password Field with Lock Icon -->
-            <div class="input-icon-container">
-                <img src="{% static 'images/lock.png'%}" class="w-[40px] h-[40px] bg-gray-700 p-[2px] rounded-[10px]"/>
-                {{ user_login_form.password }}
-                {{ user_login_form.password.errors }}
-            </div>
-                    <div class="forgot-password">
-                        <a href="">Forgot the Password?</a>
-                    </div>
-                    <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0">
-                        <button type="submit" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 ">Login
-                            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                            </svg>
-                        </button>
+                <!-- Password Field with Lock Icon -->
+                <div class="input-icon-container">
+                    <img src="{% static 'images/lock.png'%}" class="icon"/>
+                    {{ user_login_form.password }}
+                    {{ user_login_form.password.errors }}
+                </div>
+                        
+                <div class="forgot-password">
+                            <a href="">Forgot the Password?</a>
+                        
+                </div>
 
-                    </div>
+                <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 my-[10px] ">
+                            <button type="submit" class="inline-flex justify-center items-center py-6 px-6 w-full text-base font-semibold text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 ">Login 
+                                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                                </svg>
+                            </button>
+                </div>
+            </div>
                 </form>
             </div>
+            <div class="register-form">
+                <h3 class="register-form-title">Create new <span class="font-extrabold text-blue-400">account</span></h3>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ user_login_form.non_field_errors }}
+                        <!-- Email Field with User Icon -->
+                        <div class="login-form-inputs">
+                            
+                            <div class="input-icon-container">
+                                <img src="{% static 'images/user.png'%}" class="icon">
+                                {{ user_login_form.email }}
+                                {{ user_login_form.email.errors }}
+                            </div>
+    
+                            <!-- Password Field with Lock Icon -->
+                            <div class="input-icon-container">
+                                <img src="{% static 'images/lock.png'%}" class="icon"/>
+                                {{ user_login_form.password }}
+                                {{ user_login_form.password.errors }}
+                            </div>
+                                    
+                            <div class="forgot-password">
+                                        <a href="">Forgot the Password?</a>
+                                    
+                            </div>
+    
+                            <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 my-[10px] ">
+                                        <button type="submit" class="inline-flex justify-center items-center py-6 px-6 w-full text-base font-semibold text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 ">Login 
+                                            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                                            </svg>
+                                        </button>
+                            </div>
+                        </div>
+                </form>
         </div>
-        <div class="register-form"></div>
+        
+
+
+        </div>
 
     </div>
 
