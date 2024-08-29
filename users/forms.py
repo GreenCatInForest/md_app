@@ -58,8 +58,6 @@ class UserRegisterForm(UserCreationForm):
         )
     )
 
-    
-
 
 
 class UserLoginForm(forms.Form):

@@ -19,8 +19,8 @@
     </div>
     <div class="col col-2">
         <div class="btn-box">
-            <button class="btn-form btn-login-form" id="btn-login-form">Login</button>
-            <button class="btn-form btn-register-form" id="btn-register-form">Register</button>
+            <button class="btn-form btn-login-form" id="btn-login-form-toggle">Login</button>
+            <button class="btn-form btn-register-form" id="btn-register-form-toggle">Register</button>
         </div>
         <div class="login-form">
             <h3 class="login-form-title">Sign in to access your <span class="font-extrabold text-blue-400">surveys</span></h3>
@@ -72,7 +72,25 @@
         {% csrf_token %}
         <button class="actButton my-3 w-full xsdd:max-w-xs" type="submit">Logout</button>
     </form> {% endcomment %}
+    
+    {% block js %}
+    <script>
+        const btnLogin = document.getElementById('btn-login-form-toggle');
+        const btnRegister = document.getElementById('btn-register-form-toggle');
+        const loginForm = document.querySelector('.login-form');
+        const registerForm = document.querySelector('.register-form');
 
+        btnLogin.addEventListener('click', () => {
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+        });
+
+        btnRegister.addEventListener('click', () => {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+        });
+    </script>
+{% endblock %}
 {% endblock %}
 </body>
 </html>
