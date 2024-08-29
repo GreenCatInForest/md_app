@@ -72,7 +72,7 @@ def user_login(request):
 def user_logout(request):
     print('User is logging out')
     logout(request)
-    return redirect('register')
+    return redirect('login')
 
 def password_reset_request_view(request):
     if request.method == "POST":
