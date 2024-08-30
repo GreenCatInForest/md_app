@@ -6,7 +6,6 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 
 class UserRegisterForm(UserCreationForm):
-    model = User
     email = forms.EmailField(
         widget=forms.EmailInput(
             attrs={
@@ -57,7 +56,9 @@ class UserRegisterForm(UserCreationForm):
             }
         )
     )
-
+    class Meta:
+        model = User  # Use your custom User model
+        fields = ['email', 'name', 'surname', 'password1', 'password2']
 
 
 class UserLoginForm(forms.Form):

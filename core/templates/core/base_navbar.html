@@ -1,7 +1,6 @@
 
     {% load static tailwind_tags %}
 
-    {% block content %}
 
     <nav id="base-navbar">
                 <a href="{% url 'index' %}">
@@ -23,10 +22,10 @@
                             <a href="{% url 'logout' %}">Logout</a>
                         </div>
                         {% else %}
-                        <button id="loginButton" data-url="{% url 'login' %}">Login</button>
+                        <button id="loginButton" data-url="{% url 'login_register' %}">Login</button>
                     {% endif %} 
                 </div>
     </nav>
 
-    {% endblock %}
+
 

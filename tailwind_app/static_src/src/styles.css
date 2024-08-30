@@ -514,14 +514,14 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
 }
 
 .log-in-container {
-  @apply flex flex-col sm:flex-row gap-4 justify-center items-center min-h-[100vh] bg-blue-950 relative;
+  @apply flex flex-col sm:flex-row gap-8 justify-center items-center min-h-[100vh] bg-blue-950 relative;
   /* background-image: url('/static/images/hydra-unsplash.jpg'); */
   /* background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: center; */
   overflow: hidden; /* Hide any overflow content */
-  position: relative; /* Make sure the container is positioned relatively to contain the pseudo-element */
+
 }
 
 .log-in-container::before {
@@ -540,22 +540,27 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
 .log-in-container > * {
   position: relative; /* Position all children relative to bring them above the overlay */
   z-index: 2; /* Ensure that text and other content appear above the overlay */
+
+  
 }
 
 
 .col-1 {
-@apply flex items-center flex-col w-full sm:w-[55%] justify-center sm:h-[90%] relative left-0 bg-blue-700/30;
+@apply flex items-center flex-col w-full sm:w-[45%] justify-center sm:h-[90%] relative left-0 bg-blue-700/30;
 /* background-color: rgba(255, 255, 255, 0.3); */
 backdrop-filter: blur(30px);
 border-radius: 0 10% 8% 0;
 transition: border-radius .3s;
 /* opacity: 0.8; */
+overflow: hidden; /* Hide any overflow content */
+
 }
 
 .col-2 {
   @apply flex items-center mt-0 mb-[50%] sm:mt-[10%] sm:mb-[10%] flex-col w-full sm:w-[45%] min-h-[100vh] ;
   position: relative;
   padding: 20px;
+  overflow: hidden; /* Hide any overflow content */
 }
 
 .login-form form {
@@ -582,19 +587,15 @@ transition: border-radius .3s;
 .login-form {
   @apply flex flex-col items-center w-full absolute ;
   padding: 0 4vw;
-
   left: 50%;
   transform: translateX(-50%);
+  
 }
 
 .register-form {
-  @apply mt-8 text-center;
-  }
-
-.register-form {
-  @apply flex flex-col w-full absolute;
+  @apply mt-8 text-center flex flex-col w-full absolute;
   padding: 0 4vw;
-  left: 200%;
+  left: -50%;
   transform: translateX(-50%);
 }
 
