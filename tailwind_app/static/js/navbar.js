@@ -1,15 +1,23 @@
 let loginButton = document.querySelector("#loginButton");
-// let hamburgerBtnToggle = document.querySelector("#hamburger-btn-toggle");
-// let hamburgerItem = document.querySelectorAll(".hamburger-item");
+let hamburgerMenuBtn = document.querySelector(".hamburger-menu-btn");
+let hamburgerMenuItems = document.querySelector(".hamburger-menu");
+
 let darkModeBtnToggle = document.querySelector("#dark-mode-btn-toggle");
 let body = document.body;
 // let darkModeAllElementsToggle = document.querySelectorAll(".mode");
-let helpSupportMenuBtn = document.querySelector("#help-support-menu-btn");
+
 let baseNavbarLinks = document.querySelectorAll(".base-navbar-link");
 let baseNavbar = document.querySelector("#base-navbar");
 
 
-console.log(baseNavbarLinks);
+// Hamburger menu toggle event
+
+const handleHamburgerMenuBtn = (event) => {
+  event.preventDefault();
+  console.log("Hamburger menu button clicked");
+  baseNavbarLinks.forEach(link => link.classList.toggle("hidden"));
+}
+
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -27,12 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
-
-
-
-console.log(loginButton);
-console.log(darkModeBtnToggle);
 
 // Login button click event
 
@@ -81,6 +83,7 @@ loginButton
 
 darkModeBtnToggle.addEventListener("click", handleDarkModeBtnToggle);
 
+hamburgerMenuBtn.addEventListener("click", handleHamburgerMenuBtn)
 
 let hiddenMenuPropertiesBtn = document.querySelector("#hidden-menu-properties");
 let hiddenMenuPropertiesItems = document.querySelector(".hidden-menu-item");

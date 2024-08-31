@@ -45,7 +45,7 @@ select {
     @apply bg-blue-950;
   }
   
-  @media (max-width: 768px) {
+  @media (max-width: 1920px) {
     .wrapper {
       grid-template-columns: 1fr;
       grid-template-rows: auto minmax(5rem, auto) 1fr;
@@ -82,7 +82,7 @@ select {
   
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 1920px) {
     main {
       grid-template-columns: 1fr;
       grid-template-rows: auto minmax(5rem, auto) 1fr;
@@ -225,7 +225,7 @@ select {
   @apply scale-125 ; /* Slightly zoom in the image on hover */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1920px) {
   .featured-product {
       width: 100%; /* Full width for smaller screens */
       margin: 0 0 20px 0; /* Add margin bottom for spacing */
@@ -257,8 +257,8 @@ header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
 
 
   
-  #base-navbar div {
-    @apply flex flex-col small_tablet:flex-row flex-wrap justify-center small_tablet:justify-around items-center gap-8  mx-4;
+  #base-navbar .nav-items-wrapper {
+    @apply  flex flex-col small_tablet:flex-row flex-wrap justify-center small_tablet:justify-around items-center gap-8  mx-4 z-40;
   }
   
   .maple-logo-header {
@@ -266,8 +266,10 @@ header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
   }
 
   .base-navbar-link {
-    @apply relative;
+    @apply relative uppercase font-semibold;
   }
+
+ 
 
   .base-navbar-link.active:after {
     content: '•'; /* Symbol to display underneath */
@@ -288,6 +290,10 @@ header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
     font-size: 32px;
     @apply text-blue-700 
   }
+
+   #loginButton {
+    @apply  uppercase sm:normal-case font-semibold;
+   }
 
 
   #dark-mode-btn-toggle.light {
@@ -453,6 +459,7 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
   top: 60%;
   left: 70%;
   transform: translate(-50%, -50%);
+  z-index: 10;
 }
 
 .drop {
@@ -670,4 +677,31 @@ overflow: hidden; /* Hide any overflow content */
 
 .forgot-password a:hover::before {
  @apply bg-blue-400;
+}
+
+/* Nav Bar Hamburger Menu Button */
+
+.hamburger-menu-btn-wrapper {
+  @apply relative flex flex-col flex-wrap items-center justify-center cursor-pointer gap-[6px];
+}
+
+.hamburger-menu-btn {
+  @apply flex flex-col items-start justify-center cursor-pointer gap-[6px];
+}
+
+.hamburger-menu-btn-dot {
+  @apply w-[4px] h-[4px] bg-white rounded-full;
+}
+
+.hamburger-menu-btn-line {
+  @apply w-[22px] h-[2px] bg-white;
+  box-shadow: 0px 2px 5px rgba(255, 255, 255, 0.5);
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.hamburger-menu-btn-line:first-child {
+  @apply w-[16px];
+}
+.hamburger-menu-btn-line:nth-child(3) {
+  @apply w-[16px];
 }
