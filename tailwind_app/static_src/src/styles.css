@@ -262,7 +262,7 @@ header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
   }
   
   .maple-logo-header {
-    @apply w-full small_tablet:w-1/3;
+    @apply w-full small_tablet:w-[200px];
   }
 
   .base-navbar-link {
