@@ -60,16 +60,16 @@ const handleDarkModeBtnToggle = (event) => {
 
 const handleDarkModeInLs = (event) => {
   event.preventDefault();
-  let isLightMode=localStorage.getItem("isLightMode");
-  if (isLightMode === "true") {
-    body.classList.add("light");
+  let isDarkMode=localStorage.getItem("isDarkMode");
+  if (isDarkMode === "true") {
+    body.classList.add("dark");
     const allElements = body.getElementsByTagName("*");
     for (let i = 0; i < allElements.length; i++) {
-      allElements[i].classList.toggle("light");
+      allElements[i].classList.toggle("dark");
     }
   }
   else {
-    console.log("--dark mode is on");
+    console.log("--dark mode is off--");
   }
 }
 
