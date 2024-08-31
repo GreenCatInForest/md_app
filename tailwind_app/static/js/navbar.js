@@ -10,13 +10,6 @@ let baseNavbarLinks = document.querySelectorAll(".base-navbar-link");
 let baseNavbar = document.querySelector("#base-navbar");
 
 
-// Hamburger menu toggle event
-
-const handleHamburgerMenuBtn = (event) => {
-  event.preventDefault();
-  console.log("Hamburger menu button clicked");
-  baseNavbarLinks.forEach(link => link.classList.toggle("hidden"));
-}
 
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -35,6 +28,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+// Hamburger menu toggle event
+
+const handleHamburgerMenuBtn = (event) => {
+  event.preventDefault();
+  console.log("Hamburger menu button clicked");
+  baseNavbarLinks.forEach(link => link.classList.toggle("hidden"));
+}
 
 // Login button click event
 

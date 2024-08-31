@@ -266,33 +266,36 @@ header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
   }
 
   .base-navbar-link {
-    @apply relative uppercase font-semibold;
+    @apply relative uppercase font-extrabold;
   }
 
- 
-
-  .base-navbar-link.active:after {
+  .base-navbar-link.active:hover:after {
     content: '•'; /* Symbol to display underneath */
     position: absolute;
-    bottom: -1.5em;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 32px;
-    @apply text-blue-700 
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    @apply text-white;
+  }
+
+  .base-navbar-link:hover {
+    @apply text-blue-400;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   }
 
   .base-navbar-link:hover:before {
     content: '•'; /* Symbol to display underneath */
     position: absolute;
-    bottom: -1em;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 32px;
-    @apply text-blue-700 
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    @apply text-white;
   }
 
    #loginButton {
-    @apply  uppercase sm:normal-case font-semibold;
+    @apply  uppercase sm:normal-case font-extrabold;
    }
 
 

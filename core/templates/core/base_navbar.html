@@ -12,6 +12,7 @@
                     <a href="" class="base-navbar-link hidden">Contacts</a>
                     {% if user.is_authenticated %}
                         <a href="{% url 'report' %}" class="base-navbar-link">Reports</a>
+                        <a href="{% url 'report' %}" class="base-navbar-link">Support</a>
                     {% endif %}
                     <div class="hamburger-menu-btn-wrapper">
                         <div class="hamburger-menu-btn">
@@ -41,12 +42,12 @@
                         <img id="mode-icon" src="{% static 'images/light-mode.png' %}" class="w-[25px]" alt="btn"/>
                     </button>
                     {% if user.is_authenticated %}
-                        <div class="{% if user.is_authenticated %}inline-flex flex-row gap-8 justify-center items-center{% else %}absolute{% endif %}">
-                            <a href="" class="w-8 h-8 rounded-full bg-pink-600 flex items-center justify-center">{{ user.name|slice:":1" }}</p> 
+                        <div class="{% if user.is_authenticated %}inline-flex flex-row gap-8 justify-center items-center uppercase font-semibold {% else %}absolute{% endif %}">
+                            <a href="" class="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center">{{ user.name|slice:":1" }}</p> 
                             <a href="{% url 'logout' %}">Logout</a>
                         </div>
                         {% else %}
-                        <button id="loginButton" data-url="{% url 'login_register' %}">Login | Register</button>
+                        <button id="loginButton" data-url="{% url 'login_register' %}" >Login | Register</button>
                     {% endif %} 
                 </div>
     </nav>
