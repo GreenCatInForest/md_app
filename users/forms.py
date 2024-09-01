@@ -60,6 +60,26 @@ class UserRegisterForm(UserCreationForm):
         model = User  # Use your custom User model
         fields = ['email', 'name', 'surname', 'password1', 'password2']
 
+    def __init__(self, *args, **kwargs):
+        super(UserRegisterForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if self.errors.get(field_name):
+                # If the field has errors, add 'error' class to the field's widget
+                existing_classes = field.widget.attrs.get('class', '')
+                field.widget.attrs['class'] = existing_classes + ' error'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        if email and User.objects.filter(email=email).exists():
+            self.add_error('email', 'An account with this email already exists')
+        if password1 and password2 and password1 != password2:
+            self.add_error('password2', 'Passwords do not match')
+        return cleaned_data
+ 
+
 
 class UserLoginForm(forms.Form):
     email = forms.EmailField(

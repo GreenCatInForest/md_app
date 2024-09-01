@@ -153,19 +153,30 @@
     const registerForm = document.querySelector('.register-form');
 
     // Initially show login form and hide register form
-    loginForm.classList.add('active');
-    registerForm.classList.remove('active');
+    const registerActive = '{{ register_active|yesno:"true,false"}}';
+
+
+    if (registerActive === 'true') {
+            loginForm.classList.remove('active');
+            registerForm.classList.add('active');
+        } else {
+            loginForm.classList.add('active');
+            registerForm.classList.remove('active');
+        }
+
 
     btnLogin.addEventListener('click', (event) => {
         event.preventDefault();
         loginForm.classList.add('active');
         registerForm.classList.remove('active');
+        registerActive = false;
     });
 
     btnRegister.addEventListener('click', (event) => {
         event.preventDefault();
         loginForm.classList.remove('active');
         registerForm.classList.add('active');
+        registerActive = true;
     });
 });
     </script>

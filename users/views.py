@@ -75,6 +75,7 @@ def user_login(request):
 def user_login_register(request):
     user_login_form = UserLoginForm()
     user_register_form = UserRegisterForm()
+    register_active = False
     if request.method == 'POST':
         # Determine which form is being submitted
         if 'register' in request.POST:
@@ -92,6 +93,8 @@ def user_login_register(request):
                 return redirect('report')  # Redirect to user account page
             else:
                 print(f"Register form errors: {user_register_form.errors}")  # Debugging statement
+                register_active = True  # Set the register form to be active
+                user_register_form = UserRegisterForm(request.POST)  # Re-bind the form with POST data
                 
 
         elif 'login' in request.POST:
@@ -125,10 +128,13 @@ def user_login_register(request):
     else:
         user_login_form = UserLoginForm()
         user_register_form = UserRegisterForm()
+        register_active = False
 
     return render(request, 'users/login-register.html', {
         'user_login_form': user_login_form,
-        'user_register_form': user_register_form  # Pass both forms to the context
+        'user_register_form': user_register_form,
+        'register_active': register_active,
+         # Pass both forms to the context
     })
 
 
