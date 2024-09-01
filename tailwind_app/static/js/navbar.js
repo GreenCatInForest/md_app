@@ -30,11 +30,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Hamburger menu toggle event
 
-const handleHamburgerMenuBtn = (event) => {
-  event.preventDefault();
-  console.log("Hamburger menu button clicked");
-  baseNavbarLinks.forEach(link => link.classList.toggle("hidden"));
-}
+document.addEventListener('DOMContentLoaded', () => {
+  
+
+  const handleHamburgerMenuBtn = (event) => {
+      event.preventDefault();
+      console.log("Hamburger menu button clicked");
+
+      hamburgerMenuBtn.classList.toggle('active');
+
+
+      baseNavbarLinks.forEach(link => {
+          link.classList.toggle('hidden');
+      });
+  };
+
+  // Add click event listener to the hamburger button
+  hamburgerMenuBtn.addEventListener('click', handleHamburgerMenuBtn);
+});
 
 // Login button click event
 
@@ -49,12 +62,12 @@ const handleLogin = (event) => {
 const handleDarkModeBtnToggle = (event) => {
   event.preventDefault();
   console.log("Dark mode button clicked");
-  let isLightMode = body.classList.toggle("light");
+  let isDarkMode = body.classList.toggle("dark");
   const allElements = body.getElementsByTagName("*");
   for (let i = 0; i < allElements.length; i++) {
-    allElements[i].classList.toggle("light");
+    allElements[i].classList.toggle("dark");
   }
-  localStorage.setItem("isLightMode", isLightMode);
+  localStorage.setItem("isDarkMode", isDarkMode);
 };
 
 
@@ -83,7 +96,6 @@ loginButton
 
 darkModeBtnToggle.addEventListener("click", handleDarkModeBtnToggle);
 
-hamburgerMenuBtn.addEventListener("click", handleHamburgerMenuBtn)
 
 let hiddenMenuPropertiesBtn = document.querySelector("#hidden-menu-properties");
 let hiddenMenuPropertiesItems = document.querySelector(".hidden-menu-item");

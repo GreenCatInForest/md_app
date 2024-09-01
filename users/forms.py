@@ -62,7 +62,6 @@ class UserRegisterForm(UserCreationForm):
 
 
 class UserLoginForm(forms.Form):
-    model = User
     email = forms.EmailField(
         widget=forms.EmailInput(
             attrs={
@@ -83,19 +82,32 @@ class UserLoginForm(forms.Form):
             }
         )
     )
+
+    def __init__(self, *args, **kwargs):
+        super(UserLoginForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if self.errors.get(field_name):
+                # If the field has errors, add 'error' class to the field's widget
+                existing_classes = field.widget.attrs.get('class', '')
+                field.widget.attrs['class'] = existing_classes + ' error'
+
     def clean(self):
         cleaned_data = super().clean()
         email = cleaned_data.get('email')
         password = cleaned_data.get('password')
-
         if email and password:
-            user = authenticate(email=email, password=password)
-            if user is None:
-                raise ValidationError("Invalid email or password")
-            if not user.is_active:
-                raise ValidationError("This account is inactive.")
+            # Check if a user with the provided email exists
+            if not User.objects.filter(email=email).exists():
+                self.add_error('email', 'No account found with this email')
+            else:
+                user = authenticate(email=email, password=password)
+                if user is None:
+                    # If authentication fails, it means the password is incorrect
+                    self.add_error('password', 'Incorrect password')
+                elif not user.is_active:
+                    # If the user is inactive
+                    raise ValidationError("This account is inactive.")
         return cleaned_data
-  
     
 class PasswordResetRequestForm(forms.Form):
     email = forms.EmailField(label="Enter your email", max_length=254)

@@ -92,6 +92,7 @@ def user_login_register(request):
                 return redirect('report')  # Redirect to user account page
             else:
                 print(f"Register form errors: {user_register_form.errors}")  # Debugging statement
+                
 
         elif 'login' in request.POST:
             print('POST Login request detected')
@@ -100,19 +101,27 @@ def user_login_register(request):
             if user_login_form.is_valid():
                 email = user_login_form.cleaned_data.get('email')
                 password = user_login_form.cleaned_data.get('password')
-                print(f"Attempting to authenticate user with email: {email} and password: {password}")
-                user = authenticate(request, email=email, password=password)
-                print(f"Authentication result: {user}")
 
-                if user is not None:
-                    login(request, user)
-                    messages.success(request, 'You have successfully logged in!')
-                    return redirect('report')
+                # Check if the email exists before authenticating
+                if not User.objects.filter(email=email).exists():
+                    user_login_form.add_error('email', 'No account found with this email.')
                 else:
-                    messages.error(request, 'Invalid email or password')
-                    print("Invalid email or password")
+                    print(f"Attempting to authenticate user with email: {email} and password: {password}")
+                    user = authenticate(request, email=email, password=password)
+                    print(f"Authentication result: {user}")
+
+                    if user is not None:
+                        login(request, user)
+                        messages.success(request, 'You have successfully logged in!')
+                        return redirect('report')
+                        
+                    else:
+                        messages.error(request, 'Invalid email or password')
+                        print("Invalid email or password")
+                        
             else:
-                print(f"Login form errors: {user_login_form.errors}")  # Debugging statement
+                print(f"Login form errors: {user_login_form.errors}")
+                
     else:
         user_login_form = UserLoginForm()
         user_register_form = UserRegisterForm()

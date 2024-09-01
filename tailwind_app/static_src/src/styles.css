@@ -8,13 +8,7 @@
 
 body {
     @apply font-sans antialiased m-0 p-0 
-      text-light-basic_bg;
-      /* background-image: url('/static/images/david-clode-unsplash.jpg');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      background-position: center; */
-}
+      text-light-basic_bg}
 
 form {
   @apply flex flex-col flex-wrap gap-6;
@@ -258,7 +252,7 @@ header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
 
   
   #base-navbar .nav-items-wrapper {
-    @apply  flex flex-col small_tablet:flex-row flex-wrap justify-center small_tablet:justify-around items-center gap-8  mx-4 z-40;
+    @apply  flex flex-col small_tablet:flex-row flex-wrap justify-center small_tablet:justify-around items-center gap-8 z-40;
   }
   
   .maple-logo-header {
@@ -294,10 +288,7 @@ header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
     @apply text-white;
   }
 
-   #loginButton {
-    @apply  uppercase sm:normal-case font-extrabold;
-   }
-
+  
 
   #dark-mode-btn-toggle.light {
     filter: invert(50%) sepia(100%) saturate(300%) hue-rotate(190deg) brightness(95%) contrast(90%);
@@ -530,7 +521,7 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: center; */
-  overflow: hidden; /* Hide any overflow content */
+  /*overflow: hidden;  Hide any overflow content */
 
 }
 
@@ -612,7 +603,7 @@ overflow: hidden; /* Hide any overflow content */
 
 
 .login-form-title {
-  @apply mt-[80px] mb-[40px] text-2xl font-medium text-center;
+  @apply mt-[80px] mb-[40px] text-2xl font-medium text-center ;
   color: rgba(255, 255, 255, 0.8);
 }
 
@@ -684,27 +675,78 @@ overflow: hidden; /* Hide any overflow content */
 
 /* Nav Bar Hamburger Menu Button */
 
-.hamburger-menu-btn-wrapper {
-  @apply relative flex flex-col flex-wrap items-center justify-center cursor-pointer gap-[6px];
-}
-
 .hamburger-menu-btn {
-  @apply flex flex-col items-start justify-center cursor-pointer gap-[6px];
-}
-
-.hamburger-menu-btn-dot {
-  @apply w-[4px] h-[4px] bg-white rounded-full;
+  @apply flex flex-col items-start justify-center w-[30px] cursor-pointer gap-[6px];
+  transition: transform 0.3s ease;
 }
 
 .hamburger-menu-btn-line {
-  @apply w-[22px] h-[2px] bg-white;
+  @apply w-full h-[4px] bg-white;
   box-shadow: 0px 2px 5px rgba(255, 255, 255, 0.5);
   border-radius: 5px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, width 0.3s ease, background-color 0.3s ease, opacity 0.3s ease;
 }
+
+
+.hamburger-menu-btn:hover .hamburger-menu-btn-line {
+  width: 26px; 
+  background-color: rgba(255, 255, 255, 0.7); 
+}
+
 .hamburger-menu-btn-line:first-child {
-  @apply w-[16px];
+  @apply w-full;
+  transform: translateY(-4px);
 }
+
 .hamburger-menu-btn-line:nth-child(3) {
   @apply w-[16px];
+  transform: translateY(4px);
+}
+
+
+.hamburger-menu-btn.active .hamburger-menu-btn-line:nth-child(1) {
+  transform: translateY(10px) rotate(45deg);
+  width: 30px; 
+  background-color: #60A5FA; 
+}
+
+.hamburger-menu-btn.active .hamburger-menu-btn-line:nth-child(2) {
+  opacity: 0; 
+}
+
+.hamburger-menu-btn.active .hamburger-menu-btn-line:nth-child(3) {
+  transform: translateY(-10px) rotate(-45deg);
+  width: 30px; 
+  background-color: #60A5FA; 
+}
+
+/* Navbar visibility toggle */
+.base-navbar.hidden {
+  display: none;
+}
+
+.base-navbar.visible {
+  display: block;
+}
+
+.input-field {
+  @apply w-full h-[55px] p-[15px] my-[10px] text-white;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  backdrop-filter: blur(30px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.input-field.error {
+  border: 2px solid red; /* Highlight fields with errors */
+  background-color: rgba(255, 0, 0, 0.1); /* Slight red background for error fields */
+}
+
+.error-message {
+  color: red;
+  font-size: 0.9em;
+  margin-top: 5px;
 }

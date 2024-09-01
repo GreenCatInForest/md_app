@@ -31,33 +31,48 @@
             <button class="btn-form btn-login-form" id="btn-login-form-toggle">Login</button>
             <button class="btn-form btn-register-form" id="btn-register-form-toggle">Register</button>
         </div>
-        <!-- login form -->
-        <div class="login-form">
-            <h3 class="login-form-title">Sign in to access your <span class="font-extrabold text-blue-400">surveys</span></h3>
-                <form method="POST">
-                    {% csrf_token %}
-                    {{ user_login_form.non_field_errors }}
-                    <!-- Email Field with User Icon -->
-            <div class="login-form-inputs">
-                
-                <div class="input-icon-container">
-                    <img src="{% static 'images/user.png'%}" class="icon">
-                    {{ user_login_form.email }}
-                    {{ user_login_form.email.errors }}
+       <!-- Login form -->
+    <div class="login-form">
+        <h3 class="login-form-title">Sign in to access your <span class="font-extrabold text-blue-400">surveys</span></h3>
+        <form method="POST">
+            {% csrf_token %}
+            
+            <!-- Display non-field errors here -->
+            {% if user_login_form.non_field_errors %}
+                <div class="error-message">
+                    {% for error in user_login_form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
                 </div>
-
-                <!-- Password Field with Lock Icon -->
-                <div class="input-icon-container">
-                    <img src="{% static 'images/lock.png'%}" class="icon"/>
-                    {{ user_login_form.password }}
-                    {{ user_login_form.password.errors }}
-                </div>
-                        
-                <div class="forgot-password">
-                            <a href="">Forgot the Password?</a>
-                        
-                </div>
-
+            {% endif %}
+            
+            <!-- Email Field with User Icon -->
+            <div class="input-icon-container">
+                <img src="{% static 'images/user.png' %}" class="icon">
+                {{ user_login_form.email }}
+                <!-- Display field-specific error -->
+                {% if user_login_form.email.errors %}
+                    <div class="error-message">
+                        {% for error in user_login_form.email.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Password Field with Lock Icon -->
+            <div class="input-icon-container">
+                <img src="{% static 'images/lock.png' %}" class="icon"/>
+                {{ user_login_form.password }}
+                <!-- Display field-specific error -->
+                {% if user_login_form.password.errors %}
+                    <div class="error-message">
+                        {% for error in user_login_form.password.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
                 <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 my-[10px] ">
                             <button type="submit" name="login" class="inline-flex justify-center items-center py-6 px-6 w-full text-base font-semibold text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 ">Login 
                                 <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
@@ -67,7 +82,6 @@
                 </div>
             </div>
         </form>
-            </div> 
 
             <!-- register form -->
            
@@ -127,7 +141,7 @@
     </div>
 </div>
 
-{% endblock %}
+
 
 {% block js %}
     <script>
@@ -155,4 +169,6 @@
     });
 });
     </script>
+    
+{% endblock %}
 {% endblock %}
