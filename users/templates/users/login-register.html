@@ -24,6 +24,10 @@
     </linearGradient>
     </defs>
     </svg>
+
+      <!-- Canvas for Graph -->
+      <canvas id="dynamicGraph" width="full" height="100vh"></canvas>
+      
     </div>
     <div class="col col-2">
        
@@ -217,6 +221,108 @@
         });
     });
     </script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function() {
+    // Obfuscation function for simple protection
+    function obfuscate(str) {
+        return str.split('').reverse().join('');
+    }
+
+    // Deobfuscate function name
+    const funcName = obfuscate('neercsetaerc');
+
+    // Function to generate random data
+    function createRandomData() {
+        const data = [];
+        for (let i = 0; i < 10; i++) {
+            data.push(Math.random() * 6);  // Random data resembling environmental parameters
+        }
+        return data;
+    }
+
+    // Dynamically render graph
+
+    function createChart() {
+        const ctx = document.getElementById('dynamicGraph').getContext('2d');
+
+        // Initial data setup
+        const initialData = createRandomData();
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'], // Time-based labels
+                datasets: [{
+                    label: 'Index Over Time', // Meaningful label related to your data
+                    data: [], // Start with no data
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)', // Slight fill color to enhance smoothness
+                    borderWidth: 4,
+                    tension: 0.4,  // Smooth the line by adding tension for cubic interpolation
+                    fill: false, // Fill under the line
+                    pointRadius: 3, // Smaller points for a cleaner look
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)'
+                }]
+            },
+            options: {
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInQuad',
+                },
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Months of the Year' // Axis name reflecting time
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: false,
+                            text: 'Index Score' // Axis name reflecting your data metric
+                        },
+                        min: 0, // Start y-axis at 0
+                        max: 6  // Upper limit matching your BMI scale
+                    }
+                }
+            }
+        });
+
+        // Function to add data points one at a time
+        function addDataPoints() {
+            initialData.forEach((value, index) => {
+                setTimeout(() => {
+                    chart.data.datasets[0].data.push(value); // Add new data point
+                    chart.update(); // Update the chart to reflect new data
+                }, index * 1000); // Delay each step by 300ms
+            });
+        }
+
+        // Start adding data points after a short delay
+        setTimeout(addDataPoints, 1000);
+    }
+
+    // Run the function
+    createChart();
+})();
+</script>
 
     
 {% endblock %}
