@@ -763,6 +763,7 @@ overflow: hidden; /* Hide any overflow content */
   color: red;
   font-size: 0.9em;
   margin-top: 5px;
+  text-align: center;
 }
 
 .login-form,
@@ -781,7 +782,6 @@ overflow: hidden; /* Hide any overflow content */
   transform: translateX(-50%);
 }
 
-.login-form:not(.active),
-.register-form:not(.active) {
+.login-form:not(.active) {
   left: 150%;
 }

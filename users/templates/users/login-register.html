@@ -47,9 +47,12 @@
             {% endif %}
             
             <!-- Email Field with User Icon -->
+             
+            <div>
             <div class="input-icon-container">
                 <img src="{% static 'images/user.png' %}" class="icon">
                 {{ user_login_form.email }}
+            </div>
                 <!-- Display field-specific error -->
                 {% if user_login_form.email.errors %}
                     <div class="error-message">
@@ -61,9 +64,11 @@
             </div>
             
             <!-- Password Field with Lock Icon -->
+            <div>
             <div class="input-icon-container">
                 <img src="{% static 'images/lock.png' %}" class="icon"/>
                 {{ user_login_form.password }}
+            </div>
                 <!-- Display field-specific error -->
                 {% if user_login_form.password.errors %}
                     <div class="error-message">
