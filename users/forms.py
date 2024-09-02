@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.forms import EmailField, TextInput, PasswordInput
+from django.forms import EmailField, TextInput, PasswordInput, CheckboxInput
 from core.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
@@ -56,9 +56,18 @@ class UserRegisterForm(UserCreationForm):
             }
         )
     )
+
+    agree_to_terms = forms.BooleanField(
+        required=True,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'checkbox-field',
+            'id': 'agree_to_terms'
+        }),
+        error_messages={'required': 'You must agree to the terms and conditions to register.'}
+    )
     class Meta:
         model = User  # Use your custom User model
-        fields = ['email', 'name', 'surname', 'password1', 'password2']
+        fields = ['email', 'name', 'surname', 'password1', 'password2', 'agree_to_terms']
 
     def __init__(self, *args, **kwargs):
         super(UserRegisterForm, self).__init__(*args, **kwargs)
@@ -73,10 +82,13 @@ class UserRegisterForm(UserCreationForm):
         email = cleaned_data.get('email')
         password1 = cleaned_data.get('password1')
         password2 = cleaned_data.get('password2')
+        agree_to_terms = cleaned_data.get('agree_to_terms')
         if email and User.objects.filter(email=email).exists():
             self.add_error('email', 'An account with this email already exists')
         if password1 and password2 and password1 != password2:
             self.add_error('password2', 'Passwords do not match')
+        if not agree_to_terms:
+            self.add_error('agree_to_terms', 'You shall first read and agree to the terms and conditions')
         return cleaned_data
  
 

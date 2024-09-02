@@ -618,6 +618,10 @@ overflow: hidden; /* Hide any overflow content */
   @apply sm:mt-[40px]
 }
 
+.register-form-terms-conditions {
+  @apply flex flex-col sm:flex-row items-center justify-center gap-2 p-0;
+}
+
 
 .login-form-inputs,
 .register-form-inputs {
@@ -626,6 +630,10 @@ overflow: hidden; /* Hide any overflow content */
 
 .input-icon-container {
   @apply relative flex flex-wrap items-center min-h-[55px];
+}
+
+.input-icon-container.register-form-terms input {
+  @apply w-[10%];
 }
 
 
