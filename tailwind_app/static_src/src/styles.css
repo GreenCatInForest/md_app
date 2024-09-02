@@ -547,7 +547,7 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
 
 
 .col-1 {
-@apply flex items-center flex-col w-full sm:w-[45%] justify-center h-0 sm:min-h-[70vh] lg:min-h-[90vh] relative left-0 top-0 bg-blue-700/30;
+@apply flex items-center flex-col w-full sm:w-[45%] justify-center h-0 sm:min-h-[70vh] md:min-h-[80vh] xl:h-full relative left-0 -top-20 lg:top-0 bg-blue-700/30;
 /* background-color: rgba(255, 255, 255, 0.3); */
 backdrop-filter: blur(30px);
 border-radius: 0 10% 8% 0;
@@ -810,4 +810,12 @@ overflow: hidden; /* Hide any overflow content */
   height: auto;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.disclaimer {
+  margin-top: 20px;  /* Adds some space above the disclaimer */
+  text-align: center;  /* Centers the text */
+  color: #555;  /* Gives a neutral color */
+  font-size: 14px;  /* Adjusts the font size */
+  color: gray;
 }
