@@ -88,18 +88,14 @@ def property_photo_upload_path(instance, filename):
 
 def room_photo_upload_path(instance, filename):
     # Get the company ID
-        property = instance.property
-        property_address = property.address if property.address else 'temp'
-        room_name = instance.room_name if instance.room_name else 'temp'
+        report = instance.report if instance.report else 'temp'
     # Generate the upload path
-        return os.path.join('img', 'properties_img', property_address, str(room_name), filename)
+        return os.path.join('img', 'rooms_img', str(report), filename)
 
 def report_property_photo_upload_path(instance, filename):
-        property = instance.property
-        property_address = property.address if property.address else 'temp'
+    property_address = instance.property_address if instance.property_address else 'temp'
     # Generate the upload path
-        return os.path.join('img', 'properties_img', str(property_address), filename)
-
+    return os.path.join('img', 'properties_img', str(property_address), filename)
 class Logger (models.Model):
     serial_number = models.CharField(max_length=255, unique=True)
     registered_date = models.DateTimeField(auto_now=True)
@@ -190,20 +186,32 @@ class Report (models.Model):
     occupied = models.BooleanField(default=False)
     occupied_during_all_monitoring = models.BooleanField(default=False)
     number_of_occupants = models.IntegerField(default=0)
-    report_file = models.FileField(upload_to='reports/<report_id>/')
+    report_file = models.FileField(upload_to='reports/', null=True, blank=True)
+
+      # Ensure the file path is correctly formatted using instance-specific information
+    def save(self, *args, **kwargs):
+        if not self.report_file:
+            self.report_file = f'reports/{self.id}/{self.property_address}_{self.start_time.strftime("%Y%m%d%H%M%S")}.pdf'
+        super().save(*args, **kwargs)
+
+
+    # def __str__(self):
+    #     return self.start_time.strftime("%Y%m%d-%H:%M:%S")
 
     def __str__(self):
-        return self.start_time.strftime("%Y%m%d-%H:%M:%S")
+        return f"Report {self.property_address} - {self.start_time.strftime('%Y-%m-%d')}"
 
     def add_report (cls, start_time, end_time, property, property_photo, company, surveyor, notes, report_file, report_requirements):
         report = Report(start_time=start_time, end_time=end_time, property=property, property_photo=property_photo, company=company, surveyor=surveyor, notes=notes, report_file=report_file, report_requirements=report_requirements)
         report.save()
         return report 
-
+    
+    # Additional logic for validation or processing
     def clean(self):
-        # Ensure end_time is after start_time
         if self.end_time and self.start_time and self.end_time <= self.start_time:
             raise ValidationError(_('End time must be after start time.'))
+
+   
 
 
 class Room(models.Model):

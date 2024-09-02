@@ -8,9 +8,13 @@ from django.contrib import messages
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegisterForm, UserLoginForm
+from .forms import UserRegisterForm, UserLoginForm, PasswordResetRequestForm
 from core.models import User, PasswordReset
+from django.contrib.auth import get_user_model
 
 # for password reset
 
@@ -24,147 +28,124 @@ from .serializers import ResetPasswordRequestSerializer, ResetPasswordSerializer
 import os
 
 
-def user_register(request):
-    if request.method == 'POST': 
-        user_register_form = UserRegisterForm(request.POST) # Create a new user form
-        if user_register_form.is_valid(): # Check if the form is valid
-            user = user_register_form.save(commit=False) # Create a new user object but avoid saving it yet
-            user.set_password(user_register_form.cleaned_data['password1']) # Hash the password
-            user.save()  # Save the user to the database
-            messages.success(request, 'Your account has been created! You will be now log in.')
-            login(request, user)  # Log in the user
-            # return HttpResponse('Hello '+user.name+' '+user.surname + ' You have successfully registered!')
-            return redirect('report')  # Redirect to user account page
-    else:
-        user_register_form = UserRegisterForm() # Create a new user form
-    return render(request, 'users/register.html', {'user_register_form': user_register_form}) 
 
-def user_login(request):
-    if request.method == 'POST': 
-        user_login_form = UserLoginForm(request.POST)
-        if user_login_form.is_valid():
-            email = user_login_form.cleaned_data.get('email')
-            password = user_login_form.cleaned_data.get('password')
-            print(f"Attempting to authenticate user with email: {email} and password: {password}")
-            user = authenticate(request, email=email, password=password)
-            print(f"Authentication result: {user}")
-            if user is not None:
-                login(request, user)
-                messages.success(request, 'You have successfully logged in!')
-                return redirect('report')
+def user_login_register(request):
+    user_login_form = UserLoginForm()
+    user_register_form = UserRegisterForm()
+    register_active = False  # By default, show the login form
+
+    if request.method == 'POST':
+        # Determine which form is being submitted
+        if 'register' in request.POST:
+            print('POST Register request detected')
+            user_register_form = UserRegisterForm(request.POST)  # Bind registration form with POST data
+            user_login_form = UserLoginForm()  # Initialize an empty login form
+
+            if user_register_form.is_valid():
+                print('User register form is valid')
+                user = user_register_form.save(commit=False)
+                user.set_password(user_register_form.cleaned_data['password1'])  # Hash the password
+                user.save()  # Save the user to the database
+                messages.success(request, 'Your account has been created! You will be now logged in.')
+                login(request, user)  # Log in the user
+                return redirect('report')  # Redirect to user account page
             else:
-                messages.error(request, 'Invalid email or password')
-                print("Invalid email or password")
+                print(f"Register form errors: {user_register_form.errors}")  # Debugging statement
+                register_active = True  # Keep the register form active
+
+        elif 'login' in request.POST:
+            print('POST Login request detected')
+            user_login_form = UserLoginForm(request.POST)  # Bind login form with POST data
+
+            if user_login_form.is_valid():
+                email = user_login_form.cleaned_data.get('email')
+                password = user_login_form.cleaned_data.get('password')
+
+                # Check if the email exists before authenticating
+                if not User.objects.filter(email=email).exists():
+                    user_login_form.add_error('email', 'No account found with this email.')
+                else:
+                    print(f"Attempting to authenticate user with email: {email} and password: {password}")
+                    user = authenticate(request, email=email, password=password)
+                    print(f"Authentication result: {user}")
+
+                    if user is not None:
+                        login(request, user)
+                        messages.success(request, 'You have successfully logged in!')
+                        return redirect('report')
+                        
+                    else:
+                        messages.error(request, 'Invalid email or password')
+                        print("Invalid email or password")
+                        
+            else:
+                print(f"Login form errors: {user_login_form.errors}")
+                
     else:
         user_login_form = UserLoginForm()
-    
-    return render(request, 'users/login.html', {'user_login_form': user_login_form})
+        user_register_form = UserRegisterForm()
+
+    return render(request, 'users/login-register.html', {
+        'user_login_form': user_login_form,
+        'user_register_form': user_register_form,
+        'register_active': register_active,  # Pass the active form status
+    })
 
 
 def user_logout(request):
     print('User is logging out')
     logout(request)
-    return redirect('register')
+    return redirect('login_register')
 
-# password forgot 1 implementation
 
-# class RequestPasswordReset(generics.GenericAPIView):
-#     permission_classes = [AllowAny]
-#     serializer_class = ResetPasswordRequestSerializer
+def password_reset_request_view(request):
+    if request.method == "POST":
+        form = PasswordResetRequestForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            user = User.objects.filter(email=email).first()
+            if user:
+                subject = "Password Reset Requested"
+                email_template_name = "password/password_reset_email.txt"
+                context = {
+                    "email": user.email,
+                    "domain": request.META["HTTP_HOST"],
+                    "site_name": "Your Website",
+                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                    "user": user,
+                    "token": default_token_generator.make_token(user),
+                    "protocol": "http",
+                }
+                email_message = render_to_string(email_template_name, context)
+                send_mail(subject, email_message, settings.DEFAULT_FROM_EMAIL, [user.email])
+                messages.success(request, "A link to reset your password has been sent to your email.")
+                return redirect("login")
+            else:
+                messages.error(request, "No account found with that email address.")
+    else:
+        form = PasswordResetRequestForm()
+    return render(request, "password/password_reset_form.html", {"form": form})
 
-#     def post(self, request):
-#         serializer = self.serializer_class(data=request.data)
-#         email = request.data['email']
-#         user = User.objects.filter(email__iexact=email).first()
+def password_reset_confirm_view(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
 
-#         if user:
-#             token_generator = PasswordResetTokenGenerator()
-#             token = token_generator.make_token(user) 
-#             reset = PasswordReset(email=email, token=token)
-#             reset.save()
-
-#             reset_url = f"{os.environ['PASSWORD_RESET_BASE_URL']}/{token}"
-
-#             # Sending reset link via email (commented out for clarity)
-#             # ... (email sending code)
-
-#             return Response({'success': 'We have sent you a link to reset your password'}, status=status.HTTP_200_OK)
-#         else:
-#             return Response({"error": "User with credentials not found"}, status=status.HTTP_404_NOT_FOUND)
-
-# class ResetPassword(generics.GenericAPIView):
-#     serializer_class = ResetPasswordSerializer, 
-#     permission_classes = []
-
-#     def post(self, request, token):
-#         serializer = self.serializer_class(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         data = serializer.validated_data
-        
-#         new_password = data['new_password']
-#         confirm_password = data['confirm_password']
-        
-#         if new_password != confirm_password:
-#             return Response({"error": "Passwords do not match"}, status=400)
-        
-#         reset_obj = PasswordReset.objects.filter(token=token).first()
-        
-#         if not reset_obj:
-#             return Response({'error':'Invalid token'}, status=400)
-        
-#         user = User.objects.filter(email=reset_obj.email).first()
-        
-#         if user:
-#             user.set_password(request.data['new_password'])
-#             user.save()
-            
-#             reset_obj.delete()
-            
-#             return Response({'success':'Password updated'})
-#         else: 
-#             return Response({'error':'No user found'}, status=404)
-        
-# password forgot 2 implementation
-
-def password_forgot(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            # Handle invalid email
-            return render(request, 'users/password_forgot.html', {'error': 'Invalid email'})
-
-        # Generate token and send reset email
-        token = default_token_generator.make_token(user)
-        print('here is the token '+ token)
-        reset_link = request.build_absolute_uri(f'/reset-password/{token}/')
-        send_mail(
-            'Password Reset',
-            f'Click the link to reset your password: {reset_link}',
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
-            fail_silently=False,
-        )
-        return render(request, 'users/password_forgot.html', {'message': 'Password reset email sent'})
-    return render(request, 'users/password_forgot.html')
-
-def password_reset(request, token):
-    if request.method == 'POST':
-        new_password = request.POST.get('new_password')
-        # Validate token and set new password
-        try:
-            user = User.objects.get(email=request.POST.get('email'))
-            if default_token_generator.check_token(user, token):
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == "POST":
+            new_password = request.POST.get("new_password")
+            confirm_password = request.POST.get("confirm_password")
+            if new_password == confirm_password:
                 user.set_password(new_password)
                 user.save()
-                return redirect('login')  # Redirect to login page after password reset
+                messages.success(request, "Your password has been reset successfully.")
+                return redirect("login")
             else:
-                # Invalid token
-                return render(request, 'users/password_reset', {'error': 'Invalid token'})
-        except User.DoesNotExist:
-            # Handle invalid email
-            return render(request, 'users/password_reset.html', {'error': 'Invalid email'})
-    return render(request, 'users/password_reset.html', {'token': token})
-
-
+                messages.error(request, "Passwords do not match.")
+        return render(request, "password/password_reset_confirm.html")
+    else:
+        messages.error(request, "The password reset link is invalid or has expired.")
+        return redirect("password_reset_request")
+    

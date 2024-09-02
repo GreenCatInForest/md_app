@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Historical Reports{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-bold mb-4">Historical Reports</h2>
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white text-gray-900 shadow-md rounded-lg overflow-hidden">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Date of Report</th>
+                    <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Property Address</th>
+                    <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Rooms Name</th>
+                    <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr class="hover:bg-gray-50">
+                    <td class="py-2 px-4 border-b text-gray-900">{{ report.report_timestamp|date:"Y-m-d H:i" }}</td>
+                    <td class="py-2 px-4 border-b text-gray-900">{{ report.property_address }}</td>
+                    <td class="py-2 px-4 border-b text-gray-900">
+                        {% for room in report.rooms.all %}
+                            {{ room.room_name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td class="py-2 px-4 border-b text-gray-900">
+                        <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-4 text-gray-900">No reports found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    @media screen and (max-width: 768px) {
+        table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+            color: black;
+        }
+        thead, tbody, th, td, tr {
+            display: block;
+        }
+        thead tr {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+        tr {
+            border: 1px solid #ccc;
+        }
+        td {
+            border: none;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            padding-left: 50%;
+        }
+        td:before {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: 45%;
+            white-space: nowrap;
+            content: attr(data-label);
+        }
+    }
+</style>
+{% endblock %}

@@ -5,7 +5,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.dates import DayLocator, HourLocator
-from PyPDF2 import PdfFileMerger, PdfFileReader
+from PyPDF2 import PdfReader, PdfMerger
 import os
 import datetime
 from fpdf import FPDF
@@ -14,14 +14,27 @@ import textwrap as twp
 import re
 # coding: utf-8
 from enum import IntEnum
+import subprocess
+
+output_dir = '/code/imgs/'
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+output_report_dir = '/code/reports_save/'
+if not os.path.exists(output_report_dir):
+    os.makedirs(output_report_dir)
+
+# Generate and save the figure
+fig, ax = plt.subplots()
+# (plotting code here)
+plt.savefig(os.path.join(output_dir, 'Fig1.0.png'))
+plt.close()
 
 
 class FontSize(IntEnum):
     CONTENT = 11
     HEADER = 14
     INDEX = 12
-
-
 
 
 class RoomData:
@@ -114,9 +127,24 @@ class RoomData:
         else:
             print(f'Read csv file {datafile} for analysis.')
             dataframe = pd.read_csv(datafile)
-            dataframe['Time'] = pd.to_datetime(dataframe['Time'], format='%d/%m/%Y %H:%M')
+            if 'timestamp' in dataframe.columns:
+                dataframe.rename(columns={'timestamp': 'Time'}, inplace=True)
+                dataframe['Time'] = pd.to_datetime(dataframe['Time'], format='%d/%m/%Y %H:%M:%S')
             # print(dataframe)
-            dataframe.dropna(inplace=True)
+                dataframe.dropna(inplace=True)
+
+        # Check if 'IndoorAirTemp' and 'IndoorRelativeH' exist
+        if 'IndoorAirTemp' in dataframe.columns and 'IndoorRelativeH' in dataframe.columns:
+            # Calculate 'IndoorDewPoint'
+            a = 17.27
+            b = 237.7
+            alpha = (a * dataframe['IndoorAirTemp']) / (b + dataframe['IndoorAirTemp']) + np.log(dataframe['IndoorRelativeH'] / 100.0)
+            dataframe['IndoorDewPoint'] = (b * alpha) / (a - alpha)
+        else:
+            # Handle missing columns
+            print("Warning: 'IndoorAirTemp' or 'IndoorRelativeH' column is missing from the data.")
+            dataframe['IndoorDewPoint'] = pd.Series([float('nan')] * len(dataframe))
+        
         # print("After dropna")
         # print(dataframe)
         TI = dataframe.Time
@@ -139,6 +167,7 @@ class RoomData:
 
         print(f'Debug room data problem room {self.problem_room}')
         self.monitor_area = monitor_area
+        print(f'Debug room data monitor area {self.monitor_area}')
 
         if start_time:
             self.STDH = str(start_time)
@@ -897,12 +926,11 @@ class RoomData:
 
 
 def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
-           # start_time, start_index, end_time, end_index, timeinterval,
-           occupied, monitor_time, occupant_number, Problem_rooms, Monitor_areas, moulds, Image_property,
-           Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4, Image_logo, comment, popup=True):
+           occupied, monitor_time, occupied_during_all_monitoring, occupant_number, Problem_rooms, Monitor_areas, moulds, Image_property, room_pictures,
+           Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4,Image_logo, comment, popup=True):
     # global DATA
 
-    output_file_name = "PCA_BMI_Report"
+    output_file_name = os.path.join(output_report_dir, "PCA_BMI_Report")
 
     table_of_content = []
 
@@ -912,6 +940,34 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         print(f'ERROR: Mismatch of input data len(datafiles):{len(datafiles)}, len(Problem_rooms):{len(Problem_rooms)},'
               f'len(Monitor_areas):{len(Monitor_areas)}')
         return
+    
+    image_list = []
+
+    if Image_property:
+        image_list.append([Image_property, 'Outdoor Image'])
+    for idx, image in enumerate([Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4]):
+        if image:
+            image_list.append([image, f'Indoor Image {idx + 1}'])
+
+    # if Image_property or any([Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4]):  # Check if there is at least one image
+    #     if Image_property:
+    #         image_list.append([Image_property, 'Outdoor Image'])
+    #     if Image_indoor1:
+    #         image_list.append([Image_indoor1, 'Indoor Image'])
+    #     if Image_indoor2:
+    #         image_list.append([Image_indoor2, 'Indoor Image'])
+    #     if Image_indoor3:
+    #         image_list.append([Image_indoor3, 'Indoor Image'])
+    #     if Image_indoor4:
+    #         image_list.append([Image_indoor4, 'Indoor Image'])
+
+
+        # # Add room images
+        # for room_index, room_picture in enumerate(room_pictures):
+        #     if room_picture:  # Only if the room image is provided
+        #         image_list.append([room_picture, f'Room {room_index + 1} Image'], 'Indoor Image')
+
+
 
     # if len(datafiles) == 1:
     #     output_file_name = datafiles[0]
@@ -988,6 +1044,7 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
             pdf.cell(70, 8, section4_main_title, 0, 1, 'L', True)
 
         pdf.ln(5)
+        
 
         suffix = f'{room_data.suffix}'
         section4_title = f'4{suffix}. {room_data.problem_room}'
@@ -1204,7 +1261,8 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         cover_pdf.set_font('Arial', '', FontSize.HEADER)
         cover_pdf.cell(60, 6, 'Date of Inspection:', 0, 0, 'L')
         cover_pdf.set_font('Arial', '', FontSize.CONTENT)
-        cover_pdf.cell(60, 6, str(inspectiontime), 0, 1, 'L')
+        formatted_inspectiontime = inspectiontime.strftime('%-d %B %Y %H:%M:%S')
+        cover_pdf.cell(60, 6, str(formatted_inspectiontime), 0, 1, 'L')
         # cell(self, w, h=0, txt='', border=0, ln=0, align='', fill=0, link=''):
         # cover_pdf.add_page()
         # cover_pdf.image('imgs/Contents-Page-Index-Image.jpg', 20, 70, 170)
@@ -1458,18 +1516,32 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     def fix_q_and_a(title, answer):
         q_and_a(title, answer, 50)
 
+    days = monitor_time.days
+    hours, remainder = divmod(monitor_time.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    print(f"occupied type: {type(occupied)}")
+    print(f"monitor_time type: {type(monitor_time)}")
+    print(f"occupant_number type: {type(occupant_number)}")
+
     fix_q_and_a('Building professional:', surveyor)
     fix_q_and_a('Company Name:', company)
-    fix_q_and_a('Date of inspection:', str(inspectiontime))
+    formatted_inspectiontime = inspectiontime.strftime('%-d %B %Y %H:%M:%S')
+    fix_q_and_a('Date of inspection:', formatted_inspectiontime)
+    # fix_q_and_a('Date of inspection:', str(inspectiontime))
     fix_q_and_a('Property Address:', Address)
     pdf.ln(10)
-    q_and_a('Occupied or empty (void)?:', occupied, 70)
-    q_and_a('During all the monitoring period?:', monitor_time, 70)
-    q_and_a('If occupied, how many occupants?:', occupant_number, 70)
+    q_and_a('Occupied or empty?:', 'Occupied' if occupied else 'Empty', 70)
+    q_and_a('During all monitoring period?:', 'Yes' if occupied_during_all_monitoring else 'No', 70)
+    formatted_monitor_time = f"{days} days {hours:02} hours {minutes:02} minutes"
+    q_and_a('Monitoring period:', str(formatted_monitor_time), 70)
+    q_and_a('If occupied, how many occupants?:', str(occupant_number), 70)
     pdf.ln(10)
     fix_q_and_a('Monitored Problem room:', ', '.join(Problem_rooms))
     fix_q_and_a('Monitored Problem area:', ', '.join(Monitor_areas))
-    fix_q_and_a('Is there visible mould?:', ', '.join(moulds))
+    formatted_moulds = ['Yes' if mould == True else 'No' for mould in moulds]
+    fix_q_and_a('Is there visible mould?:', ', '.join(formatted_moulds))
+    # fix_q_and_a('Is there visible mould?:', ', '.join(map(str, moulds)))
 
     pdf.set_font('Arial', 'B', FontSize.CONTENT)
     pdf.ln(10)
@@ -1477,36 +1549,29 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     pdf.set_font('Arial', '', FontSize.CONTENT)
     pdf.multi_cell(0, 6, comment, 'J')
 
-    if (Image_property or Image_indoor1 or Image_indoor2 or Image_indoor3 or Image_indoor4) != '':
+    print("Full image_list:", image_list)
 
-        image_list = []
-        if Image_property != '':
-            image_list.append([Image_property, 'Outdoor Image'])
-        if Image_indoor1 != '':
-            image_list.append([Image_indoor1, 'Indoor Image 1'])
-        if Image_indoor2 != '':
-            image_list.append([Image_indoor2, 'Indoor Image 2'])
-        if Image_indoor3 != '':
-            image_list.append([Image_indoor3, 'Indoor Image 3'])
-        if Image_indoor4 != '':
-            image_list.append([Image_indoor4, 'Indoor Image 4'])
+    if Image_property or any(image_list):  # Check if there is at least one image
+        print("Full image_list:", image_list)
 
         pdf.set_font('Arial', '', FontSize.CONTENT)
         IMAGE_WIDTH = 80
-        IMAGE_HEIGHT = 0  ## Unspecified
+        IMAGE_HEIGHT = 0  # Unspecified, dynamically set based on image aspect ratio
         pdf.add_page()
         image_count = 0
         no_of_image_page = 1
+
         for image in image_list:
             image_tile = image[1]
             image_file = image[0]
-            image_count = image_count + 1
+            image_count += 1
             print(f"List of image({image_count}): {','.join(image)}")
             quotient, remainder = divmod(image_count, 4)
-            # print(f"image count:{image_count}, quotient:{quotient}, remainder:{remainder}")
+
             if quotient == no_of_image_page and remainder == 1:
                 pdf.add_page()
-                no_of_image_page = no_of_image_page + 1
+                no_of_image_page += 1
+
             if remainder == 1:  # upper left
                 pdf.cell(90, 10, image_tile, 0, 0, 'L')
                 pdf.image(image_file, 20, 40, IMAGE_WIDTH, IMAGE_HEIGHT)
@@ -1525,6 +1590,15 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         pdf.ln(10)
         pdf.cell(50, 6, 'Some images, drawings, maps or plans could be added to the report in this section', 0, 0, 'L')
 
+        pdf.set_font('Arial', '', FontSize.CONTENT)
+        
+
+     # Process each room's data and images
+    # for room_index, room_data in enumerate(room_data_list):
+    #     # Extract images for the current room
+    #     current_room_pictures = room_pictures[room_index] if room_index < len(room_pictures) else []
+
+        # Pass the images to the section4 function to handle them
     for room_data in room_data_list:
         section4(room_data)
 
@@ -1760,30 +1834,39 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     # pdf_name = datafile + '_t_' + dt_string + '.pdf'
     pdf_name = output_file_name + '_t_' + dt_string + '.pdf'
     pdf.output(pdf_name, 'F')
+    filename = None  # Initialize to ensure it's always defined
+
     try:
         print("file1:" + cover_pdf_file_name)
         print("file2:" + pdf_name)
-        file1 = open(cover_pdf_file_name, 'rb')
-        file2 = open(pdf_name, 'rb')
-        f1 = PdfFileReader(file1)
-        f2 = PdfFileReader(file2)
-        merger = PdfFileMerger()
-        merger.append(f1)
-        merger.append(f2)
-        filename = output_file_name + dt_string + '.pdf'
-        merger.write(filename)
-        file1.close()
-        file2.close()
+
+        with open(cover_pdf_file_name, 'rb') as file1, open(pdf_name, 'rb') as file2:
+            reader1 = PdfReader(file1)
+            reader2 = PdfReader(file2)
+            merger = PdfMerger()
+            merger.append(reader1)
+            merger.append(reader2)
+
+            filename = output_file_name + dt_string + '.pdf'
+            with open(filename, 'wb') as output_file:
+                merger.write(output_file)
+                
+         
+
+        # Clean up temporary files
         os.remove(cover_pdf_file_name)
         os.remove(pdf_name)
-    except BaseException as e:
-        print("Error encounter during pdf merge and deletion:" + e)
-    if popup:
-        os.startfile(filename)
+        return filename
+
+    except Exception as e:
+        print("Error encountered during pdf merge and deletion: " + str(e))
+        filename = None  # Ensure filename is set to None if an error occurs
+
+    # Cross-platform way to open the file
+    if filename and os.path.exists(filename):
+        print(f"{filename} generation is completed.")
     else:
-        print('Report pop-up is skipped.')
-    print(filename + ' generation is completed.')
-    return
+        print('Failed to generate the report. Please check the logs for more details.')
 
 # RPTGen('SensorsData.xlsx','Surveyor Paula','06/20/2020 16:20:58 ','6 Gower street,WC1E,6BT','2/19/2018  4:00:00 PM', 2,\
 # '3/5/2018  3:00:00 PM',500, pd.to_timedelta('1 days 06:05:01.00003'),'Bedroom A','floor',1,'imgs/Property.jpg','imgs/mould.jpeg','imgs/mould.jpeg','imgs/mould.jpeg',\

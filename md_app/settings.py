@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-idti^1w#yturas75q%so7$br7sdyv6m3#x0pwfq94ryg0s9_o7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.100', 'localhost', '127.0.0.1', '0.0.0.0', '192.168.0.123', '192.168.0.*', '127.0.0.1','localhost',]
+ALLOWED_HOSTS = ['192.168.0.100','192.168.0.141', 'localhost', '127.0.0.1', '0.0.0.0', '192.168.0.123', '192.168.0.*', '127.0.0.1','localhost',]
 
 
 
@@ -147,10 +147,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+
+# STATIC and MEDIA configuration
+STATIC_URL = '/static/'
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
 

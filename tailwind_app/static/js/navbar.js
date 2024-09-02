@@ -1,15 +1,16 @@
 let loginButton = document.querySelector("#loginButton");
-// let hamburgerBtnToggle = document.querySelector("#hamburger-btn-toggle");
-// let hamburgerItem = document.querySelectorAll(".hamburger-item");
+let hamburgerMenuBtn = document.querySelector(".hamburger-menu-btn");
+let hamburgerMenuItems = document.querySelector(".hamburger-menu");
+
 let darkModeBtnToggle = document.querySelector("#dark-mode-btn-toggle");
 let body = document.body;
 // let darkModeAllElementsToggle = document.querySelectorAll(".mode");
-let helpSupportMenuBtn = document.querySelector("#help-support-menu-btn");
+
 let baseNavbarLinks = document.querySelectorAll(".base-navbar-link");
 let baseNavbar = document.querySelector("#base-navbar");
 
 
-console.log(baseNavbarLinks);
+
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -27,12 +28,26 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+// Hamburger menu toggle event
+
+document.addEventListener('DOMContentLoaded', () => {
+  
+
+  const handleHamburgerMenuBtn = (event) => {
+      event.preventDefault();
+      console.log("Hamburger menu button clicked");
+
+      hamburgerMenuBtn.classList.toggle('active');
 
 
+      baseNavbarLinks.forEach(link => {
+          link.classList.toggle('hidden');
+      });
+  };
 
-
-console.log(loginButton);
-console.log(darkModeBtnToggle);
+  // Add click event listener to the hamburger button
+  hamburgerMenuBtn.addEventListener('click', handleHamburgerMenuBtn);
+});
 
 // Login button click event
 
@@ -47,26 +62,27 @@ const handleLogin = (event) => {
 const handleDarkModeBtnToggle = (event) => {
   event.preventDefault();
   console.log("Dark mode button clicked");
-  let isLightMode = body.classList.toggle("light");
+  let isDarkMode = body.classList.toggle("dark");
   const allElements = body.getElementsByTagName("*");
   for (let i = 0; i < allElements.length; i++) {
-    allElements[i].classList.toggle("light");
+    allElements[i].classList.toggle("dark");
   }
-  localStorage.setItem("isLightMode", isLightMode);
+  localStorage.setItem("isDarkMode", isDarkMode);
 };
+
 
 const handleDarkModeInLs = (event) => {
   event.preventDefault();
-  let isLightMode=localStorage.getItem("isLightMode");
-  if (isLightMode === "true") {
-    body.classList.add("light");
+  let isDarkMode=localStorage.getItem("isDarkMode");
+  if (isDarkMode === "true") {
+    body.classList.add("dark");
     const allElements = body.getElementsByTagName("*");
     for (let i = 0; i < allElements.length; i++) {
-      allElements[i].classList.toggle("light");
+      allElements[i].classList.toggle("dark");
     }
   }
   else {
-    console.log("--dark mode is on");
+    console.log("--dark mode is off--");
   }
 }
 

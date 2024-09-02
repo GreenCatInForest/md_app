@@ -1,28 +1,55 @@
 
     {% load static tailwind_tags %}
 
-    {% block content %}
 
     <nav id="base-navbar">
                 <a href="{% url 'index' %}">
-                    <img src="{% static 'images/Maple-LogoWhite.svg' %}" alt="Maple Logo" class="maple-logo-header"/>
+                    <img src="{% static 'images/Maple-LogoWhite.png' %}" alt="Maple Logo" class="maple-logo-header"/>
                 </a>
-                <div position="relative">
-                    <a href="" class="base-navbar-link">About</a>
-                    <a href="" class="base-navbar-link">Services</a>
-                    <a href="" class="base-navbar-link">Contacts</a>
-                    <a href="{% url 'report' %}" class="base-navbar-link">Reports</a>
-                    <button id="dark-mode-btn-toggle"><img src="" alt="btn"/></button>
+                <div class="relative nav-items-wrapper">
+                    <!-- <a href="" class="base-navbar-link hidden">About</a>
+                    <a href="" class="base-navbar-link hidden">Services</a> -->
+                    
                     {% if user.is_authenticated %}
-                        <div class="{% if user.is_authenticated %}inline-block{% else %}absolute{% endif %}">
-                            <a href="" class="w-8 h-8 rounded-full bg-pink-600 flex items-center justify-center">{{ user.name|slice:":1" }}</p> 
+                        <a href="{% url 'report' %}" class="base-navbar-link hidden">Reports</a>
+                        <a href="{% url 'report' %}" class="base-navbar-link hidden">Support</a>
+                    {% else %}
+                        <a href="https://www.maple-diagnostics.com/" class="base-navbar-link hidden py-3 px-5 sm:ms-4 text-base font-extrabold text-white focus:outline-none bg-gray-900 border-[1px]
+                        border-white rounded-lg hover:bg-gray-100 hover:text-gray-800 focus:z-10 focus:ring-2 z-100 focus:ring-gray-700 dark:focus:ring-gray-100"> 
+                            Learn more
+                        </a>  
+                        <a href="" class="base-navbar-link hidden">Contacts</a>
+                    {% endif %}
+                    
+                    <button id="dark-mode-btn-toggle"
+                            data-light-mode-url="{% static 'images/light-mode.png' %}"
+                            data-dark-mode-url="{% static 'images/dark-mode.png' %}">
+                        <img id="mode-icon" src="{% static 'images/light-mode.png' %}" class="w-[25px]" alt="btn"/>
+                    </button>
+                    <div class="hamburger-menu-btn-wrapper">
+                        <div class="hamburger-menu-btn">
+                            <span class="hamburger-menu-btn-line"></span>
+                            <span class="hamburger-menu-btn-line"></span>
+                            <span class="hamburger-menu-btn-line"></span>
+                        </div>
+                    </div>
+
+                    {% if user.is_authenticated %}
+                        <div class="{% if user.is_authenticated %}inline-flex flex-row gap-8 justify-center items-center uppercase font-semibold {% else %}absolute{% endif %}">
+                            <a href="" class="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center">{{ user.name|slice:":1" }}</p> 
                             <a href="{% url 'logout' %}">Logout</a>
                         </div>
                         {% else %}
-                        <button id="loginButton" data-url="{% url 'login' %}">Login</button>
+                       
+                        <button id="loginButton" data-url="{% url 'login_register' %}" class=" inline-flex justify-center items-center py-3 px-5 text-base text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 uppercase font-semibold sm:font-medium sm:normal-case">
+                            Login / Register
+                            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                            </svg>
+                            </button>
                     {% endif %} 
                 </div>
     </nav>
 
-    {% endblock %}
+
 

@@ -2,7 +2,6 @@
 {% block title %}Report - Maple Diagnostics {% endblock %}
 {% load static %}  
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,13 +17,11 @@
     {% block content %}
     <div class="user-content">
         <article id="report-constructor">
-
             <section class="dark:bg-blue-950">
                 <div class="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16">
-                    <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">Report Constructor</h1>
+                    <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">Report Creator</h1>
                     <p class="mb-8 text-lg font-normal text-gray-300 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-300">Please enter your data here to generate the report.</p>
-                    <p class="mb-8 text-lg font-normal text-gray-300 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-300">Innovative Maple Diagnostic method based of Cambridge Scientific investigation report-2024.
-                        The report generation based on the data you provide. Please fill the data below accurately.</p>
+                    <!-- <p class="mb-8 text-lg font-normal text-gray-300 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-300">Innovative Maple Diagnostic method based on Cambridge Scientific investigation report-2024. The report generation is based on the data you provide. Please fill in the data below accurately.</p> -->
                     <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0">
                         <a href="#" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
                             Instructions
@@ -32,7 +29,7 @@
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
                             </svg>
                         </a>
-                        <a href="#" class="py-3 px-5 sm:ms-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-gray-800 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-dark-grey-800 dark:hover:bg-gray-70">
+                        <a href="{% url 'historical_reports' %}" class="py-3 px-5 sm:ms-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-gray-800 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-dark-grey-800 dark:hover:bg-gray-70">
                             Historical Reports
                         </a>  
                     </div>
@@ -60,6 +57,7 @@
                                     </div>
                                     {{ form.external_picture }}
                                 </label>
+                                <img id="external_picture" style="display:none;  min-width: 50px; max-width: 500px; height:auto; position:absolute;" />
                             </div> 
 
                             <div class="form-group w-full">
@@ -84,11 +82,7 @@
                                {{ form.notes }}
                             </div>
 
-                            
-
                         <!-- Date Picker -->
-
-
                         <div class="w-full sm:col-span-2">
                         <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Date Range</h3>
                         <div id="date-range-picker" class="flex items-center">
@@ -117,6 +111,7 @@
                         <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Rooms</h3>
                         <div id="room-forms-container">
                             {{ room_formset.management_form }}
+                            
                             {% for form in room_formset %}
                             <div class="room-form p-4 border rounded-lg mb-4 bg-gray-100 dark:bg-gray-800">
                                 {% for field in form %}
@@ -126,8 +121,10 @@
                                     <p>{{ field.label_tag }} {{ field }}</p>
                                 {% endif %}
                                 {% endfor %}
+                                
                                 <div class="form-group flex items-center justify-center w-full">
-                                    <label for="external_picture" class="flex flex-col items-center justify-center w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                                    <!-- Correct the 'for' attribute in the label -->
+                                    <label for="{{ form.room_picture.id_for_label }}" class="flex flex-col items-center justify-center w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
                                         <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload Room Picture</h3>
                                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                             <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
@@ -136,9 +133,12 @@
                                             <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
                                             <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
                                         </div>
-                                        {{ form.room_picture }}
                                     </label>
+                                    <!-- Render the input field outside the label -->
+                                    {{ form.room_picture }}
+                                    <img id="room_picture_preview_{{ forloop.counter }}" class="room-picture-preview"  style="display:none; min-width: 50px; max-width: 500px; height:auto; position:absolute;" />
                                 </div>
+                   
     
                                 <button type="button" class="delete-room btn btn-danger mt-2">Delete Room</button>
                             </div>
@@ -146,8 +146,6 @@
                         </div>
                         <button type="button" id="add-room">Add Room</button>
                     </div>
-                
-                   
 
                 <!-- Company and Surveyor Form -->
                 <div class="form-group sm:col-span-2">
@@ -164,8 +162,11 @@
                                     <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
                                 </div>
                                 {{ form.company_logo }}
+                                <img id="company_logo_preview" style="display:none; min-width: 50px; max-width: 200px; height:auto; position:absolute;" />
                             </label>
+                            
                         </div> 
+
                         <div class="form-group w-full">
                             <label for="company" class="block mb-4 text-sm font-medium text-gray-900 dark:text-white">Company Name</label>
                             {{ form.company }}
@@ -206,65 +207,180 @@
             });
         });
 
-       
+        document.addEventListener('DOMContentLoaded', function () {
+            let roomCount = parseInt(document.getElementById('id_rooms-TOTAL_FORMS').value);
+            console.log(roomCount);
 
-    document.addEventListener('DOMContentLoaded', function () {
-    let roomCount = parseInt(document.getElementById('id_rooms-TOTAL_FORMS').value);
-    console.log(roomCount);
+            document.getElementById('add-room').addEventListener('click', function () {
+                const roomFormContainer = document.getElementById('room-forms-container');
+                const firstRoomForm = roomFormContainer.querySelector('.room-form');
 
-    document.getElementById('add-room').addEventListener('click', function () {
-        const roomFormContainer = document.getElementById('room-forms-container');
-        const firstRoomForm = roomFormContainer.querySelector('.room-form');
+                if (firstRoomForm) {
+                    const newRoomForm = firstRoomForm.cloneNode(true);
+                    const formRegex = new RegExp(`rooms-(\\d+)-`, 'g');
+                    newRoomForm.innerHTML = newRoomForm.innerHTML.replace(formRegex, `rooms-${roomCount}-`);
 
-        if (firstRoomForm) {
-            const newRoomForm = firstRoomForm.cloneNode(true);
-            const formRegex = new RegExp(`rooms-(\\d+)-`, 'g');
-            newRoomForm.innerHTML = newRoomForm.innerHTML.replace(formRegex, `rooms-${roomCount}-`);
+                    // Clear the values in the cloned form
+                    newRoomForm.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.value = '';
+                        if (input.type === 'checkbox' || input.type === 'radio') {
+                            input.checked = false;
+                        }
+                    });
 
-            // Clear the values in the cloned form
-            newRoomForm.querySelectorAll('input, select, textarea').forEach(input => {
-                input.value = '';
-                if (input.type === 'checkbox' || input.type === 'radio') {
-                    input.checked = false;
+                    roomFormContainer.appendChild(newRoomForm);
+
+                    // Rebind the delete event
+                    newRoomForm.querySelector('.delete-room').addEventListener('click', function () {
+                        if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
+                            alert('You cannot delete the last room form.');
+                            return;
+                        }
+                        newRoomForm.remove();
+                        roomCount--;
+                        document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+                    });
+
+                    roomCount++;
+                    document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+                } else {
+                    console.error('No room forms available to clone.');
                 }
             });
 
-            roomFormContainer.appendChild(newRoomForm);
-
-            // Rebind the delete event
-            newRoomForm.querySelector('.delete-room').addEventListener('click', function () {
-                if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
-                    alert('You cannot delete the last room form.');
-                    return;
-                }
-                newRoomForm.remove();
-                roomCount--;
-                document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+            document.querySelectorAll('.delete-room').forEach(button => {
+                button.addEventListener('click', function () {
+                    const roomFormContainer = document.getElementById('room-forms-container');
+                    if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
+                        alert('You cannot delete the last room form.');
+                        return;
+                    }
+                    button.closest('.room-form').remove();
+                    roomCount--;
+                    document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+                });
             });
-
-            roomCount++;
-            document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
-        } else {
-            console.error('No room forms available to clone.');
-        }
-    });
-
-    document.querySelectorAll('.delete-room').forEach(button => {
-        button.addEventListener('click', function () {
-            const roomFormContainer = document.getElementById('room-forms-container');
-            if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
-                alert('You cannot delete the last room form.');
-                return;
-            }
-            button.closest('.room-form').remove();
-            roomCount--;
-            document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
         });
-    });
-});
     </script>
 
-            {% endblock %}
-        
-        </body>
-        </html>
+<script>
+    // Function to handle image preview
+    function readURL(input, imgElementId) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var imgElement = document.getElementById(imgElementId);
+                if (imgElement) {  // Check if imgElement is found
+                    imgElement.src = e.target.result;
+                    imgElement.style.display = 'block';  // Make sure the image is visible
+                } else {
+                    console.error('Image element with ID ' + imgElementId + ' not found.'); // Debugging log
+                }
+            };
+
+            reader.readAsDataURL(input.files[0]); // Read the file as a data URL
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('DOM fully loaded and parsed'); // Debugging log
+
+        // External picture preview
+        const externalPictureInput = document.querySelector("input[name='external_picture']");
+        if (externalPictureInput) {
+            externalPictureInput.addEventListener("change", function() {
+                console.log('External picture input changed'); // Debugging log
+                readURL(this, 'external_picture'); // Ensure the ID matches your HTML for the external picture preview
+            });
+        } else {
+            console.error('External picture input not found'); // Debugging log
+        }
+
+        // Room picture previews
+        document.querySelectorAll("input[name$='room_picture']").forEach(function(inputElement) {
+            inputElement.addEventListener("change", function() {
+                console.log('Room picture input changed'); // Debugging log
+                var imgElement = this.closest('.room-form').querySelector('.room-picture-preview');
+                if (imgElement) {
+                    readURL(this, imgElement.id);
+                } else {
+                    console.error('Image element for room picture not found'); // Debugging log
+                }
+            });
+        });
+
+        // Company logo preview
+        const companyLogoInput = document.querySelector("input[name='company_logo']");
+        if (companyLogoInput) {
+            companyLogoInput.addEventListener("change", function() {
+                console.log('Company logo input changed'); // Debugging log
+                readURL(this, 'company_logo_preview'); // Ensure the ID matches your HTML for the company logo preview
+            });
+        } else {
+            console.error('Company logo input not found'); // Debugging log
+        }
+    });
+</script><script>
+    // Function to handle image preview
+    function readURL(input, imgElementId) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var imgElement = document.getElementById(imgElementId);
+                if (imgElement) {  // Check if imgElement is found
+                    imgElement.src = e.target.result;
+                    imgElement.style.display = 'block';  // Make sure the image is visible
+                } else {
+                    console.error('Image element with ID ' + imgElementId + ' not found.'); // Debugging log
+                }
+            };
+
+            reader.readAsDataURL(input.files[0]); // Read the file as a data URL
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('DOM fully loaded and parsed'); // Debugging log
+
+        // External picture preview
+        const externalPictureInput = document.querySelector("input[name='external_picture']");
+        if (externalPictureInput) {
+            externalPictureInput.addEventListener("change", function() {
+                console.log('External picture input changed'); // Debugging log
+                readURL(this, 'external_picture'); // Ensure the ID matches your HTML for the external picture preview
+            });
+        } else {
+            console.error('External picture input not found'); // Debugging log
+        }
+
+        // Room picture previews
+        document.querySelectorAll("input[name$='room_picture']").forEach(function(inputElement) {
+            inputElement.addEventListener("change", function() {
+                console.log('Room picture input changed'); // Debugging log
+                var imgElement = this.closest('.room-form').querySelector('.room-picture-preview');
+                if (imgElement) {
+                    readURL(this, imgElement.id);
+                } else {
+                    console.error('Image element for room picture not found'); // Debugging log
+                }
+            });
+        });
+
+        // Company logo preview
+        const companyLogoInput = document.querySelector("input[name='company_logo']");
+        if (companyLogoInput) {
+            companyLogoInput.addEventListener("change", function() {
+                console.log('Company logo input changed'); // Debugging log
+                readURL(this, 'company_logo_preview'); // Ensure the ID matches your HTML for the company logo preview
+            });
+        } else {
+            console.error('Company logo input not found'); // Debugging log
+        }
+    });
+</script>
+
+    {% endblock %}
+</body>
+</html>
