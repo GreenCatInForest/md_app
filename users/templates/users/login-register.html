@@ -93,6 +93,27 @@
                     </div>
                 {% endif %}
             </div>
+            <div class="input-icon-container forgot-password-wrapper">
+                    <div class="forgot-password">
+                        <a href="">Forgot the Password?</a>
+                    </div>
+            </div>
+             <!-- Remember Me Field -->
+            
+             <div>
+                <div class="input-icon-container remember_me">
+                        {{ user_login_form.remember_me }}
+                        <label for="remember_me">Remember Me</label>
+                </div>
+                    {% if user_login_form.remember_me.errors %}
+                        <div>
+                            {{ user_login_form.remember_me.errors }}
+                        </div>
+                    {% endif %}
+                </div> 
+    
+    
+
                 <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 my-[10px] ">
                             <button type="submit" name="login" class="inline-flex justify-center items-center py-6 px-6 w-full text-base font-semibold text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 ">Login 
                                 <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">

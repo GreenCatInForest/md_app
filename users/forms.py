@@ -115,6 +115,14 @@ class UserLoginForm(forms.Form):
         )
     )
 
+    remember_me = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'checkbox-field',
+            'id': 'remember_me'
+        })
+    )
+
     def __init__(self, *args, **kwargs):
         super(UserLoginForm, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
@@ -127,6 +135,7 @@ class UserLoginForm(forms.Form):
         cleaned_data = super().clean()
         email = cleaned_data.get('email')
         password = cleaned_data.get('password')
+        remember_me = cleaned_data.get('remember_me')
         if email and password:
             # Check if a user with the provided email exists
             if not User.objects.filter(email=email).exists():
@@ -139,6 +148,9 @@ class UserLoginForm(forms.Form):
                 elif not user.is_active:
                     # If the user is inactive
                     raise ValidationError("This account is inactive.")
+                elif remember_me:
+                    user.remember_me = True
+                    user.save()
         return cleaned_data
     
 class PasswordResetRequestForm(forms.Form):

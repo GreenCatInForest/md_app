@@ -11,7 +11,9 @@ body {
       text-light-basic_bg}
 
 form {
-  @apply flex flex-col flex-wrap gap-6;
+  @apply flex flex-col flex-wrap 
+  /* gap-6 */
+  ;
 }
 
 form p {
@@ -547,7 +549,7 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
 
 
 .col-1 {
-@apply flex items-center flex-col w-full sm:w-[45%] justify-center h-0 sm:min-h-[70vh] md:min-h-[80vh] xl:h-full relative left-0 -top-20 lg:top-0 bg-blue-700/30;
+@apply items-center flex-col w-full sm:w-[45%] justify-center h-0 sm:min-h-[70vh] md:min-h-[80vh] xl:h-full relative left-0 -top-20 lg:top-0 bg-blue-700/30;
 /* background-color: rgba(255, 255, 255, 0.3); */
 backdrop-filter: blur(30px);
 border-radius: 0 10% 8% 0;
@@ -631,13 +633,23 @@ overflow: hidden; /* Hide any overflow content */
 .input-icon-container {
   @apply relative flex flex-wrap items-center min-h-[55px];
 }
-.input-icon-container.register-form-terms {
+.input-icon-container.register-form-terms,
+.input-icon-container.remember_me {
   @apply justify-start;
-  
 }
-.input-icon-container.register-form-terms input {
+.input-icon-container.register-form-terms input,
+.input-icon-container.remember_me input {
   @apply w-[45px];
 }
+
+.input-icon-container.remember_me label {
+  @apply text-white hover:text-blue-400 transition-all duration-300 ease-in-out;
+}
+
+.input-icon-container.forgot-password-wrapper {
+  @apply flex justify-end gap-[5px];
+}
+
 
 
 .input-field {
@@ -691,7 +703,7 @@ overflow: hidden; /* Hide any overflow content */
 
 
 .forgot-password a {
-  @apply text-white hover:scale-110 hover:text-blue-400 transition-all duration-300 ease-in-out ;
+  @apply text-blue-400 hover:scale-110 hover:text-blue-400 transition-all duration-300 ease-in-out ;
   text-decoration: none;
   position: relative; 
   padding-left: 15px; 
@@ -806,8 +818,7 @@ overflow: hidden; /* Hide any overflow content */
 }
 
 #dynamic-graph {
-  max-width: 100%;
-  height: auto;
+  
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
