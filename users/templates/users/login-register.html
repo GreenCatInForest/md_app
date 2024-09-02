@@ -32,7 +32,7 @@
             <button class="btn-form btn-register-form" id="btn-register-form-toggle">Register</button>
         </div>
        <!-- Login form -->
-    <div class="login-form">
+    <div class="login-form {% if not register_active %}active{% endif %}">
         <h3 class="login-form-title">Sign in to access your <span class="font-extrabold text-blue-400">surveys</span></h3>
         <form method="POST">
             {% csrf_token %}
@@ -85,7 +85,7 @@
 
             <!-- register form -->
            
-    <div class="register-form">
+    <div class="register-form {% if register_active %}active{% endif %}">
         <h3 class="register-form-title">Create new <span class="font-extrabold text-blue-400">account</span></h3>
         <form method="POST">
             {% csrf_token %}
@@ -142,44 +142,44 @@
 </div>
 
 
-
 {% block js %}
-    <script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnLogin = document.getElementById('btn-login-form-toggle');
+        const btnRegister = document.getElementById('btn-register-form-toggle');
+        const loginForm = document.querySelector('.login-form');
+        const registerForm = document.querySelector('.register-form');
     
-    document.addEventListener('DOMContentLoaded', () => {
-    const btnLogin = document.getElementById('btn-login-form-toggle');
-    const btnRegister = document.getElementById('btn-register-form-toggle');
-    const loginForm = document.querySelector('.login-form');
-    const registerForm = document.querySelector('.register-form');
+        // Use the register_active context variable to control form visibility
+        const registerActive = "{{ register_active|yesno:'true,false' }}";
+        console.log(registerActive);
 
-    // Initially show login form and hide register form
-    const registerActive = '{{ register_active|yesno:"true,false"}}';
-
-
-    if (registerActive === 'true') {
+        const isRegisterActive = (registerActive === 'true');
+    
+        // Initialize form visibility based on the context variable
+        if (isRegisterActive) {
             loginForm.classList.remove('active');
             registerForm.classList.add('active');
         } else {
             loginForm.classList.add('active');
             registerForm.classList.remove('active');
         }
-
-
-    btnLogin.addEventListener('click', (event) => {
-        event.preventDefault();
-        loginForm.classList.add('active');
-        registerForm.classList.remove('active');
-        registerActive = false;
+        
+        btnLogin.addEventListener('click', function(event) {
+            event.preventDefault();
+            loginForm.classList.add('active');
+            registerForm.classList.remove('active');
+        });
+    
+        btnRegister.addEventListener('click', function(event) {
+            event.preventDefault();
+            loginForm.classList.remove('active');
+            registerForm.classList.add('active');
+        });
     });
-
-    btnRegister.addEventListener('click', (event) => {
-        event.preventDefault();
-        loginForm.classList.remove('active');
-        registerForm.classList.add('active');
-        registerActive = true;
-    });
-});
     </script>
+
     
 {% endblock %}
 {% endblock %}

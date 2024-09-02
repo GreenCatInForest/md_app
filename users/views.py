@@ -28,54 +28,11 @@ from .serializers import ResetPasswordRequestSerializer, ResetPasswordSerializer
 import os
 
 
-def user_register(request):
-    if request.method == 'POST': 
-        print('POST Register request detected')
-        user_register_form = UserRegisterForm(request.POST)  # Create a new user form with POST data
-        print(f"User register form: {user_register_form}")
-        if user_register_form.is_valid():  # Check if the form is valid
-            print('User register form is valid')
-            user = user_register_form.save(commit=False)  # Create a new user object but avoid saving it yet
-            user.set_password(user_register_form.cleaned_data['password1'])  # Hash the password
-            user.save()  # Save the user to the database
-            messages.success(request, 'Your account has been created! You will be now logged in.')
-            login(request, user)  # Log in the user
-            return redirect('report')  # Redirect to user account page
-    else:
-        print('GET Register request detected')
-        user_register_form = UserRegisterForm()  # Create a new user form for GET request
-    return render(request, 'users/register.html', {'user_register_form': user_register_form}) 
-
-def user_login(request):
-    if request.method == 'POST': 
-        print('POST Login request detected')
-        user_login_form = UserLoginForm(request.POST)
-        if user_login_form.is_valid():
-            email = user_login_form.cleaned_data.get('email')
-            password = user_login_form.cleaned_data.get('password')
-            print(f"Attempting to authenticate user with email: {email} and password: {password}")
-            user = authenticate(request, email=email, password=password)
-            print(f"Authentication result: {user}")
-            if user is not None:
-                login(request, user)
-                messages.success(request, 'You have successfully logged in!')
-                return redirect('report')
-            else:
-                messages.error(request, 'Invalid email or password')
-                print("Invalid email or password")
-    else:
-        print('GET Login request detected')
-        user_login_form = UserLoginForm()
-      
-    
-    return render(request, 'users/login.html', {
-        'user_login_form': user_login_form,
-    })
-
 def user_login_register(request):
     user_login_form = UserLoginForm()
     user_register_form = UserRegisterForm()
-    register_active = False
+    register_active = False  # By default, show the login form
+
     if request.method == 'POST':
         # Determine which form is being submitted
         if 'register' in request.POST:
@@ -93,9 +50,7 @@ def user_login_register(request):
                 return redirect('report')  # Redirect to user account page
             else:
                 print(f"Register form errors: {user_register_form.errors}")  # Debugging statement
-                register_active = True  # Set the register form to be active
-                user_register_form = UserRegisterForm(request.POST)  # Re-bind the form with POST data
-                
+                register_active = True  # Keep the register form active
 
         elif 'login' in request.POST:
             print('POST Login request detected')
@@ -128,15 +83,12 @@ def user_login_register(request):
     else:
         user_login_form = UserLoginForm()
         user_register_form = UserRegisterForm()
-        register_active = False
 
     return render(request, 'users/login-register.html', {
         'user_login_form': user_login_form,
         'user_register_form': user_register_form,
-        'register_active': register_active,
-         # Pass both forms to the context
+        'register_active': register_active,  # Pass the active form status
     })
-
 
 
 def user_logout(request):
