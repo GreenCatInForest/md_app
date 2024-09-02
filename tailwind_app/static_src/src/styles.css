@@ -605,16 +605,19 @@ overflow: hidden; /* Hide any overflow content */
 
 
 
-.login-form-title {
-  @apply mt-[80px] mb-[40px] text-2xl font-medium text-center ;
+.login-form-title, .register-form-title {
+  @apply mt-[120px] mb-[40px] text-2xl font-medium text-center ;
   color: rgba(255, 255, 255, 0.8);
 }
 
-.register-form-title {
-  margin-block: 40px 20px;
-  @apply text-2xl font-medium;
-  color: rgba(255, 255, 255, 0.8);
+.login-form-title {
+  @apply sm:mt-[80px]
 }
+
+.register-form-title {
+  @apply sm:mt-[40px]
+}
+
 
 .login-form-inputs,
 .register-form-inputs {
