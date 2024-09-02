@@ -66,7 +66,7 @@
             <!-- Password Field with Lock Icon -->
             <div>
             <div class="input-icon-container">
-                <img src="{% static 'images/lock.png' %}" class="icon"/>
+                <img src="{% static 'images/eye-off.png' %}" class="icon-eye" alt="Show Password" id="togglePasswordIcon"/>
                 {{ user_login_form.password }}
             </div>
                 <!-- Display field-specific error -->
@@ -202,6 +202,18 @@
             event.preventDefault();
             loginForm.classList.remove('active');
             registerForm.classList.add('active');
+        });
+
+        const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+        const passwordInput = document.querySelector('input[name="password"]');
+
+        togglePasswordIcon.addEventListener('click', function () {
+            // Toggle the type attribute
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            // Toggle the eye slash icon
+            this.src = type === 'password' ? '{% static "images/eye-off.png" %}' : '{% static "images/eye.png" %}';
         });
     });
     </script>

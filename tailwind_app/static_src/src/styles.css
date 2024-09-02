@@ -631,14 +631,17 @@ overflow: hidden; /* Hide any overflow content */
 .input-icon-container {
   @apply relative flex flex-wrap items-center min-h-[55px];
 }
-
+.input-icon-container.register-form-terms {
+  @apply justify-start;
+  
+}
 .input-icon-container.register-form-terms input {
-  @apply w-[10%];
+  @apply w-[45px];
 }
 
 
 .input-field {
-  @apply h-[55px] pr-[15px] m-[10px] text-white z-[1];
+  @apply w-full h-[55px] pr-[15px] my-[10px] text-white z-[1];
   flex-grow: 1;
   background-color: rgba(255, 255, 255, 0.2);
   border: none;
@@ -656,6 +659,11 @@ overflow: hidden; /* Hide any overflow content */
 
 .input-icon-container .icon {
   @apply absolute top-[50%] right-[50px] w-[25px] z-[-2] xs:z-[2];
+  transform: translateY(-50%);
+}
+
+.input-icon-container .icon-eye {
+  @apply absolute top-[50%] right-[50px] w-[22px] z-[-2] xs:z-[2];
   transform: translateY(-50%);
 }
 
