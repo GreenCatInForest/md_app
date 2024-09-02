@@ -92,19 +92,23 @@
             {{ user_register_form.non_field_errors }}
             <div class="register-form-inputs">
                 <!-- Email Field with User Icon -->
-                <div class="input-icon-container">
+                <div>
+                    <div class="input-icon-container">
                     <img src="{% static 'images/user.png' %}" class="icon">
                     {{ user_register_form.email }}
+                    </div>
                     {{ user_register_form.email.errors }}
                 </div>
     
                 <!-- Name Field with User Icon -->
+                <div>
                 <div class="input-icon-container">
                     <img src="{% static 'images/user.png' %}" class="icon">
                     {{ user_register_form.name }}
-                    {{ user_register_form.name.errors }}
                 </div>
-    
+                    {{ user_register_form.name.errors }}
+                
+                </div>
                 <!-- Surname Field with User Icon -->
                 <div class="input-icon-container">
                     <img src="{% static 'images/user.png' %}" class="icon">
@@ -113,16 +117,20 @@
                 </div>
     
                 <!-- Password1 Field with Lock Icon -->
+                <div>
                 <div class="input-icon-container">
                     <img src="{% static 'images/lock.png' %}" class="icon"/>
-                    {{ user_register_form.password1 }}
-                    {{ user_register_form.password1.errors }}
+                    {{ user_register_form.password1 }} 
                 </div>
+                    {{ user_register_form.password1.errors }}
+               </div>
     
                 <!-- Password2 Field with Lock Icon -->
+                <div>
                 <div class="input-icon-container">
                     <img src="{% static 'images/lock.png' %}" class="icon"/>
                     {{ user_register_form.password2 }}
+                </div>
                     {{ user_register_form.password2.errors }}
                 </div>
     

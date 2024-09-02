@@ -622,12 +622,13 @@ overflow: hidden; /* Hide any overflow content */
 }
 
 .input-icon-container {
-  @apply relative;
+  @apply relative flex flex-wrap items-center min-h-[55px];
 }
 
 
 .input-field {
-  @apply w-full h-[55px] p-[15px] my-[10px] text-white;
+  @apply h-[55px] pr-[15px] m-[10px] text-white z-[1];
+  flex-grow: 1;
   background-color: rgba(255, 255, 255, 0.2);
   border: none;
   border-radius: 8px;
@@ -643,8 +644,26 @@ overflow: hidden; /* Hide any overflow content */
 }
 
 .input-icon-container .icon {
-  @apply absolute top-[50%] right-[50px] w-[25px] z-50;
+  @apply absolute top-[50%] right-[50px] w-[25px] z-[-2] xs:z-[2];
   transform: translateY(-50%);
+}
+
+.error-message,
+.errorlist {
+  color: red;
+  font-size: 0.9em;
+  margin: 5px 0 0 0; /* Add margin to separate from input but not above */
+}
+
+.errorlist {
+  top: 100%; /* Start below input */
+  left: 0;
+  width: 100%;
+  margin: 0;
+  padding: 5px 10px;
+  color: red;
+  font-size: 0.9em;
+  z-index: 0; /* Error below input */
 }
 
 .forgot-password {
@@ -733,22 +752,13 @@ overflow: hidden; /* Hide any overflow content */
   display: block;
 }
 
-.input-field {
-  @apply w-full h-[55px] p-[15px] my-[10px] text-white;
-  background-color: rgba(255, 255, 255, 0.2);
-  border: none;
-  border-radius: 8px;
-  outline: none;
-  backdrop-filter: blur(30px);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
 .input-field.error {
   border: 2px solid red; /* Highlight fields with errors */
   background-color: rgba(255, 0, 0, 0.1); /* Slight red background for error fields */
 }
 
-.error-message {
+.error-message,
+.errorlist {
   @apply text-red-500;
   color: red;
   font-size: 0.9em;
