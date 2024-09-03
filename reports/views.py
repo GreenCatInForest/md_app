@@ -36,9 +36,12 @@ def normalize_logger_serial(serial, dash_position=3):
 
 def fetch_logger_data(logger_serial, start_timestamp, end_timestamp):
     """Fetch logger data within the specified timestamp range and return as a DataFrame."""
-    logger = LoggerModel.objects.get(serial_number=logger_serial)
-    data = Logger_Data.objects.filter(logger=logger, timestamp__range=(start_timestamp, end_timestamp))
-    return pd.DataFrame(list(data.values()))
+    try: 
+        logger = LoggerModel.objects.get(serial_number=logger_serial)
+        data = Logger_Data.objects.filter(logger=logger, timestamp__range=(start_timestamp, end_timestamp))
+        return pd.DataFrame(list(data.values()))
+    except LoggerModel.DoesNotExist:
+            return None 
 
 def clean_data(combined_data: pd.DataFrame) -> pd.DataFrame:
     # Drop any duplicate columns
@@ -133,7 +136,15 @@ def report_view(request):
             app_logger.debug("Fetching logger data within the date range...")
 
             # Fetching logger data
+
+            # Fetching logger data
             external_logger_data = fetch_logger_data(external_logger_serial, start_timestamp, end_timestamp)
+
+            if external_logger_data is None:
+                form.add_error('external_logger', 'Logger with the provided serial number does not exist.')
+                return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+            
+            # external_logger_data = fetch_logger_data(external_logger_serial, start_timestamp, end_timestamp)
             combined_logger_data_list = []
 
             app_logger.debug("Inspecting form data before generating the report:")
