@@ -42,7 +42,7 @@ class ReportForm(forms.ModelForm):
             }),
             'external_logger': TextInput(attrs={
                 'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
-                'placeholder': 'Enter Logger Serial Number',
+                'placeholder': 'Enter external sensor serial number',
                 'id':'external_logger',
                 'required': True,
             }),
@@ -76,10 +76,10 @@ class ReportForm(forms.ModelForm):
             'start_time': DateInput(attrs={'type': 'text', 
                                            'id':'start_time',
                                             'class': "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500", 
-                                            'placeholder': 'Select date start'}),
+                                            'placeholder': 'Select sensor install date"'}),
             'end_time': DateInput(attrs={'type': 'text', 'id':'end_time',
                                           'class': "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
-                                         'placeholder': 'Select date end'}),
+                                         'placeholder': 'Select sensor removal date'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -91,6 +91,12 @@ class RoomForm(forms.ModelForm):
         model = Room
         fields = ['room_name', 'room_ambient_logger', 'room_surface_logger',
                   'room_monitor_area', 'room_mould_visible', 'room_picture']
+        labels = {
+        
+            'room_ambient_logger': 'Ambient Sensor, Serial Number',
+            'room_surface_logger': 'Surface Sensor, Serial Number',
+
+        }
         widgets = {
             'room_name': TextInput(attrs={
                 'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
@@ -105,13 +111,13 @@ class RoomForm(forms.ModelForm):
             }),
             'room_ambient_logger': TextInput(attrs={
                 'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
-                'placeholder': 'Ambient Logger',
+                'placeholder': 'Ambient Sensor',
                 'id':'room_ambient_logger',
                 'required': True,
             }),
             'room_surface_logger': TextInput(attrs={
                 'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
-                'placeholder': 'Surface Logger',
+                'placeholder': 'Surface Sensor',
                 'id':'room_surface_logger'
             }),
             'room_monitor_area': TextInput(attrs={
