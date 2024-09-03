@@ -63,6 +63,13 @@
                             <div class="form-group w-full">
                                 <label for="external_logger" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">External Logger, Serial Number</label>
                                 {{ form.external_logger }}
+                                {% if form.external_logger.errors %}
+                                <div class="error-message text-red-500 text-sm mt-2">
+                                    {% for error in form.external_logger.errors %}
+                                    <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                                 
                                 <div class="flex flex-row items-center gap-4 my-2">
                                     <label for="occupied" class="block my-2 text-sm font-medium text-gray-900 dark:text-white">Occupied?</label>
