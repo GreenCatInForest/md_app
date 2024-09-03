@@ -1,6 +1,7 @@
 from django import forms
-from core.models import Report, Room
 from django.forms import TextInput, FileInput, CheckboxInput, DateInput, IntegerField, modelformset_factory, formset_factory
+
+from core.models import Report, Room
 
 
 class ReportForm(forms.ModelForm): 
