@@ -1,21 +1,26 @@
 import logging
 import os
 import tempfile
-from django.conf import settings
+import re
+
+import pandas as pd
+from io import StringIO
+
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.http import FileResponse, Http404
 from django.utils import timezone
 from django.utils._os import safe_join
-from datetime import datetime, timezone as dt_timezone
-from .forms import ReportForm, RoomFormSet
-from core.models import Logger as LoggerModel, Logger_Data, Room, Report
-from .utils import PCAdataTool  
-from .utils.room_data import RoomData
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-import pandas as pd
-from io import StringIO
-import re
+from datetime import datetime, timezone as dt_timezone
+from django.conf import settings
+
+from .forms import ReportForm, RoomFormSet
+from core.models import Logger as LoggerModel, Logger_Data, Room, Report
+from .utils import PCAdataTool
+from .utils.normalize_logger_serial import normalize_logger_serial  
+from .utils.room_data import RoomData
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -23,12 +28,7 @@ app_logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
-def normalize_logger_serial(serial, dash_position=3):
-    """Remove non-numeric characters and reformat the logger serial input."""
-    cleaned_serial = re.sub(r'\D', '', serial)
-    if len(cleaned_serial) > dash_position:
-        cleaned_serial = cleaned_serial[:dash_position] + '-' + cleaned_serial[dash_position:]
-    return cleaned_serial
+
 
 def fetch_logger_data(logger_serial, start_timestamp, end_timestamp):
     """Fetch logger data within the specified timestamp range and return as a DataFrame."""
@@ -141,7 +141,7 @@ def report_view(request):
             external_logger_data = fetch_logger_data(external_logger_serial, start_timestamp, end_timestamp)
             # Validate if the logger exists
             if not LoggerModel.objects.filter(serial_number=external_logger_serial).exists():
-                form.add_error('external_logger', 'Logger with the provided serial number does not exist.')
+                form.add_error('external_logger', 'Sensor with the provided serial number does not exist.')
                 return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
             else: 
                 form.errors.pop('external_logger', None)

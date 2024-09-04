@@ -1,6 +1,11 @@
+import numbers
+
 from django import forms
-from core.models import Report, Room
 from django.forms import TextInput, FileInput, CheckboxInput, DateInput, IntegerField, modelformset_factory, formset_factory
+
+from core.models import Report, Room
+from .utils.normalize_logger_serial import normalize_logger_serial
+
 
 
 class ReportForm(forms.ModelForm): 
@@ -42,7 +47,7 @@ class ReportForm(forms.ModelForm):
             }),
             'external_logger': TextInput(attrs={
                 'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
-                'placeholder': 'Enter Logger Serial Number',
+                'placeholder': 'External Sensor Serial Number',
                 'id':'external_logger',
                 'required': True,
             }),
@@ -76,14 +81,62 @@ class ReportForm(forms.ModelForm):
             'start_time': DateInput(attrs={'type': 'text', 
                                            'id':'start_time',
                                             'class': "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500", 
-                                            'placeholder': 'Select date start'}),
+                                            'placeholder': 'Select sensor installation date'}),
             'end_time': DateInput(attrs={'type': 'text', 'id':'end_time',
                                           'class': "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
-                                         'placeholder': 'Select date end'}),
+                                         'placeholder': 'Select sensor removal date'}),
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(ReportForm, self).__init__(*args, **kwargs)
+
+        for field in self.fields:
+            self.fields['external_logger'].widget.attrs.update({'class': 'input-field-report'})
+
+        # self.fields['start_time'].input_formats = ['%Y-%m-%d']
+        # self.fields['end_time'].input_formats = ['%Y-%m-%d']
+        # for field in self.fields:
+        #     self.fields[field].widget.attrs.update({'class': 'input-field'})
+        #     self.fields['start_time'].widget.attrs.update({'class': 'input-field'})
+        #     self.fields['end_time'].widget.attrs.update({'class': 'input-field'})
+        #     self.fields['notes'].widget.attrs.update({'class': 'input-field'})
+        #     self.fields['external_picture'].widget.attrs.update({'class': 'input-field'})
+        #     self.fields['external_logger'].widget.attrs.update({'class': 'input-field'})
+        #     self.fields['property_address'].widget.attrs.update({'class': 'input-field'})
+        #     self.fields['surveyor'].widget.attrs.update({'class': 'input-field'})
+        #     self.fields['company'].widget.attrs.update({'class': 'input-field'})
+        #     self.fields['company_logo'].widget.attrs.update({'class': 'input-field'})
+
+        for field_name, field in self.fields.items():
+            if self.errors.get(field_name):
+                # If the field has errors, add 'error' class to the field's widget
+                existing_classes = field.widget.attrs.get('class', '')
+                new_classes = f"{existing_classes} error".strip()
+                field.widget.attrs['class'] = new_classes
+    
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_time = cleaned_data.get('start_time')
+        end_time = cleaned_data.get('end_time')
+        if start_time and end_time:
+            if start_time > end_time:
+                self.add_error('end_time', 'End time cannot be before start time')
+        if start_time and not end_time:
+            self.add_error('end_time', 'End time is required')
+        if end_time and not start_time:
+            self.add_error('start_time', 'Start time is required')
+ 
+        external_logger = normalize_logger_serial(cleaned_data.get('external_logger'))
+        if external_logger:
+            if len(external_logger) < 6:
+                self.add_error('external_logger', 'Serial number is too short')
+            if len(external_logger) > 7:
+                self.add_error('external_logger', 'Serial number is too long')
+            
+        
+        return cleaned_data
+    
 
 
 class RoomForm(forms.ModelForm):
