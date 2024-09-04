@@ -648,7 +648,7 @@ overflow: hidden; /* Hide any overflow content */
   border-radius: 8px;
   outline: none;
   backdrop-filter: blur(30px);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);  
 }
 
 .input-field-report {
