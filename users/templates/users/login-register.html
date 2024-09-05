@@ -14,7 +14,7 @@
             </linearGradient>
             </defs>
             </svg>
-   <img src="{% static 'images/maple-logger1.png'%}" alt="login" class="maple-logger-img w-[40%]">
+   <!-- <img src="{% static 'images/maple-logger1.png'%}" alt="login" class="maple-logger-img w-[40%]"> -->
    <svg class="bg-bulb absolute top-20 left-200 bg-opacity-0 opacity-25 overflow-x-hidden blur-3xl z-0 max-h-[100vh]" width="652" height="611" viewBox="0 0 352 311" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M153.766 8.93022C253.205 -37.7537 218.766 113.43 310.142 120.93C401.519 128.43 323.268 300.695 254.017 290.312C184.766 279.93 174.766 341.43 72.3913 290.312C-29.9834 239.195 1.76592 205.93 16.2659 120.93C30.7659 35.9303 54.3281 55.6142 153.766 8.93022Z" fill="url(#paint0_linear_39_276)" fill-opacity="0.95"/>
     <defs>
@@ -26,7 +26,22 @@
     </svg>
 
       <!-- Canvas for Graph -->
-      <canvas id="dynamicGraph" width="full" height="100vh"></canvas>
+      <div>
+        <!-- Canvas for Graph -->
+        <canvas id="dynamicGraph" width="762" height="190" style="display: block; box-sizing: border-box; height: 95px; width: 381px;"></canvas>
+         <!-- Canvas for Temperature Graph -->
+         <canvas id="temperatureGraph" width="762" height="190" style="display: block; box-sizing: border-box; height: 95px; width: 381px;"></canvas>
+          
+         <!-- Canvas for Humidity Graph -->
+         <canvas id="humidityGraph" width="762" height="190" style="display: block; box-sizing: border-box; height: 95px; width: 381px;"></canvas>
+         
+         <!-- Canvas for Dew Point Graph -->
+         <canvas id="dewPointGraph" width="762" height="190" style="display: block; box-sizing: border-box; height: 95px; width: 381px;"></canvas>
+  
+         <div class="disclaimer">
+          <p><em>Note: The data shown in these graphs are for demonstration purposes only and are not based on actual measurements. For personalized data, please log in to use the full services.</em></p>
+      </div>
+      </div>
       
     </div>
     <div class="col col-2">
