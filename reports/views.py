@@ -143,6 +143,9 @@ def report_view(request):
             if not LoggerModel.objects.filter(serial_number=external_logger_serial).exists():
                 form.add_error('external_logger', 'Sensor with the provided serial number does not exist.')
                 return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+            if external_logger_data is None:
+                form.add_error('external_logger', 'No data found for the external logger within the specified date range.')
+                return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
             else: 
                 form.errors.pop('external_logger', None)
 

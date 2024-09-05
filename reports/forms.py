@@ -5,7 +5,7 @@ from django.forms import TextInput, FileInput, CheckboxInput, DateInput, Integer
 
 from core.models import Report, Room
 from .utils.normalize_logger_serial import normalize_logger_serial
-
+from django.utils import timezone
 
 
 class ReportForm(forms.ModelForm): 
@@ -26,7 +26,6 @@ class ReportForm(forms.ModelForm):
             'company_logo': FileInput(attrs={
                 'class': 'hidden',
                 'id': 'company_logo',
-                'required': True,
             }),
             'surveyor': TextInput(attrs={
                 'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
@@ -43,7 +42,6 @@ class ReportForm(forms.ModelForm):
             'external_picture': FileInput(attrs={
                 'class': 'hidden',
                 'id': 'external_picture',
-                'required': True,
             }),
             'external_logger': TextInput(attrs={
                 'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
@@ -75,7 +73,6 @@ class ReportForm(forms.ModelForm):
                 'placeholder': 'Notes',
                 'rows':'2',
                 'id':'notes',
-                'required': False,
             }),
            
             'start_time': DateInput(attrs={'type': 'text', 
@@ -122,10 +119,20 @@ class ReportForm(forms.ModelForm):
         if start_time and end_time:
             if start_time > end_time:
                 self.add_error('end_time', 'End time cannot be before start time')
+            elif start_time == end_time:
+                self.add_error('end_time', 'End time cannot be the same as start time')
+            if start_time > timezone.now():
+                self.add_error('start_time', 'Start time cannot be in the future')
+            elif end_time > start_time and (end_time - start_time).days < 3:
+                self.add_error('end_time', 'Monitoring period shall be more than 3 days')
+            elif end_time > start_time and (end_time - start_time).days > 31:
+                self.add_error('end_time', 'Monitoring period shall be less than 31 days')
+            
         if start_time and not end_time:
             self.add_error('end_time', 'End time is required')
         if end_time and not start_time:
             self.add_error('start_time', 'Start time is required')
+        
  
         external_logger = normalize_logger_serial(cleaned_data.get('external_logger'))
         if external_logger:
@@ -133,6 +140,7 @@ class ReportForm(forms.ModelForm):
                 self.add_error('external_logger', 'Serial number is too short')
             if len(external_logger) > 7:
                 self.add_error('external_logger', 'Serial number is too long')
+            
             
         
         return cleaned_data
@@ -158,7 +166,6 @@ class RoomForm(forms.ModelForm):
             'room_picture': FileInput(attrs={
                 'class': 'hidden',
                 'id':'room_picture',
-                'required': True,
             }),
             'room_ambient_logger': TextInput(attrs={
                 'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
