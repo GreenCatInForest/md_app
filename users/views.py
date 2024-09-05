@@ -56,6 +56,7 @@ def user_login_register(request):
         elif 'login' in request.POST:
             print('POST Login request detected')
             user_login_form = UserLoginForm(request.POST)  # Bind login form with POST data
+            remember_me = user_login_form.cleaned_data.get('remember_me')
 
             if user_login_form.is_valid():
                 email = user_login_form.cleaned_data.get('email')
@@ -71,6 +72,12 @@ def user_login_register(request):
 
                     if user is not None:
                         login(request, user)
+                        if remember_me:
+                        # Set session to expire in 30 days
+                            request.session.set_expiry(60 * 60 * 24 * 30)
+                        else:
+                            # Set session to expire when the browser is closed
+                            request.session.set_expiry(0)
                         messages.success(request, 'You have successfully logged in!')
                         return redirect('report')
                         
