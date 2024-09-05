@@ -660,7 +660,13 @@ overflow: hidden; /* Hide any overflow content */
   border-radius: 8px;
   outline: none;
   backdrop-filter: blur(30px);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);  
+}
+
+.input-field-report {
+@apply w-full h-[55px] pr-[15px] my-[10px] ps-2 p-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm 
+rounded-lg focus:ring-blue-500 focus:border-blue-500 block  dark:bg-gray-700 dark:border-gray-600
+dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500;                                          
 }
 
 ::placeholder {
@@ -783,7 +789,8 @@ overflow: hidden; /* Hide any overflow content */
   display: block;
 }
 
-.input-field.error {
+.input-field.error,
+.input-field-report.error {
   border: 2px solid red; /* Highlight fields with errors */
   background-color: rgba(255, 0, 0, 0.1); /* Slight red background for error fields */
 }

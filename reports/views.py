@@ -1,25 +1,26 @@
 import logging
 import os
-import re
 import tempfile
-from datetime import datetime, timezone as dt_timezone
-from io import StringIO
+import re
 
 import pandas as pd
+from io import StringIO
 
-from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import get_user_model
-from django.http import FileResponse, Http404
 from django.shortcuts import render, HttpResponse, get_object_or_404
+from django.http import FileResponse, Http404
 from django.utils import timezone
 from django.utils._os import safe_join
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
+from datetime import datetime, timezone as dt_timezone
+from django.conf import settings
 
-from core.models import Logger as LoggerModel, Logger_Data, Room, Report
 from .forms import ReportForm, RoomFormSet
+from core.models import Logger as LoggerModel, Logger_Data, Room, Report
 from .utils import PCAdataTool
+from .utils.normalize_logger_serial import normalize_logger_serial  
 from .utils.room_data import RoomData
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -27,18 +28,22 @@ app_logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
-def normalize_logger_serial(serial, dash_position=3):
-    """Remove non-numeric characters and reformat the logger serial input."""
-    cleaned_serial = re.sub(r'\D', '', serial)
-    if len(cleaned_serial) > dash_position:
-        cleaned_serial = cleaned_serial[:dash_position] + '-' + cleaned_serial[dash_position:]
-    return cleaned_serial
+
 
 def fetch_logger_data(logger_serial, start_timestamp, end_timestamp):
     """Fetch logger data within the specified timestamp range and return as a DataFrame."""
-    logger = LoggerModel.objects.get(serial_number=logger_serial)
-    data = Logger_Data.objects.filter(logger=logger, timestamp__range=(start_timestamp, end_timestamp))
-    return pd.DataFrame(list(data.values()))
+    try:
+        logger = LoggerModel.objects.get(serial_number=logger_serial)
+        data = Logger_Data.objects.filter(logger=logger, timestamp__range=(start_timestamp, end_timestamp))
+
+        if not data.exists():
+            return None  # No data found for this logger within the range
+        return pd.DataFrame(list(data.values()))
+
+    except LoggerModel.DoesNotExist:
+        # Log this error for debugging purposes
+        app_logger.error(f"Sensor with serial number {logger_serial} does not exist.")
+        return None
 
 def clean_data(combined_data: pd.DataFrame) -> pd.DataFrame:
     # Drop any duplicate columns
@@ -134,6 +139,17 @@ def report_view(request):
 
             # Fetching logger data
             external_logger_data = fetch_logger_data(external_logger_serial, start_timestamp, end_timestamp)
+            # Validate if the logger exists
+            if not LoggerModel.objects.filter(serial_number=external_logger_serial).exists():
+                form.add_error('external_logger', 'Sensor with the provided serial number does not exist.')
+                return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+            if external_logger_data is None:
+                form.add_error('external_logger', 'No data found for the external logger within the specified date range.')
+                return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+            else: 
+                form.errors.pop('external_logger', None)
+
+
             combined_logger_data_list = []
 
             app_logger.debug("Inspecting form data before generating the report:")
