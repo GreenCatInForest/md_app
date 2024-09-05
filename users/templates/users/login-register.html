@@ -14,7 +14,6 @@
             </linearGradient>
             </defs>
             </svg>
-   <!-- <img src="{% static 'images/maple-logger1.png'%}" alt="login" class="maple-logger-img w-[40%]"> -->
    <svg class="bg-bulb absolute top-20 left-200 bg-opacity-0 opacity-25 overflow-x-hidden blur-3xl z-0 max-h-[100vh]" width="652" height="611" viewBox="0 0 352 311" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M153.766 8.93022C253.205 -37.7537 218.766 113.43 310.142 120.93C401.519 128.43 323.268 300.695 254.017 290.312C184.766 279.93 174.766 341.43 72.3913 290.312C-29.9834 239.195 1.76592 205.93 16.2659 120.93C30.7659 35.9303 54.3281 55.6142 153.766 8.93022Z" fill="url(#paint0_linear_39_276)" fill-opacity="0.95"/>
     <defs>
@@ -24,25 +23,22 @@
     </linearGradient>
     </defs>
     </svg>
-
+    <div>
       <!-- Canvas for Graph -->
-      <div>
-        <!-- Canvas for Graph -->
-        <canvas id="dynamicGraph" width="762" height="190" style="display: block; box-sizing: border-box; height: 95px; width: 381px;"></canvas>
-         <!-- Canvas for Temperature Graph -->
-         <canvas id="temperatureGraph" width="762" height="190" style="display: block; box-sizing: border-box; height: 95px; width: 381px;"></canvas>
-          
-         <!-- Canvas for Humidity Graph -->
-         <canvas id="humidityGraph" width="762" height="190" style="display: block; box-sizing: border-box; height: 95px; width: 381px;"></canvas>
-         
-         <!-- Canvas for Dew Point Graph -->
-         <canvas id="dewPointGraph" width="762" height="190" style="display: block; box-sizing: border-box; height: 95px; width: 381px;"></canvas>
-  
-         <div class="disclaimer">
-          <p><em>Note: The data shown in these graphs are for demonstration purposes only and are not based on actual measurements. For personalized data, please log in to use the full services.</em></p>
-      </div>
-      </div>
-      
+      <canvas id="dynamicGraph" width="400" height="100%"></canvas>
+       <!-- Canvas for Temperature Graph -->
+       <canvas id="temperatureGraph" width="400" height="100%"></canvas>
+        
+       <!-- Canvas for Humidity Graph -->
+       <canvas id="humidityGraph" width="400" height="100%"></canvas>
+       
+       <!-- Canvas for Dew Point Graph -->
+       <canvas id="dewPointGraph" width="400" height="100%"></canvas>
+
+       <div class="disclaimer">
+        <p><em>Note: The data shown in these graphs are for demonstration purposes only and are not based on actual measurements. For personalized data, please log in to use the full services.</em></p>
+    </div>
+    </div>
     </div>
     <div class="col col-2">
        
@@ -97,6 +93,27 @@
                     </div>
                 {% endif %}
             </div>
+            <div class="input-icon-container forgot-password-wrapper">
+                    <div class="forgot-password">
+                        <a href="">Forgot the Password?</a>
+                    </div>
+            </div>
+             <!-- Remember Me Field -->
+            
+             <div>
+                <div class="input-icon-container remember_me">
+                        {{ user_login_form.remember_me }}
+                        <label for="remember_me">Remember Me</label>
+                </div>
+                    {% if user_login_form.remember_me.errors %}
+                        <div>
+                            {{ user_login_form.remember_me.errors }}
+                        </div>
+                    {% endif %}
+                </div> 
+    
+    
+
                 <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 my-[10px] ">
                             <button type="submit" name="login" class="inline-flex justify-center items-center py-6 px-6 w-full text-base font-semibold text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 ">Login 
                                 <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
@@ -180,6 +197,7 @@
                 </div>
             </div>
         </form>
+        <img src="{% static 'images/maple-logger1.png'%}" alt="login" class="maple-logger-img w-[40%]">
     </div>
 
 
@@ -336,6 +354,110 @@
 
     // Run the function
     createChart();
+})();
+
+(function() {
+    // Function to generate random data with "obstacles"
+    function createRandomDataWithObstacles(length, obstacleThreshold) {
+        const data = [];
+        for (let i = 0; i < length; i++) {
+            let value = Math.random() * 10;  // Random base value
+            if (i > obstacleThreshold && Math.random() > 0.7) {
+                value *= Math.random() * 2;  // Simulate an obstacle or disruption
+            }
+            data.push(value);
+        }
+        return data;
+    }
+
+    // Function to initialize a Line Chart
+    function createLineChart(chartId, label, data) {
+        const ctx = document.getElementById(chartId).getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [], // Start with no labels
+                datasets: [{
+                    label: label,
+                    data: [], // Start with no data
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)', 
+                    borderWidth: 2,
+                    tension: 0.4,  // Smooth the line by adding tension for cubic interpolation
+                    fill: true, 
+                    pointRadius: 3, 
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)'
+                }]
+            },
+            options: {
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuad',
+                },
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Time (hours)' 
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: label 
+                        },
+                        min: 0,
+                        max: 15  // Adjust based on expected range of data
+                    }
+                }
+            }
+        });
+
+        return chart;
+    }
+
+    // Function to add data points dynamically to simulate "obstacles"
+    function addDataPoints(chart, data) {
+        const labels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+        labels.forEach((label, index) => {
+            setTimeout(() => {
+                chart.data.labels.push(label); 
+                chart.data.datasets[0].data.push(data[index]); 
+                chart.update();
+            }, index * 1000); 
+        });
+    }
+
+    // Generate data with "obstacles"
+    const temperatureData = createRandomDataWithObstacles(12, 5);
+    const humidityData = createRandomDataWithObstacles(12, 5);
+    const dewPointData = createRandomDataWithObstacles(12, 5);
+
+    // Initialize Charts
+    const temperatureChart = createLineChart('temperatureGraph', 'Temperature (°C)', temperatureData);
+    const humidityChart = createLineChart('humidityGraph', 'Humidity (%)', humidityData);
+    const dewPointChart = createLineChart('dewPointGraph', 'Dew Point (°C)', dewPointData);
+
+    // Add data points to each chart with delays
+    setTimeout(() => addDataPoints(temperatureChart, temperatureData), 500);
+    setTimeout(() => addDataPoints(humidityChart, humidityData), 500);
+    setTimeout(() => addDataPoints(dewPointChart, dewPointData), 500);
 })();
 </script>
 
