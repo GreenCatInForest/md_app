@@ -4,32 +4,27 @@ services:
   db:
     image: postgres:latest  
     restart: always
-    volumes:
-      - pg_data:/var/lib/postgresql/data
+    # volumes:
+    #   - pg_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: maple_db2
+      POSTGRES_DB: maple_db_dev
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
     ports:
       - "5433:5432"
 
 
-  
-  
-
   web:
     build: .
     command: >
-      sh -c "python manage.py migrate && 
-             python manage.py runserver 0.0.0.0:1091"
+      sh -c "wait-for-it.sh db:5432 -- python manage.py migrate &&
+            python manage.py runserver 0.0.0.0:1091"
     volumes:
       - .:/code
     ports:
       - "1091:1091"
     depends_on:
       - db
-    environment:
-      - DATABASE_URL=postgres://myuser:mypassword@db:5432/maple_db
 
   pgadmin:
     image: dpage/pgadmin4
@@ -45,6 +40,6 @@ services:
       - pg_admin:/var/lib/pgadmin
 
 volumes:
-  pg_data:
+  # pg_data:
   pg_admin:
 

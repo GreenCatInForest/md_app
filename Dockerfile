@@ -6,6 +6,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /code
 
 COPY requirements.txt /code/
+COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
 
 RUN pip install --upgrade pip && \ 
 pip install --no-cache-dir -r requirements.txt
