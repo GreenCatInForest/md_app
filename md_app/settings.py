@@ -90,11 +90,11 @@ WSGI_APPLICATION = 'md_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'maple_db',
+        'NAME': 'maple_db2',
         'USER': 'myuser',
         'PASSWORD': 'mypassword',
         'HOST': 'db',
-        'PORT': '5432',
+        'PORT': '5433',
     }
 }
 
