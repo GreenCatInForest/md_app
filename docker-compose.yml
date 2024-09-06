@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
     ports:
-      - "5435:5432"
+      - "5433:5432"
 
   web:
     build: .

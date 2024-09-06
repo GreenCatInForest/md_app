@@ -1,7 +1,7 @@
 FROM python:3-slim
 LABEL maintainer="cambridgelogic.com"
 
-ENV PYTHONUNBUFFERED 1   
+ENV PYTHONUNBUFFERED=1 
  
 WORKDIR /code
 
@@ -18,6 +18,8 @@ apt-get install -y nodejs && \
 # Verify installation
 node -v && \
 npm -v && \
+# Install vim and nano
+apt-get install -y vim nano && \
 # Clean up the cache by removing temporary files
 apt-get clean && \
 rm -rf /var/lib/apt/lists/*
