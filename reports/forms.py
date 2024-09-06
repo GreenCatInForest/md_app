@@ -193,6 +193,11 @@ class RoomForm(forms.ModelForm):
             
         }
 
+    def __init__(self, *args, **kwargs):
+        super(RoomForm, self).__init__(*args, **kwargs)
+
+    
+
 RoomFormSet = modelformset_factory(
     Room,
     form=RoomForm,  
