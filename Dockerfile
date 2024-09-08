@@ -25,4 +25,12 @@ apt-get install -y vim nano && \
 apt-get clean && \
 rm -rf /var/lib/apt/lists/*
 
+
 COPY . /code/
+
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
+# Command to run the application
+CMD ["gunicorn", "md_app.wsgi:application", "--bind", "0.0.0.0:1091"]
+
