@@ -32,8 +32,7 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - static_volume:/code/staticfiles
     ports:
-    - "8181:80"     # Update this if you need a different port for HTTP
-    - "8443:443"    # Updated port for HTTPS
+    - "8991:8991"  
     depends_on:
       - web
 
