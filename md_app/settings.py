@@ -25,7 +25,11 @@ SECRET_KEY = 'django-insecure-idti^1w#yturas75q%so7$br7sdyv6m3#x0pwfq94ryg0s9_o7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+<<<<<<< Updated upstream
 ALLOWED_HOSTS = ['192.168.0.100','192.168.0.141', 'localhost', '127.0.0.1', '0.0.0.0', '192.168.0.123', '192.168.0.*', '127.0.0.1','localhost','logger.cambrigelogic.com']
+=======
+ALLOWED_HOSTS = ['192.168.0.100','195.35.52.124', '192.168.0.141', 'localhost', '127.0.0.1', '0.0.0.0', '192.168.0.123', '192.168.0.*', '127.0.0.1','localhost','logger.cambrigelogic.com']
+>>>>>>> Stashed changes
 
 
 
