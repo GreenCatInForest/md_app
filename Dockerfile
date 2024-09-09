@@ -28,6 +28,7 @@ rm -rf /var/lib/apt/lists/*
 
 COPY . /code/
 
+RUN python manage.py tailwind build
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
