@@ -4,6 +4,7 @@ djangorestframework
 drf-spectacular
 pillow
 psycopg2-binary
+django-dbbackup
 
 numpy
 pandas
@@ -18,3 +19,7 @@ django-tailwind
 django-tailwind[reload] 
 
 gunicorn
+whitenoise
+
+
+

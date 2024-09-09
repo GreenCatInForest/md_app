@@ -652,7 +652,8 @@ overflow: hidden; /* Hide any overflow content */
 
 
 
-.input-field {
+.input-field,
+.input-field-report {
   @apply w-full h-[55px] pr-[15px] my-[10px] text-white z-[1];
   flex-grow: 1;
   background-color: rgba(255, 255, 255, 0.2);

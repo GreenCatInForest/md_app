@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'users',
     'loggers',
     'reports',
+    'dbbackup',
     
 
 ]
@@ -108,6 +109,8 @@ DATABASES = {
     }
 }
 
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DBBACKUP_STORAGE_OPTIONS = {'location': '/path/to/your/backup/directory/'}
 
 TAILWIND_APP_NAME = 'tailwind_app'
 INTERNAL_IPS = [
