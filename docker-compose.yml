@@ -17,7 +17,11 @@ services:
   web:
     build: .
     command: >
-      sh -c "wait-for-it.sh db:5432 -- python manage.py makemigrations && python manage.py migrate && gunicorn md_app.wsgi:application --bind 0.0.0.0:1091 --timeout 120 --workers 3"
+      sh -c "wait-for-it.sh db:5432 
+      -- python manage.py collectstatic --noinput 
+      && python manage.py makemigrations 
+      && python manage.py migrate 
+      && gunicorn md_app.wsgi:application --bind 0.0.0.0:1091 --timeout 120 --workers 3"
     volumes:
       - .:/code
       - static_volume:/code/staticfiles
