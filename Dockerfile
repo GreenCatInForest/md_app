@@ -19,7 +19,6 @@ apt-get install -y nodejs && \
 # Verify installation
 node -v && \
 npm -v && \
-npm i -g rimraf && \
 # Install vim and nano
 apt-get install -y vim nano && \
 # Clean up the cache by removing temporary files
@@ -29,6 +28,7 @@ rm -rf /var/lib/apt/lists/*
 
 COPY . /code/
 
+RUN python manage.py tailwind install
 RUN python manage.py tailwind build
 # Collect static files
 RUN python manage.py collectstatic --noinput
