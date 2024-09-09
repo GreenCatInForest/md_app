@@ -19,6 +19,7 @@ apt-get install -y nodejs && \
 # Verify installation
 node -v && \
 npm -v && \
+npm i -g rimraf && \
 # Install vim and nano
 apt-get install -y vim nano && \
 # Clean up the cache by removing temporary files
