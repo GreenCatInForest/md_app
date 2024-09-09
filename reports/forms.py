@@ -196,6 +196,28 @@ class RoomForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(RoomForm, self).__init__(*args, **kwargs)
 
+        for field in self.fields:
+            self.fields['room_name'].widget.attrs.update({'class': 'input-field-report'})
+            self.fields['room_ambient_logger'].widget.attrs.update({'class': 'input-field-report'})
+            self.fields['room_surface_logger'].widget.attrs.update({'class': 'input-field-report'})
+
+        for field_name, field in self.fields.items():
+            if self.errors.get(field_name):
+                # If the field has errors, add 'error' class to the field's widget
+                existing_classes = field.widget.attrs.get('class', '')
+                new_classes = f"{existing_classes} error".strip()
+                field.widget.attrs['class'] = new_classes
+
+    def clean(self):
+        cleaned_data = super().clean()
+        room_ambient_logger = normalize_logger_serial(cleaned_data.get('room_ambient_logger'))
+        room_surface_logger = normalize_logger_serial(cleaned_data.get('room_surface_logger'))
+        
+        
+
+        return cleaned_data
+
+
     
 
 RoomFormSet = modelformset_factory(

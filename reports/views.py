@@ -127,7 +127,11 @@ def report_view(request):
             external_logger_serial = normalize_logger_serial(form.cleaned_data['external_logger'])
             ambient_logger_serials = [normalize_logger_serial(room_data.get('room_ambient_logger')) for room_data in room_formset.cleaned_data]
             surface_logger_serials = [normalize_logger_serial(room_data.get('room_surface_logger')) for room_data in room_formset.cleaned_data]
-
+            
+            print (f"External Logger Serial: {external_logger_serial}")
+            print (f"Ambient Logger Serials: {ambient_logger_serials}")
+            print (f"Surface Logger Serials: {surface_logger_serials}")
+            
             # Convert dates to UTC datetime
             start_date_utc = timezone.make_aware(datetime.combine(form.cleaned_data['start_time'], datetime.min.time()), dt_timezone.utc)
             end_date_utc = timezone.make_aware(datetime.combine(form.cleaned_data['end_time'], datetime.max.time()), dt_timezone.utc)
@@ -140,6 +144,7 @@ def report_view(request):
             # Fetching logger data
             external_logger_data = fetch_logger_data(external_logger_serial, start_timestamp, end_timestamp)
             # Validate if the logger exists
+
             if not LoggerModel.objects.filter(serial_number=external_logger_serial).exists():
                 form.add_error('external_logger', 'Sensor with the provided serial number does not exist.')
                 return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
@@ -159,6 +164,8 @@ def report_view(request):
                 app_logger.debug(f"Room {i} name: {room.get('room_name')}")
                 app_logger.debug(f"Room {i} monitor area: {room.get('room_monitor_area')}")
                 app_logger.debug(f"Room {i} mould visible: {room.get('room_mould_visible')}")
+                app_logger.debug(f"Room {i} ambient logger: {room.get('room_ambient_logger')}")
+                app_logger.debug(f"Room {i} surface logger: {room.get('room_surface_logger')}")
 
             for index, room_data in enumerate(room_formset.cleaned_data):
                 # Extracting problem_room and monitor_area from the formset
@@ -171,6 +178,20 @@ def report_view(request):
                 ambient_logger_data = fetch_logger_data(ambient_serial, start_timestamp, end_timestamp)
                 surface_logger_data = fetch_logger_data(surface_serial, start_timestamp, end_timestamp)
 
+                print (f"ambient_logger_data: {ambient_logger_data}")
+                print (f"surface_logger_data: {surface_logger_data}")
+
+                if ambient_logger_data is None:
+                    room_formset.forms[index].add_error('room_ambient_logger', 'No data found for the ambient logger within the specified date range.')
+                if surface_logger_data is None:
+                    room_formset.forms[index].add_error('room_surface_logger', 'No data found for the surface logger within the specified date range.')
+
+                if not LoggerModel.objects.filter(serial_number=ambient_serial).exists():
+                    room_formset.forms[index].add_error('room_ambient_logger', 'Sensor with the provided serial number does not exist.')
+                if not LoggerModel.objects.filter(serial_number=surface_serial).exists():
+                    room_formset.forms[index].add_error('room_surface_logger', 'Sensor with the provided serial number does not exist.')
+                
+        
                 # Assume unique renaming before merges
                 ambient_logger_data.rename(columns={'surface_temperature': 'AmbientSurfaceTemp'}, inplace=True)
                 surface_logger_data.rename(columns={'surface_temperature': 'SurfaceLoggerTemp'}, inplace=True)
