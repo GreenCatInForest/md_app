@@ -143,7 +143,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://logger.cambridgelogic.com',
+    'http://logger.cambridgelogic.com',
+]
 
 
 # Internationalization
