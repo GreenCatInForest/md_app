@@ -145,7 +145,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-SECURE_SSL_REDIRECT = True
+
 
 CSRF_TRUSTED_ORIGINS = [
     'https://logger.cambridgelogic.com',
