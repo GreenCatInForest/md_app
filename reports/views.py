@@ -111,7 +111,14 @@ def report_view(request):
             # Save Room formset with the associated Report instance
             for room_form in room_formset:
                 room_instance = room_form.save(commit=False)
+
+            if room_instance.pk: 
+                 # Check if it's an existing room (has a primary key)
+        # Update the existing room instance
                 room_instance.report = report_instance
+            else:
+        # Create a new room instance
+                room_instance = Room(report=report_instance)
 
                 # Correctly handle room picture files
                 room_picture_file = room_form.cleaned_data.get('room_picture')
