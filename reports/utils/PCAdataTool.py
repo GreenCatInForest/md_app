@@ -941,6 +941,19 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
               f'len(Monitor_areas):{len(Monitor_areas)}')
         return
     
+    room_data_list = []
+
+    # Process the data for each room
+    for i, datafile in enumerate(datafiles):
+        room_data = RoomData(
+            datafile=datafile,
+            index=i + 1,  # Room index starts at 1
+            problem_room=Problem_rooms[i],
+            monitor_area=Monitor_areas[i]
+        )
+        room_data_list.append(room_data)
+
+    
     image_list = []
 
     if Image_property:
@@ -1030,6 +1043,9 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
                 self.write(5, text[0])
             self.write(5, '\n')
 
+
+
+        
     def section4(room_data: RoomData):
 
         pdf.add_page()
@@ -1184,7 +1200,11 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         # pdf.image(f'imgs/Tab1C{prefix}.png', 25, 148, 150)
         # pdf.image(f'imgs/Fig6{prefix}.png', 30, 170, 140)
         # pdf.image(f'imgs/Tab2C{prefix}.png', 25, 255, 150)
+        for room_data in room_data_list:
+        section4(room_data)
 
+    for room_data in room_data_list:
+        section4(room_data)
     class PDF(BasePDF):
 
         # def header(self):

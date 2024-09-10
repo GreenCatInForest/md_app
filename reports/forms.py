@@ -176,7 +176,8 @@ class RoomForm(forms.ModelForm):
             'room_surface_logger': TextInput(attrs={
                 'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
                 'placeholder': 'Surface Sensor',
-                'id':'room_surface_logger'
+                'id':'room_surface_logger',
+                'required': True,
             }),
             'room_monitor_area': TextInput(attrs={
                 'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
@@ -188,7 +189,7 @@ class RoomForm(forms.ModelForm):
                 'class':"w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600",
                 'id':'room_mould_visible',
                 'type':'checkbox',
-                'required': False,
+
             }),
             
         }
@@ -213,7 +214,10 @@ class RoomForm(forms.ModelForm):
         room_ambient_logger = normalize_logger_serial(cleaned_data.get('room_ambient_logger'))
         room_surface_logger = normalize_logger_serial(cleaned_data.get('room_surface_logger'))
         
-        
+        if  room_ambient_logger is None:
+                self.add_error('room_ambient_logger', 'No sensors find with this number within the specified date range.')
+        if room_surface_logger is None:
+                self.add_error('room_surface_logger', 'No data found for the surface logger within the specified date range.')  
 
         return cleaned_data
 

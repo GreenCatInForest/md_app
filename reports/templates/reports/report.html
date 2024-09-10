@@ -148,14 +148,65 @@
                             
                             {% for form in room_formset %}
                             <div class="room-form p-4 border rounded-lg mb-4 bg-gray-100 dark:bg-gray-800">
-                                {% for field in form %}
-                                {% if field.name == 'id' %}
-                                    {{ field.as_hidden }}
-                                {% elif field.name != 'room_picture' %}
-                                    <p>{{ field.label_tag }} {{ field }}</p>
-                                {% endif %}
-                                {% endfor %}
+                                <div class="form-group">
+                                    <label for="{{ form.room_name.id_for_label }}">Room Name</label>
+                                    {{ form.room_name }}
+                                    {% if form.room_name.errors %}
+                                        <div class="error-message text-red-500 text-sm mt-2">
+                                            {% for error in form.room_name.errors %}
+                                            <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
                                 
+                                <div class="form-group">
+                                    <label for="{{ form.room_ambient_logger.id_for_label }}">Ambient Sensor, Serial Number</label>
+                                    {{ form.room_ambient_logger }}
+                                    {% if form.room_ambient_logger.errors %}
+                                        <div class="error-message text-red-500 text-sm mt-2">
+                                            {% for error in form.room_ambient_logger.errors %}
+                                            <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.room_surface_logger.id_for_label }}">Surface Sensor, Serial Number</label>
+                                    {{ form.room_surface_logger }}
+                                    {% if form.room_surface_logger.errors %}
+                                        <div class="error-message text-red-500 text-sm mt-2">
+                                            {% for error in form.room_surface_logger.errors %}
+                                            <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.room_monitor_area.id_for_label }}">Monitor Area</label>
+                                    {{ form.room_monitor_area }}
+                                    {% if form.room_monitor_area.errors %}
+                                        <div class="error-message text-red-500 text-sm mt-2">
+                                            {% for error in form.room_monitor_area.errors %}
+                                            <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="{{ form.room_mould_visible.id_for_label }}">Mould Visible</label>
+                                    {{ form.room_mould_visible }}
+                                    {% if form.room_mould_visible.errors %}
+                                        <div class="error-message text-red-500 text-sm mt-2">
+                                            {% for error in form.room_mould_visible.errors %}
+                                            <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
                                 <div class="form-group flex items-center justify-center w-full">
                                     <!-- Correct the 'for' attribute in the label -->
                                     <label for="{{ form.room_picture.id_for_label }}" class="flex flex-col items-center justify-center w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
@@ -172,8 +223,8 @@
                                     {{ form.room_picture }}
                                     <img id="room_picture_preview_{{ forloop.counter }}" class="room-picture-preview"  style="display:none; min-width: 50px; max-width: 500px; height:auto; position:absolute;" />
                                 </div>
-                   
-    
+
+                                       
                                 <button type="button" class="delete-room btn btn-danger mt-2">Delete Room</button>
                             </div>
                             {% endfor %}
