@@ -29,7 +29,6 @@ app_logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
-
 def fetch_logger_data(logger_serial, start_timestamp, end_timestamp):
     """Fetch logger data within the specified timestamp range and return as a DataFrame."""
     try:
@@ -86,9 +85,11 @@ def report_view(request):
     if request.method == 'POST':
         form = ReportForm(request.POST, request.FILES)
         room_formset = RoomFormSet(request.POST, request.FILES, prefix='rooms')
+        user = request.user 
 
         if form.is_valid() and room_formset.is_valid():
             app_logger.debug("Form and formset are valid.")
+            app_logger.debug(f"Number of rooms being processed: {len(room_formset.cleaned_data)}")
 
             # Save the Report object first
             report_instance = form.save(commit=False)
