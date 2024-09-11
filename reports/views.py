@@ -107,6 +107,7 @@ def report_view(request):
 
             # Initialize list to store room pictures
             room_pictures = []
+            csv_file_paths = []
             
 
             # Save Room formset with the associated Report instance
@@ -228,6 +229,17 @@ def report_view(request):
                 # Initialize RoomData with problem_room and monitor_area
                 app_logger.debug(f"Initializing RoomData with room_name={problem_room} and monitor_area={monitor_area}")
 
+                if all(col in combined_data.columns for col in ['IndoorAirTemp', 'IndoorRelativeH', 'SurfaceTemp', 'OutdoorAirTemp', 'OutdoorRelativeH']):
+                    combined_data = combined_data[['timestamp', 'IndoorAirTemp', 'IndoorRelativeH', 'SurfaceTemp', 'OutdoorAirTemp', 'OutdoorRelativeH']]
+                else:
+                    return HttpResponse(f"Expected columns not found in combined data: {combined_data.columns.tolist()}")
+
+                # Save DataFrame to a temporary CSV file
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmpfile:
+                    combined_data.to_csv(tmpfile.name, index=False)
+                    csv_file_paths.append(tmpfile.name)
+
+                # Initialize RoomData with problem_room and monitor_area
                 room_data_instance = RoomData(
                     datafile=combined_data,
                     index=index,
@@ -237,23 +249,10 @@ def report_view(request):
                     monitor_area=monitor_area
                 )
 
+
                 app_logger.debug(f"RoomData instance created: {room_data_instance.get_summary()}")
 
-                # Check if expected columns exist
-                if all(col in combined_data.columns for col in ['IndoorAirTemp', 'IndoorRelativeH', 'SurfaceTemp', 'OutdoorAirTemp', 'OutdoorRelativeH']):
-                    # Ensure the correct column order
-                    combined_data = combined_data[['timestamp', 'IndoorAirTemp', 'IndoorRelativeH', 'SurfaceTemp', 'OutdoorAirTemp', 'OutdoorRelativeH']]
-                else:
-                    return HttpResponse(f"Expected columns not found in combined data: {combined_data.columns.tolist()}")
-
-                # Append the combined data to the list
-                combined_logger_data_list.append(combined_data)
-
-            # Concatenate all the room data into one DataFrame for simplicity
-            all_rooms_combined_data = pd.concat(combined_logger_data_list)
-
-            all_rooms_combined_data = clean_data(all_rooms_combined_data)
-
+            
             # Collect images (ensure only available images are passed)
             image_property = save_uploaded_file(form.cleaned_data.get('external_picture'))
             image_logo = save_uploaded_file(form.cleaned_data.get('company_logo'))
@@ -265,10 +264,8 @@ def report_view(request):
             app_logger.debug(f"Images collected: Image_property={image_property}, image_logo={image_logo}")
             app_logger.debug(f"Images collected: Image_indoor1={image_indoor1}, Image_indoor2={image_indoor2}, Image_indoor3={image_indoor3}, Image_indoor4={image_indoor4}")
 
-            # Save DataFrame to a temporary CSV file if needed by RPTGen
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmpfile:
-                all_rooms_combined_data.to_csv(tmpfile.name, index=False)
-                datafile_path = tmpfile.name
+                # Save DataFrame to a temporary CSV file if needed by RPTGen
+
 
             form_data = {
                 'surveyor': form.cleaned_data['surveyor'],
@@ -285,7 +282,7 @@ def report_view(request):
                 'Image_property': image_property,
                 'Image_logo': image_logo,
                 'comment': form.cleaned_data['notes'],
-                'datafiles': [datafile_path],  # Pass the path to the CSV file
+                'datafiles': csv_file_paths,  # Pass the path to the CSV file
                 'room_pictures': room_pictures,
                 'Image_indoor1': image_indoor1,
                 'Image_indoor2': image_indoor2,
