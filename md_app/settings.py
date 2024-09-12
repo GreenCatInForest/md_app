@@ -11,11 +11,18 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+def get_secret(secret_name):
+    try:
+        with open(f'/run/secrets/{secret_name}') as secret_file:
+            return secret_file.read().strip()
+    except FileNotFoundError:
+        return None
+    
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -32,7 +39,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '0.0.0.0',
     '192.168.0.123',
-    'logger.cambridgelogic.com'
+    'logger.cambridgelogic.com',
+    'sensors.maple-diagnostics.com'
 ]
 
 # Application definition
@@ -99,13 +107,15 @@ WSGI_APPLICATION = 'md_app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+load_dotenv()
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'maple_db_dev',
-        'USER': 'myuser',
-        'PASSWORD': 'mypassword',
-        'HOST': 'db',
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': 'db',  # Service name of PostgreSQL in docker-compose
         'PORT': '5432',
     }
 }
@@ -150,6 +160,8 @@ SESSION_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = [
     'https://logger.cambridgelogic.com',
     'http://logger.cambridgelogic.com',
+    'https://sensors.maple-diagnostics.com/',
+    'http://sensors.maple-diagnostics.com/',
     'https://*.127.0.0.1',
     'http://*.127.0.0.1',
 ]
