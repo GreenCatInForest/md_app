@@ -929,6 +929,17 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
            occupied, monitor_time, occupied_during_all_monitoring, occupant_number, Problem_rooms, Monitor_areas, moulds, Image_property, room_pictures,
            Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4,Image_logo, comment, popup=True):
     # global DATA
+    import logging
+    # Configure logging
+    logging.basicConfig(level=logging.DEBUG)
+    app_logger = logging.getLogger(__name__)
+
+    app_logger.debug(datafiles)
+
+    # Add additional debug information as needed
+    for file_path in datafiles:
+        with open(file_path, 'r') as file:
+            app_logger.debug(f"Contents of {file_path}: {file.read()[:500]}")  # Log a snippet of the file
 
     output_file_name = os.path.join(output_report_dir, "PCA_BMI_Report")
 
