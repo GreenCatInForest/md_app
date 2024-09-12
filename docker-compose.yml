@@ -6,7 +6,7 @@ services:
     # restart: always
     volumes:
       - pg_data:/var/lib/postgresql/data
-      - ./create_user.sh:/docker-entrypoint-initdb.d/create_user.sh
+      # - ./create_user.sh:/docker-entrypoint-initdb.d/create_user.sh
     env_file:
       - .env
     environment:

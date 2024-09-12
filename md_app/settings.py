@@ -39,7 +39,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '0.0.0.0',
     '192.168.0.123',
-    'logger.cambridgelogic.com'
+    'logger.cambridgelogic.com',
+    'sensors.maple-diagnostics.com'
 ]
 
 # Application definition
@@ -159,6 +160,8 @@ SESSION_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = [
     'https://logger.cambridgelogic.com',
     'http://logger.cambridgelogic.com',
+    'https://sensors.maple-diagnostics.com/',
+    'http://sensors.maple-diagnostics.com/',
     'https://*.127.0.0.1',
     'http://*.127.0.0.1',
 ]
