@@ -39,7 +39,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '0.0.0.0',
     '192.168.0.123',
-    'logger.cambridgelogic.com'
+    'logger.cambridgelogic.com',
+    'sensors.maple-diagnostics.com'
 ]
 
 # Application definition
