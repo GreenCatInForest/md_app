@@ -11,6 +11,7 @@
                     <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Date of Report</th>
                     <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Property Address</th>
                     <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Rooms Name</th>
+                    <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Survey time</th>
                     <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Actions</th>
                 </tr>
             </thead>
@@ -19,13 +20,19 @@
                 <tr class="hover:bg-gray-50">
                     <td class="py-2 px-4 border-b text-gray-900">{{ report.report_timestamp|date:"Y-m-d H:i" }}</td>
                     <td class="py-2 px-4 border-b text-gray-900">{{ report.property_address }}</td>
+                    <td class="py-2 px-4 border-b text-gray-900">{{ report.start_time}}</td>
                     <td class="py-2 px-4 border-b text-gray-900">
                         {% for room in report.rooms.all %}
                             {{ room.room_name }}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </td>
                     <td class="py-2 px-4 border-b text-gray-900">
+                        {% if report.report_file %}
                         <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>
+                        <a href="{% url 'report_detail' report.id %}" class="text-blue-500 hover:underline">Download Report</a>
+                        {% else %}
+                        <p>No file available</p>
+                    {% endif %}
                     </td>
                 </tr>
                 {% empty %}
@@ -37,6 +44,7 @@
         </table>
     </div>
 </div>
+
 
 <style>
     @media screen and (max-width: 768px) {

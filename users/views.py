@@ -12,9 +12,11 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegisterForm, UserLoginForm, PasswordResetRequestForm
+from .forms import UserRegisterForm, UserLoginForm, PasswordResetRequestForm, CustomPasswordResetForm
 from core.models import User, PasswordReset
 from django.contrib.auth import get_user_model
+
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 
 # for password reset
 
@@ -103,6 +105,22 @@ def user_logout(request):
     print('User is logging out')
     logout(request)
     return redirect('login_register')
+
+# Customise the password-reset views to account for "already logged in" users trying to reset their password.
+class LogoutIfAuthenticatedMixin:
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            logout(request)
+        return super().dispatch(request, *args, **kwargs)
+    
+class CustomPasswordResetView(LogoutIfAuthenticatedMixin, PasswordResetView):
+    form_class = CustomPasswordResetForm
+    template_name = 'password-forgot.html'
+    
+# Implement the password reset behaviour customisation
+class CustomPasswordResetDoneView(LogoutIfAuthenticatedMixin, PasswordResetDoneView):pass
+class CustomPasswordResetConfirmView(LogoutIfAuthenticatedMixin, PasswordResetConfirmView):pass
+class CustomPasswordResetCompleteView(LogoutIfAuthenticatedMixin, PasswordResetCompleteView):pass    
 
 
 def password_reset_request_view(request):
