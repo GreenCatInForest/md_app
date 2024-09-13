@@ -323,10 +323,16 @@ def historical_reports_view(request):
     return render(request, 'reports/historical_reports.html', {'reports': reports})
 
 @login_required
+def report_detail_view(request, report_id):
+    report = get_object_or_404(Report, id=report_id, user=request.user)
+    return render(request, 'reports/historical_reports.html', {'report': report})
+
+@login_required
 def download_report(request, report_id):
     try:
         report = Report.objects.get(id=report_id)
-        file_path = safe_join(settings.MEDIA_ROOT, report.report_file.name)
+        file_path = safe_join(report.report_file.name)
+        print(file_path)
         if not report.report_file:
             raise Http404("No file found.")
         

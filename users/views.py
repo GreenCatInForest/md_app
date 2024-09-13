@@ -12,9 +12,12 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegisterForm, UserLoginForm, PasswordResetRequestForm
+from .forms import UserRegisterForm, UserLoginForm, PasswordResetRequestForm, CustomPasswordResetForm
 from core.models import User, PasswordReset
+from users.forms import CustomPasswordResetForm
 from django.contrib.auth import get_user_model
+
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 
 # for password reset
 
@@ -103,6 +106,47 @@ def user_logout(request):
     print('User is logging out')
     logout(request)
     return redirect('login_register')
+
+# Customise the password-reset views to account for "already logged in" users trying to reset their password.
+class LogoutIfAuthenticatedMixin:
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            logout(request)
+        return super().dispatch(request, *args, **kwargs)
+    
+class CustomPasswordResetView(LogoutIfAuthenticatedMixin, PasswordResetView):
+    form_class = CustomPasswordResetForm
+    template_name = "users/password-forgot.html"
+    email_template_name = "password/password_reset_email.txt"
+    subject_template_name = "password/password_reset_subject.txt"
+    success_url = "/password/reset/done/"
+    
+    def form_valid(self, form):
+        email = form.cleaned_data["email"]
+        user = get_user_model().objects.filter(email=email).first()
+        if user:
+            self.send_mail(form, user)
+        return super().form_valid(form)
+    
+    def send_mail(self, form, user):
+        context = {
+            "email": user.email,
+            "domain": self.request.META["HTTP_HOST"],
+            "site_name": "Your Website",
+            "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+            "user": user,
+            "token": default_token_generator.make_token(user),
+            "protocol": "http",
+        }
+        subject = render_to_string(self.subject_template_name, context)
+        subject = "".join(subject.splitlines())
+        email = render_to_string(self.email_template_name, context)
+        send_mail(subject, email, settings.DEFAULT_FROM_EMAIL, [user.email])
+    
+# Implement the password reset behaviour customisation
+class CustomPasswordResetDoneView(LogoutIfAuthenticatedMixin, PasswordResetDoneView):pass
+class CustomPasswordResetConfirmView(LogoutIfAuthenticatedMixin, PasswordResetConfirmView):pass
+class CustomPasswordResetCompleteView(LogoutIfAuthenticatedMixin, PasswordResetCompleteView):pass    
 
 
 def password_reset_request_view(request):

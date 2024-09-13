@@ -38,7 +38,7 @@ select {
       "main main main"
       "footer footer footer";
       min-height: 100vh;
-    @apply bg-blue-950;
+    @apply bg-blue-950 overflow-y-hidden;
   }
   
   @media (max-width: 1920px) {
@@ -832,3 +832,29 @@ overflow: hidden; /* Hide any overflow content */
   font-size: 14px;  /* Adjusts the font size */
   color: gray;
 }
+
+
+/* .form-fields {
+  @apply flex flex-col items-center justify-center gap-4;
+}
+
+.form-fields .input-wrapper {
+  @apply transition-all w-full flex justify-center bg-dark text-light rounded-full px-4 py-2 border-light border-solid border items-center max-w-xs gap-3;
+} */
+/* 
+.form-fields .input-wrapper > input, .form-fields .input-wrapper > textarea {
+  @apply bg-transparent border-transparent w-full focus:outline-none;
+}
+
+.form-fields .input-wrapper > svg {
+  @apply transition-all;
+}
+
+.form-fields .input-wrapper:hover,
+.form-fields .input-wrapper:focus-within {
+  @apply border-secondary scale-105;
+}
+.form-fields .input-wrapper:hover > svg,
+.form-fields .input-wrapper:focus-within > svg {
+  @apply fill-secondary scale-110;
+} */

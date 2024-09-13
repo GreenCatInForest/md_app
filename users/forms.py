@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import PasswordResetForm
+
 from django.forms import EmailField, TextInput, PasswordInput, CheckboxInput
 from core.models import User
 from django.contrib.auth import authenticate
@@ -155,3 +157,11 @@ class UserLoginForm(forms.Form):
     
 class PasswordResetRequestForm(forms.Form):
     email = forms.EmailField(label="Enter your email", max_length=254)
+
+
+class CustomPasswordResetForm(PasswordResetForm):
+    email = forms.EmailField(
+        label="Email Address",
+        max_length=254,
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter your email'})
+    )
