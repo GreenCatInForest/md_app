@@ -117,9 +117,9 @@ class LogoutIfAuthenticatedMixin:
 class CustomPasswordResetView(LogoutIfAuthenticatedMixin, PasswordResetView):
     form_class = CustomPasswordResetForm
     template_name = "users/password-forgot.html"
-    email_template_name = "password/password_reset_email.txt"
-    subject_template_name = "password/password_reset_subject.txt"
-    success_url = "/password/reset/done/"
+    email_template_name = "users/password_reset_email.txt"
+    subject_template_name = "users/password_reset_subject.txt"
+    success_url = "/users/reset/done/"
     
     def form_valid(self, form):
         email = form.cleaned_data["email"]
