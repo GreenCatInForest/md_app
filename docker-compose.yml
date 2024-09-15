@@ -20,12 +20,23 @@ services:
   web:
     build: .
     container_name: maple-web
+    develop:
+      watch: 
+        - action: sync
+          path: ./code
+          target: /code
+        - ignore:
+            - node_modules/
     command: >
       sh -c "wait-for-it.sh db:5432 
       -- python manage.py collectstatic --noinput 
       && python manage.py makemigrations 
       && python manage.py migrate 
-      && gunicorn md_app.wsgi:application --bind 0.0.0.0:1091 --workers 4 --timeout 1200"
+      && gunicorn md_app.wsgi:application 
+       --bind 0.0.0.0:1091 
+       --workers 4 
+       --timeout 1200 
+       --reload"
     volumes:
       - .:/code
       # - static_volume:/code/staticfiles

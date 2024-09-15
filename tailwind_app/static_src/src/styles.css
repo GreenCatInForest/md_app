@@ -38,9 +38,14 @@ select {
       "main main main"
       "footer footer footer";
       min-height: 100vh;
-    @apply bg-blue-950 overflow-y-hidden;
+    @apply bg-whiteSmoke overflow-y-hidden;
+  }
+
+  .wrapper.dark {
+    @apply bg-blue-950;
   }
   
+  wrapper
   @media (max-width: 1920px) {
     .wrapper {
       grid-template-columns: 1fr;
@@ -55,9 +60,7 @@ select {
   
   header {
     grid-area: header;
-    @apply bg-blue-950 
-    /* shadow-xl hover:shadow-light-accent3  shadow-blue-400 */
-    ; 
+    @apply bg-blue-950; 
   }
 
   footer {
@@ -86,89 +89,29 @@ select {
     }
   }
 
-/* 
-/* Layout Logged In 
-
-
-
-
-#index-main-wrapper-logged-in {
-  grid-area: index-main-wrapper-logged-in;
-  @apply shadow-xl hover:shadow-light-accent3  shadow-blue-400;
-  display:grid;
-  grid-template-columns: auto 1fr;
-  grid-template-areas:
-    "aside user-content";
-    min-height: 100vh;
+#index-main-wrapper {
+  @apply flex flex-col flex-wrap justify-center;
 }
 
-
-
-@media (max-width: 768px) {
-  #index-main-wrapper-logged-in {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(5rem, auto) 1fr;
-    grid-template-areas:
-    "aside"
-    "user-content";
-    min-height: 100vh;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  #index-main-wrapper-logged-in {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(5rem, auto) 1fr;
-    grid-template-areas:
-    "aside"
-    "user-content";
-    min-height: 100vh;
-  }
-}
-
-  aside {
-      grid-area: aside;
-      @apply shadow-xl hover:shadow-light-accent3  shadow-blue-400 p-8;
-  }
-
-  .user-content {
-      grid-area: user-content;
-      gap: 2rem; 
-      min-height: 100vh;
-  }
-
-  @media (max-width: 768px) {
-      .user-content {
-        min-height: 100vh;
-      }
-    } */
-
-    /*.user-content article {
-      @apply 
-       shadow-xl hover:shadow-light-accent3  shadow-blue-400 p-8 m-2; 
-    
-    }*/
-
-
-#index-main-wrapper{
-  @apply  flex flex-col flex-wrap justify-center;
-  background-image: url('/static_src/src/images/hero-img.png');
-}
-
-#index-main-wrapper.light, 
-#index-main-wrapper.light #index-main-wrapper, 
-#index-main-wrapper.light #index-main-wrapper div,
-#index-main-wrapper.light #index-main-wrapper div a,
-#index-main-wrapper.light #index-main-wrapper div a:hover,
-#index-main-wrapper.light #index-main-wrapper div a.active {
+#index-main-wrapper {
   @apply bg-white text-blue-950 flex flex-col flex-wrap justify-center;
 }
-
-#index-main-wrapper.light p {
+#index-main-wrapper p {
   @apply text-gray-300;
 }
 
-#index-main-wrapper.light p.light {
+#index-main-wrapper.dark, 
+#index-main-wrapper.dark #index-main-wrapper, 
+#index-main-wrapper.dark #index-main-wrapper div,
+#index-main-wrapper.dark #index-main-wrapper div a,
+#index-main-wrapper.dark #index-main-wrapper div a:hover,
+#index-main-wrapper.dark #index-main-wrapper div a.active {
+  @apply bg-blue-950 text-white flex flex-col flex-wrap justify-center;
+}
+
+
+
+#index-main-wrapper p {
   @apply text-blue-950;
 }
 
@@ -176,7 +119,7 @@ select {
   @apply text-4xl font-bold text-center text-whiteSmoke my-20;
 }
 
-.banner-index-text.light {
+.banner-index-text {
   @apply text-4xl font-bold text-blue-950 my-20;
 }
 
