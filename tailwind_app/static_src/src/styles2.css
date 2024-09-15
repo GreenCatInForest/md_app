@@ -7,11 +7,12 @@
 }
 
 body {
-    @apply font-sans antialiased m-0 p-0
-  }
+    @apply font-sans antialiased m-0 p-0}
 
 form {
-  @apply flex flex-col flex-wrap;
+  @apply flex flex-col flex-wrap 
+  /* gap-6 */
+  ;
 }
 
 form p {
@@ -25,52 +26,74 @@ select {
 
 /* Layout Templates */
 
-
-
 .wrapper {
-  @apply bg-whiteSmoke overflow-y-hidden min-h-[100vh] overflow-hidden text-blue-950;
-}
-
-.wrapper.dark {
-  @apply bg-blue-950 text-whiteSmoke;
-}
-
-
-header {
-  @apply bg-blue-950 pb-4 sm:pb-0 sm:shadow-md sm:shadow-blue-400; 
-  
-}
-
-header.dark {
-  @apply sm:shadow-xl sm:shadow-blue-400;
-}
-
-footer {
-@apply bg-blue-950 text-center text-white ;
-
-}
-
-/* Layout Main Template */
-  
-main {
-  /* @apply shadow-xl hover:shadow-light-accent3 shadow-blue-400; */
-  min-height: 100vh;
-}
-
-@media (max-width: 1920px) {
-  main {
-    min-height: 100vh;
+    display:grid;
+    grid-template-columns: 16rem 1fr 16rem ;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "header header header"
+      "main main main"
+      "footer footer footer";
+      min-height: 100vh;
+    @apply bg-whiteSmoke overflow-y-hidden;
   }
-}
 
+  .wrapper.dark {
+    @apply bg-blue-950;
+  }
+  
+  wrapper
+  @media (max-width: 1920px) {
+    .wrapper {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto minmax(5rem, auto) 1fr;
+      grid-template-areas:
+      "header"
+      "main"
+      "footer";
+      min-height: 100vh;
+    }
+  }
+  
+  header {
+    grid-area: header;
+    @apply bg-blue-950; 
+  }
+
+  footer {
+    grid-area: footer;
+
+  }
+
+  /* Layout Main Template */
+  
+  main {
+    grid-area: main;
+    @apply shadow-xl hover:shadow-light-accent3  shadow-blue-400;
+    display:grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat 
+    auto minmax(5rem, auto) 1fr;
+    min-height: 100vh;
+  
+  }
+
+  @media (max-width: 1920px) {
+    main {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto minmax(5rem, auto) 1fr;
+      min-height: 100vh;
+    }
+  }
 
 #index-main-wrapper {
-  @apply flex flex-col flex-wrap justify-center bg-transparent;
+  @apply flex flex-col flex-wrap justify-center;
 }
 
-
-
-#index-main-wrapper p.dark {
+#index-main-wrapper {
+  @apply bg-white text-blue-950 flex flex-col flex-wrap justify-center;
+}
+#index-main-wrapper p {
   @apply text-gray-300;
 }
 
@@ -80,18 +103,23 @@ main {
 #index-main-wrapper.dark #index-main-wrapper div a,
 #index-main-wrapper.dark #index-main-wrapper div a:hover,
 #index-main-wrapper.dark #index-main-wrapper div a.active {
-  @apply flex flex-col flex-wrap justify-center;
+  @apply bg-blue-950 text-white flex flex-col flex-wrap justify-center;
 }
 
 
 
+#index-main-wrapper p {
+  @apply text-blue-950;
+}
+
 .banner-index-text {
-  @apply text-4xl font-bold text-center my-20;
+  @apply text-4xl font-bold text-center text-whiteSmoke my-20;
 }
 
 .banner-index-text {
   @apply text-4xl font-bold text-blue-950 my-20;
 }
+
 
 
 .featured-products {
@@ -107,6 +135,9 @@ main {
 }
 
 /* Layout Logged in */
+#index-main-wrapper {
+  @apply  dark:bg-blue-950 flex flex-col flex-wrap mb-8 justify-center;
+}
 
 .banner-index-text {
   @apply text-4xl font-bold text-center text-whiteSmoke my-20;
@@ -741,3 +772,29 @@ overflow: hidden; /* Hide any overflow content */
   font-size: 14px;  /* Adjusts the font size */
   color: gray;
 }
+
+
+/* .form-fields {
+  @apply flex flex-col items-center justify-center gap-4;
+}
+
+.form-fields .input-wrapper {
+  @apply transition-all w-full flex justify-center bg-dark text-light rounded-full px-4 py-2 border-light border-solid border items-center max-w-xs gap-3;
+} */
+/* 
+.form-fields .input-wrapper > input, .form-fields .input-wrapper > textarea {
+  @apply bg-transparent border-transparent w-full focus:outline-none;
+}
+
+.form-fields .input-wrapper > svg {
+  @apply transition-all;
+}
+
+.form-fields .input-wrapper:hover,
+.form-fields .input-wrapper:focus-within {
+  @apply border-secondary scale-105;
+}
+.form-fields .input-wrapper:hover > svg,
+.form-fields .input-wrapper:focus-within > svg {
+  @apply fill-secondary scale-110;
+} */

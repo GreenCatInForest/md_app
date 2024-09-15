@@ -29,14 +29,10 @@ services:
             - node_modules/
     command: >
       sh -c "wait-for-it.sh db:5432 
-      -- python manage.py collectstatic --noinput 
       && python manage.py makemigrations 
       && python manage.py migrate 
-      && gunicorn md_app.wsgi:application 
-       --bind 0.0.0.0:1091 
-       --workers 4 
-       --timeout 1200 
-       --reload"
+      && python manage.py runserver 0.0.0.0:1091
+      "
     volumes:
       - .:/code
       # - static_volume:/code/staticfiles
