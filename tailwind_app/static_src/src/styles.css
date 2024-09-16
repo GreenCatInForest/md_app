@@ -231,6 +231,16 @@ main {
     @apply relative uppercase font-extrabold;
   }
 
+  .base-navbar-link.active:before {
+    content: '•'; /* Symbol to display underneath */
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    @apply text-transparent;
+  }
+
   .base-navbar-link.active:hover:after {
     content: '•'; /* Symbol to display underneath */
     position: absolute;
@@ -328,10 +338,55 @@ footer p {
   
   /* Report Constructor */
 
+    
+  /* Report Constructor Page */
+
 #report-constructor {
     @apply flex flex-col flex-wrap;
   }
 
+
+.report-constructor-banner div.container {
+    @apply py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16 flex flex-col justify-center items-center gap-4;
+  }
+
+.report-constructor-banner h1 {
+    @apply mb-4 text-4xl font-extrabold tracking-tight leading-none text-blackcurrant md:text-5xl lg:text-6xl
+  }
+
+.report-constructor-banner h1.dark {
+    @apply mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl lg:text-6xl text-white;
+  }
+
+.report-constructor-banner p {
+    @apply mb-8 text-lg font-semibold text-blackcurrant lg:text-xl sm:px-16 lg:px-48;
+  }
+
+
+.report-constructor-banner p.dark {
+    @apply mb-8 text-lg font-normal lg:text-xl sm:px-16 lg:px-48 text-gray-300;
+  }
+
+.report-btn-wrapper {
+  @apply flex flex-col gap-6 space-y-4 sm:flex-row sm:justify-center sm:space-y-0;
+}
+
+.report-btn-wrapper a:first-child {
+  @apply inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 
+}
+
+.report-btn-wrapper a:nth-child(2) {  
+  @apply inline-flex justify-center items-center   py-3 px-5  text-base font-medium text-center text-white border-[2px] border-blackcurrant bg-blackcurrant
+ rounded-lg hover:bg-gray-100 hover:text-gray-800 z-[50];
+}
+
+.report-btn-wrapper a:nth-child(2).dark {
+  @apply inline-flex justify-center items-center  py-3 px-5  text-base font-medium text-center text-white border-[1px] border-blue-400 bg-blackcurrant
+ rounded-lg hover:bg-gray-100 hover:text-gray-800 z-[50];
+}
+
+
+/* Report Constructor Form */
 
 #report-constructor form {
     @apply flex flex-col flex-wrap gap-6;
@@ -622,12 +677,27 @@ overflow: hidden; /* Hide any overflow content */
 
 .login-form-inputs,
 .register-form-inputs {
-  @apply w-full;
+  @apply w-full text-blackcurrant;
 }
+
+.login-form-inputs.dark,
+.register-form-inputs.dark {
+  @apply w-full text-white;
+}
+
 
 .input-icon-container {
   @apply relative flex flex-wrap items-center min-h-[55px];
 }
+
+.input-icon-container input {
+  @apply text-blackcurrant;
+}
+
+.input-icon-container.dark input {
+  @apply text-white;
+}
+
 .input-icon-container.register-form-terms,
 .input-icon-container.remember_me {
   @apply justify-start;
