@@ -479,14 +479,7 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
 }
 
 .log-in-container {
-  @apply flex flex-col sm:flex-row gap-8 justify-center items-center min-h-[100vh] bg-blue-950 relative;
-  /* background-image: url('/static/images/hydra-unsplash.jpg'); */
-  /* background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center; */
-  /*overflow: hidden;  Hide any overflow content */
-
+  @apply flex flex-col sm:flex-row gap-20 justify-evenly items-center min-h-[100vh] relative;
 }
 
 .log-in-container::before {
@@ -496,29 +489,46 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
   left: 0;
   right: 0;
   bottom: 0;
-  /*background-color: rgba(0, 0, 180, 0.5);  Adjust the blue color and opacity here */
-  pointer-events: none; /* Ensure that the overlay does not block interactions with other elements */
-  z-index: 1; /* Position the overlay above the background image but below other content */
+  pointer-events: none; 
+  z-index: 1; 
  ;
 }
 
 .log-in-container > * {
   position: relative; /* Position all children relative to bring them above the overlay */
   z-index: 2; /* Ensure that text and other content appear above the overlay */
-
-  
 }
 
 
 .col-1 {
-@apply items-center flex-col w-full sm:w-[45%] justify-center h-0 sm:min-h-[70vh] md:min-h-[80vh] xl:h-full relative left-0 -top-20 lg:top-0 bg-blue-700/30;
-/* background-color: rgba(255, 255, 255, 0.3); */
+@apply 
+hidden md:block
+items-center 
+flex-col w-0 sm:w-[45%] 
+justify-center h-0 sm:min-h-[70vh] md:min-h-[80vh] xl:h-full relative left-[-10] -top-20 lg:top-0 p-14
+border-[1px] border-gray-400 shadow-lg shadow-gray-800;
+background-color: rgba(255, 255, 255, 0.3);
 backdrop-filter: blur(30px);
-border-radius: 0 10% 8% 0;
+/* border-radius: 0 10% 8% 0; */
+border-radius: 10%;
 transition: border-radius .3s;
 /* opacity: 0.8; */
 overflow: hidden; /* Hide any overflow content */
+}
 
+.col-1.dark {
+  @apply bg-transparent border-[1px] border-blue-400;
+}
+
+.col-1 div.canvas  {
+  @apply w-0 h-0 sm:w-full sm:h-full;
+  }
+  
+.col-1 div.canvas #dynamicGraph,
+.col-1 div.canvas #temperatureGraph,
+.col-1 div.canvas #humidityGraph,
+.col-1 div.canvas #dewPointGraph {
+@apply w-0 h-0 sm:w-[400px] sm:h-[100%] 
 }
 
 .col-2 {
