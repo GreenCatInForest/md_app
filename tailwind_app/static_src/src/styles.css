@@ -388,14 +388,46 @@ footer p {
 
 /* Report Constructor Form */
 
+.report-constructor-forms-wrapper {
+  @apply  py-8 px-4 mx-auto max-w-4xl lg:py-8; 
+}
+
 #report-constructor form {
     @apply flex flex-col flex-wrap gap-6;
 }
 
-.report-form-field {
+#report-constructor form label {
+@apply block mb-2 text-base font-semibold text-gray-900
+}
+
+#report-constructor form label.dark {
+  @apply text-white
+  }
+
+.report-constructor-form-field {
+  @apply  text-base rounded-lg text-blackcurrant font-normal
+   focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 
+   shadow-sm shadow-slate-700 border-[1px]
+   bg-slate-600 border-slate-300 placeholder-whiteSmoke focus:outline-none
+}
+
+.report-constructor-form-field.dark {
+  @apply  text-sm rounded-lg text-blackcurrant
+   focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 
+   shadow-sm shadow-slate-700 border-[1px]
+   bg-slate-200 border-slate-300 placeholder-blackcurrant focus:outline-none
+}
+/* 
+.report-constructor-form-field.dark {
+  @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500
+} */
+
+
+
+/* .report-form-field {
     @apply flex flex-col small_tablet:flex-row flex-wrap items-center justify-center small_tablet:justify-start gap-8
     border-b-2 border-light-accent3 pb-4 hover:shadow-xl shadow-blue-400;
-}
+} */
 
 .report-form-field label {
     @apply font-semibold ;
@@ -412,6 +444,21 @@ footer p {
     @apply text-xl font-semibold mb-4 text-center;
 }
 
+
+/* Date Picker */
+
+.datepicker-wrapper {
+  @apply w-full sm:col-span-2;
+}
+.date-picker-wrapper h3 {
+  @apply block mb-2 text-base font-medium text-gray-900 text-left;
+}
+
+.date-picker-wrapper h3.dark {
+  @apply block mb-2 text-base font-medium text-whiteSmoke text-left;
+}
+
+
 .days-of-week {
 @apply grid grid-cols-7 mb-1;
 grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
@@ -422,6 +469,22 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
     grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
 }
 
+.date-picker-input {
+  @apply bg-slate-600 border border-gray-300
+   text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5;
+}
+
+.date-picker-input::placeholder {
+  @apply text-slate-100 text-base font-normal;
+}
+
+.date-picker-input.dark {
+  @apply bg-gray-50 border border-gray-300
+   text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5;
+}
+.date-picker-input.dark::placeholder {
+  @apply text-blackcurrant text-base font-medium;
+}
 
 .room-forms-container {
   display: grid;

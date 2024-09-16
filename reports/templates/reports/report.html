@@ -34,13 +34,60 @@
                 </div>
                 </div>
             </section>
-            <section class="dark:bg-blue-950">
-                <div class="py-8 px-4 mx-auto max-w-4xl lg:py-8">
+            <section class="report-constructor-forms">
+                <div class="report-constructor-forms-wrapper">
                     <form method="post" enctype="multipart/form-data"> 
                         {% csrf_token %}
                         <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+                
+                        <!-- Date Picker -->
+                            <div class="w-full sm:col-span-2 date-picker-wrapper">
+                                    <h3 class="block mb-2 text-sm font-medium text-gray-900 text-left">Survey Date Range</h3>
+                                    <div id="date-range-picker" class="flex items-center flex-col sm:flex-row flex-wrap justify-center gap-4 sm:justify-between">
+                                        <div class="w-full sm:w-[48%] ">
+                                        <div class="relative sm:w-full">
+                                            <div class="absolute inset-y-0 left-0 flex items-center pl-3  pointer-events-none">
+                                                <svg class="w-4 h-4 text-whiteSmoke dark:text-blackcurrant" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                                </svg>
+                                            </div>
+                                            {{ form.start_time }}
+                                        </div>
+                                        {% if form.start_time.errors %}
+                                            <div class="error-message text-red-500 text-sm mt-2">
+                                                {% for error in form.start_time.errors %}
+                                                <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- <div class="flex items-center justify-center mx-4">
+                                            <span class="text-gray-500 font-medium">to</span>
+                                        </div> -->
+                                        
+                                        <div class="w-full sm:w-[48%]">
+                                        <div class="relative sm:w-full">
+                                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                                <svg class="w-4 h-4 text-whiteSmoke dark:text-blackcurrant" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                                </svg>
+                                            </div>
+                                            {{ form.end_time }}
+                                        </div>  
+                                        {% if form.end_time.errors %}
+                                        <div class="error-message text-red-500 text-sm mt-2">
+                                            {% for error in form.end_time.errors %}
+                                            <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="form-group sm:col-span-2">
-                                <label for="property_address" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Property Address</label>
+                                <label for="property_address" class="">Property Address</label>
                                 {{ form.property_address }}
                             </div>
 
@@ -91,55 +138,11 @@
                                     <label for="number_of_occupants" class="bg-transparent peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Number of Occupants</label>
                                 </div>
                             
-                                <label for="notes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"></label>
+                                <label for="notes" class="block mb-2 text-sm font-medium text-gray-900"></label>
                                {{ form.notes }}
                             </div>
 
-                        <!-- Date Picker -->
-                        <div class="w-full sm:col-span-2">
-                        <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Date Range</h3>
-                        <div id="date-range-picker" class="flex items-center">
-                            <div class="sm:w-full">
-                            <div class="relative sm:w-full">
-                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
-                                    </svg>
-                                </div>
-                                {{ form.start_time }}
-                            </div>
-                              {% if form.start_time.errors %}
-                                <div class="error-message text-red-500 text-sm mt-2">
-                                    {% for error in form.start_time.errors %}
-                                    <p>{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="flex items-center justify-center mx-4">
-                                <span class="text-gray-500"></span>
-                            </div>
-                            
-                            <div class="sm:w-full">
-                            <div class="relative sm:w-full">
-                                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
-                                    </svg>
-                                </div>
-                                {{ form.end_time }}
-                            </div>  
-                            {% if form.end_time.errors %}
-                            <div class="error-message text-red-500 text-sm mt-2">
-                                {% for error in form.end_time.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        </div>
-                      </div>
-                    </div>
+                     
                     <div class="form-group sm:col-span-2">
                         <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Rooms</h3>
                         <div id="room-forms-container">
@@ -156,7 +159,6 @@
                                 {% endfor %}
                                 
                                 <div class="form-group flex items-center justify-center w-full">
-                                    <!-- Correct the 'for' attribute in the label -->
                                     <label for="{{ form.room_picture.id_for_label }}" class="flex flex-col items-center justify-center w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
                                         <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload Room Picture</h3>
                                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -167,7 +169,6 @@
                                             <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
                                         </div>
                                     </label>
-                                    <!-- Render the input field outside the label -->
                                     {{ form.room_picture }}
                                     <img id="room_picture_preview_{{ forloop.counter }}" class="room-picture-preview"  style="display:none; min-width: 50px; max-width: 500px; height:auto; position:absolute;" />
                                 </div>
@@ -220,7 +221,7 @@
                     <p>{{ error }}</p>
                     {% endfor %}
                 </div>
-{% endif %}
+            {% endif %}
                 </div>
             </section>
 
@@ -304,41 +305,41 @@
 
             reader.onload = function (e) {
                 var imgElement = document.getElementById(imgElementId);
-                if (imgElement) {  // Check if imgElement is found
+                if (imgElement) {  
                     imgElement.src = e.target.result;
-                    imgElement.style.display = 'block';  // Make sure the image is visible
+                    imgElement.style.display = 'block'; 
                 } else {
-                    console.error('Image element with ID ' + imgElementId + ' not found.'); // Debugging log
+                    console.error('Image element with ID ' + imgElementId + ' not found.'); 
                 }
             };
 
-            reader.readAsDataURL(input.files[0]); // Read the file as a data URL
+            reader.readAsDataURL(input.files[0]); 
         }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        console.log('DOM fully loaded and parsed'); // Debugging log
+        console.log('DOM fully loaded and parsed');
 
         // External picture preview
         const externalPictureInput = document.querySelector("input[name='external_picture']");
         if (externalPictureInput) {
             externalPictureInput.addEventListener("change", function() {
-                console.log('External picture input changed'); // Debugging log
-                readURL(this, 'external_picture'); // Ensure the ID matches your HTML for the external picture preview
+                console.log('External picture input changed'); 
+                readURL(this, 'external_picture'); 
             });
         } else {
-            console.error('External picture input not found'); // Debugging log
+            console.error('External picture input not found'); 
         }
 
         // Room picture previews
         document.querySelectorAll("input[name$='room_picture']").forEach(function(inputElement) {
             inputElement.addEventListener("change", function() {
-                console.log('Room picture input changed'); // Debugging log
+                console.log('Room picture input changed'); 
                 var imgElement = this.closest('.room-form').querySelector('.room-picture-preview');
                 if (imgElement) {
                     readURL(this, imgElement.id);
                 } else {
-                    console.error('Image element for room picture not found'); // Debugging log
+                    console.error('Image element for room picture not found'); 
                 }
             });
         });
@@ -347,11 +348,11 @@
         const companyLogoInput = document.querySelector("input[name='company_logo']");
         if (companyLogoInput) {
             companyLogoInput.addEventListener("change", function() {
-                console.log('Company logo input changed'); // Debugging log
-                readURL(this, 'company_logo_preview'); // Ensure the ID matches your HTML for the company logo preview
+                console.log('Company logo input changed'); 
+                readURL(this, 'company_logo_preview'); 
             });
         } else {
-            console.error('Company logo input not found'); // Debugging log
+            console.error('Company logo input not found'); 
         }
     });
 </script><script>
@@ -362,41 +363,41 @@
 
             reader.onload = function (e) {
                 var imgElement = document.getElementById(imgElementId);
-                if (imgElement) {  // Check if imgElement is found
+                if (imgElement) {  
                     imgElement.src = e.target.result;
-                    imgElement.style.display = 'block';  // Make sure the image is visible
+                    imgElement.style.display = 'block';  
                 } else {
-                    console.error('Image element with ID ' + imgElementId + ' not found.'); // Debugging log
+                    console.error('Image element with ID ' + imgElementId + ' not found.'); 
                 }
             };
 
-            reader.readAsDataURL(input.files[0]); // Read the file as a data URL
+            reader.readAsDataURL(input.files[0]); 
         }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        console.log('DOM fully loaded and parsed'); // Debugging log
+        console.log('DOM fully loaded and parsed'); 
 
         // External picture preview
         const externalPictureInput = document.querySelector("input[name='external_picture']");
         if (externalPictureInput) {
             externalPictureInput.addEventListener("change", function() {
-                console.log('External picture input changed'); // Debugging log
-                readURL(this, 'external_picture'); // Ensure the ID matches your HTML for the external picture preview
+                console.log('External picture input changed'); 
+                readURL(this, 'external_picture'); 
             });
         } else {
-            console.error('External picture input not found'); // Debugging log
+            console.error('External picture input not found'); 
         }
 
         // Room picture previews
         document.querySelectorAll("input[name$='room_picture']").forEach(function(inputElement) {
             inputElement.addEventListener("change", function() {
-                console.log('Room picture input changed'); // Debugging log
+                console.log('Room picture input changed'); 
                 var imgElement = this.closest('.room-form').querySelector('.room-picture-preview');
                 if (imgElement) {
                     readURL(this, imgElement.id);
                 } else {
-                    console.error('Image element for room picture not found'); // Debugging log
+                    console.error('Image element for room picture not found'); 
                 }
             });
         });
@@ -405,11 +406,11 @@
         const companyLogoInput = document.querySelector("input[name='company_logo']");
         if (companyLogoInput) {
             companyLogoInput.addEventListener("change", function() {
-                console.log('Company logo input changed'); // Debugging log
-                readURL(this, 'company_logo_preview'); // Ensure the ID matches your HTML for the company logo preview
+                console.log('Company logo input changed'); 
+                readURL(this, 'company_logo_preview'); 
             });
         } else {
-            console.error('Company logo input not found'); // Debugging log
+            console.error('Company logo input not found'); 
         }
     });
 </script>
