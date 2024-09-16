@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 * {
-    @apply m-0 p-0 transition-all duration-100 ease-in-out box-border;
+    @apply m-0 p-0 transition-all duration-0 ease-in-out box-border;
 }
 
 body {
@@ -28,7 +28,7 @@ select {
 
 
 .wrapper {
-  @apply bg-whiteSmoke overflow-y-hidden min-h-[100vh] overflow-hidden text-blue-950;
+  @apply bg-whiteSmoke overflow-y-hidden min-h-[100vh] overflow-hidden text-blackcurrant;
 }
 
 .wrapper.dark {
@@ -83,7 +83,9 @@ main {
   @apply flex flex-col flex-wrap justify-center;
 }
 
-
+#index-main-wrapper h1 {
+  @apply mb-4 sm:text-4xl lg:text-4xl xl:text-6xl font-extrabold tracking-tight leading-none ;
+}
 
 .banner-index-text {
   @apply text-4xl font-bold text-center my-20;
@@ -93,17 +95,124 @@ main {
   @apply text-4xl font-bold text-blue-950 my-20;
 }
 
+/* Featured Section */
+
+.featured-products-wrapper {
+  @apply flex flex-col sm:flex-row justify-center items-center gap-4;
+}
 
 .featured-products {
+  @apply flex flex-col xsdd:flex-row flex-wrap gap-12 items-start justify-center z-50;
+}
+
+.featured-product {
+  @apply w-full sm:w-1/4 flex justify-center items-center flex-col gap-4 min-h-16 line-clamp-1 z-[100];
+  
+}
+
+.featured-product h5 {
+  @apply font-bold my-2
+}
+
+/* .featured-products {
   @apply flex flex-col xsdd:flex-row flex-wrap gap-2 justify-around items-center;
 }
 
 .featured-product {
-  @apply flex flex-col flex-wrap gap-8 sm:gap-2 justify-center items-center w-full sm:w-1/4;
+  @apply flex flex-col text-center flex-wrap gap-8 sm:gap-2 justify-center items-center w-full sm:w-1/4 min-h-16 line-clamp-1 z-[100];
+} */
+
+.featured-product img {
+  @apply w-[2rem] h-auto m-4 transition-transform duration-300 ease-in-out bg-blend-multiply z-50;
+  filter: invert(50%) sepia(90%) saturate(7300%) hue-rotate(200deg) brightness(80%) contrast(140%);
 }
 
-.featured-product img.light {
-  filter: invert(37%) sepia(89%) saturate(7344%) hue-rotate(211deg) brightness(80%) contrast(136%);
+.featured-product img.dark {
+  filter: invert(0%) sepia(0%) saturate(7300%) hue-rotate(200deg) brightness(80%) contrast(140%);
+}
+
+.featured-product:hover img {
+  @apply scale-125 ; 
+}
+
+@media (max-width: 920px) {
+  .featured-product {
+      width: 100%; /* Full width for smaller screens */
+      margin: 0 0 20px 0; /* Add margin bottom for spacing */
+  }
+}
+
+/* Button Link Feature */
+
+.link-feature {
+  @apply relative uppercase font-extrabold;
+}
+
+.link-feature:before {
+  content: '•'; /* Symbol to display underneath */
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 25px;
+  @apply text-blue-700;
+}
+
+.link-feature.active:hover:after {
+  content: '•'; /* Symbol to display underneath */
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 25px;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  @apply text-blue-800;
+}
+
+.link-feature:hover:before {
+  content: '•'; /* Symbol to display underneath */
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 25px;
+  @apply text-blue-400;
+}
+
+.link-feature.active:hover:after {
+  content: '•'; /* Symbol to display underneath */
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 25px;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  @apply text-blue-800;
+}
+
+.link-feature.dark.active:hover:after {
+  content: '•'; /* Symbol to display underneath */
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  @apply text-white;
+}
+
+.link-feature.dark:hover {
+  @apply text-blue-400;
+  text-shadow: 0 0 5px rgba(0, 50, 0, 0.5);
+}
+
+.link-feature.dark:hover:before {
+  content: '•'; /* Symbol to display underneath */
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  @apply text-white;
 }
 
 /* Layout Logged in */
@@ -111,34 +220,6 @@ main {
 .banner-index-text {
   @apply text-4xl font-bold text-center text-whiteSmoke my-20;
 }
-
-/* Featured Section */
-
-.featured-products {
-  @apply flex flex-col xsdd:flex-row flex-wrap gap-2 justify-around items-center;
-}
-
-.featured-product {
-  @apply flex flex-col text-center flex-wrap gap-8 sm:gap-2 justify-center items-center w-full sm:w-1/4 min-h-16 line-clamp-1 z-[100];
-}
-
-.featured-product img {
-  @apply w-[2rem] h-auto m-4 transition-transform duration-300 ease-in-out bg-blend-multiply ;
-}
-
-.featured-product:hover img {
-  @apply scale-125 ; /* Slightly zoom in the image on hover */
-}
-
-@media (max-width: 1920px) {
-  .featured-product {
-      width: 100%; /* Full width for smaller screens */
-      margin: 0 0 20px 0; /* Add margin bottom for spacing */
-  }
-}
-
-/* .forgot-password,  */
-
 
 
 /* .register-form button {
@@ -200,6 +281,9 @@ header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
   }
 
   
+
+
+
 
   #dark-mode-btn-toggle.light {
     filter: invert(50%) sepia(100%) saturate(300%) hue-rotate(190deg) brightness(95%) contrast(90%);
