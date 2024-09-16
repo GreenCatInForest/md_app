@@ -505,7 +505,7 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
 hidden md:block
 items-center 
 flex-col w-0 sm:w-[45%] 
-justify-center h-0 sm:min-h-[70vh] md:min-h-[80vh] xl:h-full relative left-[-10] -top-20 lg:top-0 p-14
+justify-center h-0 sm:min-h-[70vh] md:min-h-[80vh] xl:h-full relative left-[-10] -top-20 lg:top-0 
 border-[1px] border-gray-400 shadow-lg shadow-gray-800;
 background-color: rgba(255, 255, 255, 0.3);
 backdrop-filter: blur(30px);
@@ -521,8 +521,20 @@ overflow: hidden; /* Hide any overflow content */
 }
 
 .col-1 div.canvas  {
-  @apply w-0 h-0 sm:w-full sm:h-full;
+  @apply w-0 h-0 sm:w-full sm:h-full relative p-14;
   }
+  
+.col-1 div.canvas:before  {
+  @apply bg-blue-900;
+  content: '';  
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: -1;
+    }
   
 .col-1 div.canvas #dynamicGraph,
 .col-1 div.canvas #temperatureGraph,
@@ -551,14 +563,22 @@ overflow: hidden; /* Hide any overflow content */
 
 .btn-form {
   @apply font-bold text-white py-[5px] px-[30px] rounded-[30px] cursor-pointer transition duration-200 ease-in-out
-  hover:opacity-75;
-  background-color: rgba(255, 255, 255, 0.2);
+  hover:opacity-75 bg-slate-600;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s, box-shadow 0.3s;
 }
 
-.btn-login-form {
+.btn-form.dark {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-login-form{
 @apply bg-blue-700;
+}
+
+
+.btn-register-form {
+  @apply bg-slate-600;
 }
 
 
@@ -577,9 +597,12 @@ overflow: hidden; /* Hide any overflow content */
   transform: translateX(-50%);
 }
 
+.login-form-title , .register-form-title  {
+  @apply mt-[120px] mb-[40px] text-2xl font-medium text-center ;
+  color: rgba(0, 0, 0, 0.8);
+}
 
-
-.login-form-title, .register-form-title {
+.login-form-title.dark, .register-form-title.dark {
   @apply mt-[120px] mb-[40px] text-2xl font-medium text-center ;
   color: rgba(255, 255, 255, 0.8);
 }
@@ -615,6 +638,10 @@ overflow: hidden; /* Hide any overflow content */
 }
 
 .input-icon-container.remember_me label {
+  @apply text-blackcurrant font-medium hover:text-blue-400 transition-all duration-300 ease-in-out;
+}
+
+.input-icon-container.remember_me label.dark {
   @apply text-white hover:text-blue-400 transition-all duration-300 ease-in-out;
 }
 
@@ -622,10 +649,20 @@ overflow: hidden; /* Hide any overflow content */
   @apply flex justify-end gap-[5px];
 }
 
-
-
 .input-field,
 .input-field-report {
+  @apply w-full h-[55px] pr-[15px] my-[10px] text-white z-[1] bg-blue-100;
+  flex-grow: 1;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  backdrop-filter: blur(30px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+
+.input-field.dark,
+.input-field-report.dark {
   @apply w-full h-[55px] pr-[15px] my-[10px] text-white z-[1];
   flex-grow: 1;
   background-color: rgba(255, 255, 255, 0.2);
@@ -676,7 +713,7 @@ overflow: hidden; /* Hide any overflow content */
 
 
 .forgot-password a {
-  @apply text-blue-400 hover:scale-110 hover:text-blue-400 transition-all duration-300 ease-in-out ;
+  @apply text-blue-400 hover:scale-110 hover:text-blue-400 transition-all duration-300 ease-in-out font-medium;
   text-decoration: none;
   position: relative; 
   padding-left: 15px; 
@@ -798,9 +835,16 @@ overflow: hidden; /* Hide any overflow content */
 }
 
 .disclaimer {
+  @apply text-blue-400;
   margin-top: 20px;  /* Adds some space above the disclaimer */
   text-align: center;  /* Centers the text */
-  color: #555;  /* Gives a neutral color */
   font-size: 14px;  /* Adjusts the font size */
-  color: gray;
+}
+
+.bg-bulb-login-register-2 {
+  @apply absolute top-0 xl:top-10 left-[-500px] xl:left-[-800px] bg-opacity-0 opacity-85 overflow-x-hidden z-0 w-full max-h-[100vh];
+}
+
+.bg-bulb-login-register-2.dark {
+  @apply absolute top-20 left-[200px] xl:left-[-300px] bg-opacity-0 opacity-85 overflow-x-hidden blur-3xl z-0 max-h-[100vh];
 }
