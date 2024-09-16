@@ -111,8 +111,14 @@ main {
 }
 
 .featured-product h5 {
-  @apply font-bold my-2
+  @apply font-bold my-2 text-center text-lg
 }
+
+.featured-product p {
+  @apply font-bold my-2 text-center relative
+  ;
+}
+
 
 /* .featured-products {
   @apply flex flex-col xsdd:flex-row flex-wrap gap-2 justify-around items-center;
@@ -124,7 +130,7 @@ main {
 
 .featured-product img {
   @apply w-[2rem] h-auto m-4 transition-transform duration-300 ease-in-out bg-blend-multiply z-50;
-  filter: invert(50%) sepia(90%) saturate(7300%) hue-rotate(200deg) brightness(80%) contrast(140%);
+  filter: invert(50%) sepia(90%) saturate(7300%) hue-rotate(200deg) brightness(30%) contrast(100%);
 }
 
 .featured-product img.dark {
@@ -145,49 +151,14 @@ main {
 /* Button Link Feature */
 
 .link-feature {
-  @apply relative uppercase font-extrabold;
+  @apply relative uppercase font-extrabold 
+  text-center py-3 px-5 sm:ms-4 text-base
+  focus:outline-none hover:text-white hover:bg-blue-700 hover:shadow-none bg-whiteSmoke text-gray-700 border-[1px] border-gray-700 shadow-md shadow-gray-800 rounded-lg;
 }
 
-.link-feature:before {
-  content: '•'; /* Symbol to display underneath */
-  position: absolute;
-  left: -20px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 25px;
-  @apply text-blue-700;
-}
 
-.link-feature.active:hover:after {
-  content: '•'; /* Symbol to display underneath */
-  position: absolute;
-  left: -20px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 25px;
-  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-  @apply text-blue-800;
-}
-
-.link-feature:hover:before {
-  content: '•'; /* Symbol to display underneath */
-  position: absolute;
-  left: -20px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 25px;
-  @apply text-blue-400;
-}
-
-.link-feature.active:hover:after {
-  content: '•'; /* Symbol to display underneath */
-  position: absolute;
-  left: -20px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 25px;
-  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-  @apply text-blue-800;
+.link-feature.active {
+  @apply bg-whiteSmoke text-gray-700;
 }
 
 .link-feature.dark.active:hover:after {
@@ -201,7 +172,7 @@ main {
 }
 
 .link-feature.dark:hover {
-  @apply text-blue-400;
+  @apply bg-blue-400 ;
   text-shadow: 0 0 5px rgba(0, 50, 0, 0.5);
 }
 
@@ -236,12 +207,17 @@ main {
 
   }
 
-header.light, header.light #base-navbar, header.light #base-navbar div, header.light #base-navbar div a,
-header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
-    @apply bg-blue-900 
+ #base-navbar div a {
+    @apply text-whiteSmoke;
   }
 
+  #base-navbar div a:nth-child(1) {
+    @apply hover:text-blackcurrant;
+  }
 
+  #base-navbar div a:nth-child(2) {
+    @apply hover:text-blue-400;
+  }
   
   #base-navbar .nav-items-wrapper {
     @apply  flex flex-col small_tablet:flex-row flex-wrap justify-center small_tablet:justify-around items-center gap-8 z-40;
@@ -280,17 +256,12 @@ header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
     @apply text-white;
   }
 
-  
 
-
-
-
-  #dark-mode-btn-toggle.light {
+  #dark-mode-btn-toggle.dark {
     filter: invert(50%) sepia(100%) saturate(300%) hue-rotate(190deg) brightness(95%) contrast(90%);
     }
     
   
-/*   
   .base-navbar-link.active:before {
       content: '•';
       font-size: 1.5rem;
@@ -302,8 +273,7 @@ header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
   .base-navbar-link:hover:before,
   .base-navbar-link.w--current:before {
       color: white;
-    } */
-
+    }
   
 
 /* Base Footer */
@@ -312,7 +282,6 @@ footer p {
     @apply text-center text-sm p-4;
   }
   
-
  
 /* User Account Nav */
 
