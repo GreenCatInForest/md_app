@@ -154,7 +154,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 CSRF_COOKIE_SECURE = True
+""" SESSION_COOKIE_SECURE = True  affects login in safari"""
 SESSION_COOKIE_SECURE = True
+""" Better Lax """ 
+SESSION_COOKIE_SAMESITE = 'None' 
 
 
 CSRF_TRUSTED_ORIGINS = [
