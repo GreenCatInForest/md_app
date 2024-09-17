@@ -1,0 +1,6 @@
+
+docker-compose.yml merge=ours
+Dockerfile merge=ours
+.gitignore merge=ours
+.nginx.conf merge=ours
+settings.py merge=ours
