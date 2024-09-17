@@ -19,6 +19,7 @@ from .forms import ReportForm, RoomFormSet
 from core.models import Logger as LoggerModel, Logger_Data, Room, Report
 from .utils import PCAdataTool
 from .utils.normalize_logger_serial import normalize_logger_serial  
+from .utils.resize_and_save_image import resize_and_save_image
 from .utils.room_data import RoomData
 
 
@@ -60,7 +61,6 @@ def clean_data(combined_data: pd.DataFrame) -> pd.DataFrame:
     return combined_data
 
 def save_uploaded_file(uploaded_file):
-    # Save the InMemoryUploadedFile to a temporary file and return the file path
     if uploaded_file:
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1])
         for chunk in uploaded_file.chunks():
@@ -69,15 +69,15 @@ def save_uploaded_file(uploaded_file):
         return temp_file.name
     return ''
 
-def save_uploaded_room_pic(uploaded_file):
-    # Save the InMemoryUploadedFile to a temporary file and return the file path
-    if uploaded_file:
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1])
-        for chunk in uploaded_file.chunks():
-            temp_file.write(chunk)
-        temp_file.close()
-        return temp_file.name
-    return ''
+# REDUNDAND FUNCTION
+# def save_uploaded_room_pic(uploaded_file):
+#     if uploaded_file:
+#         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1])
+#         for chunk in uploaded_file.chunks():
+#             temp_file.write(chunk)
+#         temp_file.close()
+#         return temp_file.name
+#     return ''
 
 
 @login_required
@@ -95,15 +95,47 @@ def report_view(request):
             report_instance = form.save(commit=False)
             report_instance.user = request.user
 
-            if 'external_picture' in request.FILES:
-                report_instance.external_picture = request.FILES['external_picture']
+            external_picture_file = request.FILES.get('external_picture')
+            company_logo_file = request.FILES.get('company_logo')
+
+            if external_picture_file:
+                report_instance.external_picture = external_picture_file
                 external_picture_preview = request.FILES['external_picture']
 
-            if 'company_logo' in request.FILES:
-                report_instance.company_logo = request.FILES['company_logo']
+            if company_logo_file:
+                report_instance.company_logo = company_logo_file
                 preview_company_logo = request.FILES['company_logo']
-
+                
             report_instance.save()
+
+            # Resize external_picture and company_logo after saving
+            # Resize and save external_picture as JPEG with 70% quality
+            if external_picture_file:
+                resized_external_path = resize_and_save_image(
+                    report_instance.external_picture.path, 
+                    max_size=1500, 
+                    quality=70
+                )
+                if resized_external_path:
+                    # Update the external_picture field to point to the new JPEG file
+                    report_instance.external_picture.name = os.path.relpath(resized_external_path, settings.MEDIA_ROOT)
+                    report_instance.save()
+                else:
+                    form.add_error('external_picture', 'Failed to process external picture.')
+
+            # Resize and save company_logo as PNG (lossless)
+            if company_logo_file:
+                resized_logo_path = resize_and_save_image(
+                    report_instance.company_logo.path, 
+                    max_size=1500
+                )
+                if resized_logo_path:
+                    # Update the company_logo field to point to the new PNG file
+                    report_instance.company_logo.name = os.path.relpath(resized_logo_path, settings.MEDIA_ROOT)
+                    report_instance.save()
+                else:
+                    form.add_error('company_logo', 'Failed to process company logo.')
+
 
             # Initialize list to store room pictures
             room_pictures = []
@@ -114,23 +146,39 @@ def report_view(request):
             for room_form in room_formset:
                 room_instance = room_form.save(commit=False)
 
-            if room_instance.pk: 
-                 # Check if it's an existing room (has a primary key)
-        # Update the existing room instance
-                room_instance.report = report_instance
-            else:
-        # Create a new room instance
-                room_instance = Room(report=report_instance)
+                if room_form.cleaned_data and not room_form.cleaned_data.get('DELETE', False):
+                        room_instance = room_form.save(commit=False)
+                        room_instance.report = report_instance
 
-                # Correctly handle room picture files
+                if room_instance.pk: 
+                    # Check if it's an existing room (has a primary key)
+                        # Update the existing room instance
+                    room_instance.report = report_instance
+                else:
+                    # Create a new room instance
+                    room_instance = Room(report=report_instance)
+
+                # Handle room_picture
                 room_picture_file = room_form.cleaned_data.get('room_picture')
                 if room_picture_file:
-                    room_instance.room_picture = room_picture_file
-                    # Save uploaded file and store path
-                    room_picture_path = save_uploaded_file(room_picture_file)
-                    room_pictures.append(room_picture_path)
+                        room_instance.room_picture = room_picture_file
+                        room_instance.save()
 
-                room_instance.save()
+                        # Resize and save room_picture as JPEG with 70% quality
+                        resized_room_path = resize_and_save_image(
+                            room_instance.room_picture.path, 
+                            max_size=1500, 
+                            quality=70,
+                            target_format='JPEG'
+                        )
+                        if resized_room_path:
+                            room_instance.room_picture.name = os.path.relpath(resized_room_path, settings.MEDIA_ROOT)
+                            room_instance.save()
+                            room_pictures.append(room_instance.room_picture.path)
+                        else:
+                            room_form.add_error('room_picture', 'Failed to process room picture.')
+                else:
+                        room_instance.save()
 
             # Fetch logger data from form
             external_logger_serial = normalize_logger_serial(form.cleaned_data['external_logger'])

@@ -483,7 +483,7 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
    text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5;
 }
 .date-picker-input.dark::placeholder {
-  @apply text-blackcurrant text-base font-medium;
+  @apply text-blackcurrant text-base font-normal;
 }
 
 .room-forms-container {
