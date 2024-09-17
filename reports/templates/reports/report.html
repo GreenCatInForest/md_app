@@ -89,19 +89,22 @@
                         </div>
 
                         <!-- External Picture Upload with Preview -->
-                        <div class="form-group flex items-center justify-center w-full">
-                            <label class="drop-area flex flex-col items-center justify-center w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600" data-preview-id="external_picture_preview">
-                                <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload External Picture</h3>
-                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                                    </svg>
-                                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
-                                </div>
+                        <div class="form-group flex items-center justify-center flex-wrap w-full">
+                            <label class="drop-area flex flex-col items-center justify-between gap-4 w-full h-[18.5rem] border-2 border-gray-300 border-dashed overflow-hidden rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 relative" data-preview-id="external_picture_preview">
+                                
                                 {{ form.external_picture }}
+                                <img id="external_picture_preview" class="image-preview" style="display:none;" />
+                                <div class="flex flex-col flex-wrap ">
+                                    <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload External Picture</h3>
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                        </svg>
+                                        <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">PNG or JPG MAX 1500x1500px</p>
+                                    </div>
+                                    </div>
                             </label>
-                            <img id="external_picture_preview" class="image-preview" style="display:none; max-width: 500px; height:auto; margin-top: 10px;" />
                             {% if form.external_picture.errors %}
                                 <div class="error-message text-red-500 text-sm mt-2">
                                     {% for error in form.external_picture.errors %}
@@ -165,19 +168,21 @@
                                         {% endfor %}
                                         
                                         <!-- Room Picture Upload with Preview -->
-                                        <div class="form-group flex items-center justify-center w-full">
-                                            <label class="drop-area flex flex-col items-center justify-center w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600" data-preview-id="room_picture_preview_{{ forloop.counter }}">
-                                                <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload Room Picture</h3>
-                                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                                    <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                                                    </svg>
-                                                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                                                    <p class="text-xs text-gray-500 dark:text-gray-400">PNG or JPG (MAX. 1500px)</p>
+                                        <div class="form-group flex items-center justify-center flex-wrap w-full">
+                                            <label class="drop-area relative overflow-hidden flex flex-col items-center justify-between w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600" data-preview-id="room_picture_preview_{{ forloop.counter }}">
+                                                   {{ form.room_picture }}
+                                                <img id="room_picture_preview_{{ forloop.counter }}" class="image-preview" style="display:none;" />
+                                                <div class="flex flex-col flex-wrap ">
+                                                    <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload Internal Picture</h3>
+                                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                        <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                                        </svg>
+                                                        <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">PNG or JPG MAX 1500x1500px</p>
+                                                    </div>
                                                 </div>
-                                                {{ form.room_picture }}
                                             </label>
-                                            <img id="room_picture_preview_{{ forloop.counter }}" class="image-preview" style="display:none; max-width: 500px; height:auto; margin-top: 10px;" />
                                             {% if form.room_picture.errors %}
                                                 <div class="error-message text-red-500 text-sm mt-2">
                                                     {% for error in form.room_picture.errors %}
@@ -186,12 +191,13 @@
                                                 </div>
                                             {% endif %}
                                         </div>
-                    
-                                        <button type="button" class="delete-room btn btn-danger mt-2">Delete Room</button>
+                                        <button type="button" class="delete-room btn bg-fuchsia-700 px-5 py-3 rounded-lg mt-2 text-whiteSmoke">Delete Room</button>
                                     </div>
                                 {% endfor %}
                             </div>
-                            <button type="button" id="add-room" class="btn btn-primary">Add Room</button>
+                            <div class="flex justify-center flex-col mx-auto ">
+                            <button type="button" id="add-room" class="ml-[50%] text-center btn bg-blue-700 text-whiteSmoke px-5 py-3 rounded-lg mt-2">Add Room</button>
+                            </div>
                         </div>
 
                         <!-- Company Information -->
@@ -200,15 +206,15 @@
                             <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
                                 
                                 <!-- Company Logo Upload with Preview -->
-                                <div class="form-group flex items-center justify-center w-1/2">
-                                    <label class="drop-area flex flex-col items-center justify-center mb-4 w-full h-[16rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600" data-preview-id="company_logo_preview">
+                                <div class="form-group flex items-center justify-center">
+                                    <label class="drop-area flex flex-col items-center justify-between mb-4 w-full h-[16rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600" data-preview-id="company_logo_preview">
                                         <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload Company Logo</h3>
                                         <div class="flex flex-col items-center justify-center pt-4 pb-4">
                                             <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                                             </svg>
                                             <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">PNG or JPG MAX 1500x1500px</p>
                                         </div>
                                         {{ form.company_logo }}
                                     </label>
@@ -391,9 +397,9 @@
             }
 
             // Click to open file dialog
-            dropArea.addEventListener('click', () => {
-                fileInput.click();
-            });
+            // dropArea.addEventListener('click', () => {
+            //     fileInput.click();
+            // });
 
             // Change event for file input
             fileInput.addEventListener('change', function () {
@@ -447,12 +453,12 @@
         padding: 5px;
         max-width: 100%;
         height: auto;
-    }
+    } 
 
     /* Ensure image previews are responsive */
     .image-preview {
         max-width: 100%;
-        height: auto;
+        /* height: auto; */
     }
 </style>
 
