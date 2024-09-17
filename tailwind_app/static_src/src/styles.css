@@ -981,3 +981,25 @@ overflow: hidden; /* Hide any overflow content */
 .bg-bulb-login-register-2.dark {
   @apply absolute top-20 left-[200px] xl:left-[-300px] bg-opacity-0 opacity-85 overflow-x-hidden blur-3xl z-0 max-h-[100vh];
 }
+
+.image-preview-container {
+  width: 300px; 
+  height: 200px; 
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc; 
+  margin-bottom: 15px;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+#drop-area.highlight {
+  border-color: #666;
+  background-color: #f0f0f0;
+}
