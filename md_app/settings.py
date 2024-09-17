@@ -54,9 +54,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'tailwind',
-    'django_browser_reload',
     'tailwind_app',
     'rest_framework',
+    'django_browser_reload',
     'users',
     'loggers',
     'reports',
@@ -124,6 +124,8 @@ DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
 DBBACKUP_STORAGE_OPTIONS = {'location': '/path/to/your/backup/directory/'}
 
 TAILWIND_APP_NAME = 'tailwind_app'
+TAILWIND_CSS_FILE = 'staticfiles/css/dist/styles.css'
+
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
@@ -154,10 +156,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 CSRF_COOKIE_SECURE = True
-""" SESSION_COOKIE_SECURE = True  affects login in safari"""
 SESSION_COOKIE_SECURE = True
-""" Better Lax can be None for Safari """ 
-SESSION_COOKIE_SAMESITE = 'None' 
 
 
 CSRF_TRUSTED_ORIGINS = [
@@ -208,4 +207,3 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
-
