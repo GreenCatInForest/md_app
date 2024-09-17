@@ -29,7 +29,7 @@ rm -rf /var/lib/apt/lists/*
 COPY . /code/
 
 RUN python manage.py tailwind install
-RUN python manage.py tailwind start
+RUN python manage.py tailwind build
 
 # Collect static files
 RUN python manage.py collectstatic --noinput
