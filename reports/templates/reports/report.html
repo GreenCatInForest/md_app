@@ -296,8 +296,86 @@
         }
     });
 
-    // Handle Room Forms: Add and Delete
+    function initializeDropArea(dropArea) {
+        const fileInput = dropArea.querySelector('input[type="file"]');
+        const previewId = dropArea.getAttribute('data-preview-id');
+        const previewImg = document.getElementById(previewId);
+
+        if (!fileInput || !previewImg) {
+            console.error('File input or preview image not found within drop area.');
+            return;
+        }
+
+        // Function to read and preview images
+        function readURL(input, imgElement) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    imgElement.src = e.target.result;
+                    imgElement.style.display = 'block';
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Change event for file input
+        fileInput.addEventListener('change', function () {
+            readURL(this, previewImg);
+        });
+
+        // Drag and Drop events
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropArea.classList.add('highlight');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropArea.classList.remove('highlight');
+            }, false);
+        });
+
+        // Handle dropped files
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files[0]) {
+                fileInput.files = files;
+                readURL(fileInput, previewImg);
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+        // Initialize existing drop-areas
+        document.querySelectorAll('.drop-area').forEach(dropArea => {
+            initializeDropArea(dropArea);
+        });
+
+        // Initialize Datepickers
+        const startDatepicker = document.getElementById('id_start_time');
+        const endDatepicker = document.getElementById('id_end_time');
+        if (startDatepicker && endDatepicker) {
+            new Datepicker(startDatepicker, {
+                format: 'yyyy-mm-dd',
+                autohide: true
+            });
+            new Datepicker(endDatepicker, {
+                format: 'yyyy-mm-dd',
+                autohide: true
+            });
+        }
+
+        // Handle Room Forms: Add and Delete
         let roomCount = parseInt(document.getElementById('id_rooms-TOTAL_FORMS').value);
 
         document.getElementById('add-room').addEventListener('click', function () {
@@ -336,6 +414,9 @@
                 // Append the new form
                 roomFormContainer.appendChild(newRoomForm);
 
+                // Initialize the new drop-area
+                initializeDropArea(dropArea);
+
                 // Bind delete event to the new form's delete button
                 const deleteButton = newRoomForm.querySelector('.delete-room');
                 deleteButton.addEventListener('click', function () {
@@ -367,74 +448,6 @@
                 roomForm.remove();
                 roomCount--;
                 document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
-            });
-        });
-    });
-
-    // Handle Image Previews for Click and Drag-Drop
-    document.addEventListener('DOMContentLoaded', function () {
-        // Function to read and preview images
-        function readURL(input, imgElement) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    imgElement.src = e.target.result;
-                    imgElement.style.display = 'block';
-                };
-
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // Handle all drop areas
-        document.querySelectorAll('.drop-area').forEach(dropArea => {
-            const fileInput = dropArea.querySelector('input[type="file"]');
-            const previewId = dropArea.getAttribute('data-preview-id');
-            const previewImg = document.getElementById(previewId);
-
-            if (!fileInput || !previewImg) {
-                console.error('File input or preview image not found within drop area.');
-                return;
-            }
-
-            // Click to open file dialog
-            // dropArea.addEventListener('click', () => {
-            //     fileInput.click();
-            // });
-
-            // Change event for file input
-            fileInput.addEventListener('change', function () {
-                readURL(this, previewImg);
-            });
-
-            // Drag and Drop events
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    dropArea.classList.add('highlight');
-                }, false);
-            });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    dropArea.classList.remove('highlight');
-                }, false);
-            });
-
-            // Handle dropped files
-            dropArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                if (files && files[0]) {
-                    fileInput.files = files;
-                    readURL(fileInput, previewImg);
-                }
             });
         });
     });
