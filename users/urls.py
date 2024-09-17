@@ -8,6 +8,7 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('logout_page/', views.user_logout, name='logout_page'),
     path('login_register/', views.user_login_register, name='login_register'),
+    # path('accounts/login/', views.user_login_register, name='login_register'),
     path('password-forgot/', views.CustomPasswordResetView.as_view(), name='password-forgot'),
  
     

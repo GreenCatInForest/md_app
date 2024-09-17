@@ -1,236 +1,290 @@
 {% extends 'base.html' %}
-{% block title %}Report - Maple Diagnostics {% endblock %}
-{% load static %}  
+{% block title %}Report - Maple Diagnostics{% endblock %}
+{% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/5.0.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Datepicker CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
-</head>
-<body>
-    {% block content %}
-    <div class="user-content">
-        <article id="report-constructor">
-            <section class="dark:bg-blue-950">
-                <div class="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16">
-                    <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">Report Creator</h1>
-                    <p class="mb-8 text-lg font-normal text-gray-300 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-300">Please enter your data here to generate the report.</p>
-                    <!-- <p class="mb-8 text-lg font-normal text-gray-300 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-300">Innovative Maple Diagnostic method based on Cambridge Scientific investigation report-2024. The report generation is based on the data you provide. Please fill in the data below accurately.</p> -->
-                    <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0">
-                        <a href="#" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
-                            Instructions
-                            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                            </svg>
-                        </a>
-                        <a href="{% url 'historical_reports' %}" class="py-3 px-5 sm:ms-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-gray-800 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-dark-grey-800 dark:hover:bg-gray-70">
-                            Historical Reports
-                        </a>  
-                    </div>
+{% block content %}
+<div class="user-content">
+    <article id="report-constructor">
+        <!-- Report Constructor Banner -->
+        <section class="report-constructor-banner">
+            <div class="container mx-auto">
+                <h1>Report Creator</h1>
+                <p>Please enter your data here to generate the report.</p>
+                <div class="report-btn-wrapper">
+                    <a href="#">
+                        Instructions
+                        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                        </svg>
+                    </a>
+                    <a href="{% url 'historical_reports' %}">
+                        Historical Reports
+                    </a>  
                 </div>
-            </section>
-            <section class="dark:bg-blue-950">
-                <div class="py-8 px-4 mx-auto max-w-4xl lg:py-8">
-                    <form method="post" enctype="multipart/form-data"> 
-                        {% csrf_token %}
-                        <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
-                            <div class="form-group sm:col-span-2">
-                                <label for="property_address" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Property Address</label>
-                                {{ form.property_address }}
-                            </div>
+            </div>
+        </section>
 
-                            <div class="form-group flex items-center justify-center w-full">
-                                <label for="external_picture" class="flex flex-col items-center justify-center w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+        <!-- Report Constructor Forms -->
+        <section class="report-constructor-forms">
+            <div class="report-constructor-forms-wrapper">
+                <form id="report-form" method="post" enctype="multipart/form-data"> 
+                    {% csrf_token %}
+                    <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+                        
+                        <!-- Survey Date Range Picker -->
+                        <div class="w-full sm:col-span-2 date-picker-wrapper">
+                            <h3 class="block mb-2 text-sm font-medium text-gray-900 text-left">Survey Date Range</h3>
+                            <div id="date-range-picker" class="flex items-center flex-col sm:flex-row flex-wrap justify-center gap-4 sm:justify-between">
+                                <!-- Start Date Picker -->
+                                <div class="w-full sm:w-[48%]">
+                                    <div class="relative sm:w-full">
+                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <svg class="w-4 h-4 text-whiteSmoke dark:text-blackcurrant" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                            </svg>
+                                        </div>
+                                        {{ form.start_time }}
+                                    </div>
+                                    {% if form.start_time.errors %}
+                                        <div class="error-message text-red-500 text-sm mt-2">
+                                            {% for error in form.start_time.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- End Date Picker -->
+                                <div class="w-full sm:w-[48%]">
+                                    <div class="relative sm:w-full">
+                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <svg class="w-4 h-4 text-whiteSmoke dark:text-blackcurrant" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                            </svg>
+                                        </div>
+                                        {{ form.end_time }}
+                                    </div>  
+                                    {% if form.end_time.errors %}
+                                        <div class="error-message text-red-500 text-sm mt-2">
+                                            {% for error in form.end_time.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Property Address -->
+                        <div class="form-group sm:col-span-2">
+                            <label for="property_address" class="">Property Address</label>
+                            {{ form.property_address }}
+                            {% if form.property_address.errors %}
+                                <div class="error-message text-red-500 text-sm mt-2">
+                                    {% for error in form.property_address.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- External Picture Upload with Preview -->
+                        <div class="form-group flex items-center justify-center flex-wrap w-full">
+                            <label class="drop-area flex flex-col items-center justify-between gap-4 w-full h-[18.5rem] border-2 border-gray-300 border-dashed overflow-hidden rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 relative" data-preview-id="external_picture_preview">
+                                
+                                {{ form.external_picture }}
+                                <img id="external_picture_preview" class="image-preview" style="display:none;" />
+                                <div class="flex flex-col flex-wrap ">
                                     <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload External Picture</h3>
                                     <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                         <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                                         </svg>
                                         <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">PNG or JPG MAX 1500x1500px</p>
                                     </div>
-                                    {{ form.external_picture }}
-                                </label>
-                                <img id="external_picture" style="display:none;  min-width: 50px; max-width: 500px; height:auto; position:absolute;" />
-                            </div> 
+                                    </div>
+                            </label>
                             {% if form.external_picture.errors %}
-                            <div class="error-message text-red-500 text-sm mt-2">
-                                {% for error in form.external_picture.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
+                                <div class="error-message text-red-500 text-sm mt-2">
+                                    {% for error in form.external_picture.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
                             {% endif %}
+                        </div> 
 
-                            <div class="form-group w-full">
-                                <label for="external_logger" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">External Sensor, Serial Number</label>
-                                {{ form.external_logger }}
-                                {% if form.external_logger.errors %}
+                        <!-- External Logger and Occupancy Details -->
+                        <div class="form-group w-full">
+                            <label for="external_logger" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">External Sensor, Serial Number</label>
+                            {{ form.external_logger }}
+                            {% if form.external_logger.errors %}
                                 <div class="error-message text-red-500 text-sm mt-2">
                                     {% for error in form.external_logger.errors %}
-                                    <p>{{ error }}</p>
+                                        <p>{{ error }}</p>
                                     {% endfor %}
                                 </div>
-                                {% endif %}
-                                
-                                <div class="flex flex-row items-center gap-4 my-2">
-                                    <label for="occupied" class="block my-2 text-sm font-medium text-gray-900 dark:text-white">Occupied?</label>
-                                    {{ form.occupied }}
-                                </div>
-                                <div class="flex flex-row items-center gap-4 my-2">
-                                    <label for="occupied_during_all_monitoring" class="block my-2 text-sm font-medium text-gray-900 dark:text-white">Occupied during all monitoring?</label>
-                                    {{ form.occupied_during_all_monitoring }}
-                                </div>
-                               
-                                <div class="relative z-0 w-full mb-4 group max-w-md mx-auto">
-                                     {{ form.number_of_occupants }}
-                                    <label for="number_of_occupants" class="bg-transparent peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Number of Occupants</label>
-                                </div>
+                            {% endif %}
                             
-                                <label for="notes" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"></label>
-                               {{ form.notes }}
+                            <div class="flex flex-row items-center gap-4 my-2">
+                                <label for="occupied" class="block my-2 text-sm font-medium text-gray-900 dark:text-white">Occupied?</label>
+                                {{ form.occupied }}
                             </div>
-
-                        <!-- Date Picker -->
-                        <div class="w-full sm:col-span-2">
-                        <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Date Range</h3>
-                        <div id="date-range-picker" class="flex items-center">
-                            <div class="sm:w-full">
-                            <div class="relative sm:w-full">
-                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
-                                    </svg>
-                                </div>
-                                {{ form.start_time }}
+                            <div class="flex flex-row items-center gap-4 my-2">
+                                <label for="occupied_during_all_monitoring" class="block my-2 text-sm font-medium text-gray-900 dark:text-white">Occupied during all monitoring?</label>
+                                {{ form.occupied_during_all_monitoring }}
                             </div>
-                              {% if form.start_time.errors %}
-                                <div class="error-message text-red-500 text-sm mt-2">
-                                    {% for error in form.start_time.errors %}
-                                    <p>{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
+                           
+                            <div class="relative z-0 w-full mb-4 group max-w-md mx-auto">
+                                 {{ form.number_of_occupants }}
+                                <label for="number_of_occupants" class="bg-transparent peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Number of Occupants</label>
                             </div>
-                            
-                            <div class="flex items-center justify-center mx-4">
-                                <span class="text-gray-500"></span>
-                            </div>
-                            
-                            <div class="sm:w-full">
-                            <div class="relative sm:w-full">
-                                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
-                                    </svg>
-                                </div>
-                                {{ form.end_time }}
-                            </div>  
-                            {% if form.end_time.errors %}
-                            <div class="error-message text-red-500 text-sm mt-2">
-                                {% for error in form.end_time.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                        
+                            <label for="notes" class="block mb-2 text-sm font-medium text-gray-900"></label>
+                           {{ form.notes }}
+                           {% if form.notes.errors %}
+                               <div class="error-message text-red-500 text-sm mt-2">
+                                   {% for error in form.notes.errors %}
+                                       <p>{{ error }}</p>
+                                   {% endfor %}
+                               </div>
+                           {% endif %}
                         </div>
-                      </div>
-                    </div>
-                    <div class="form-group sm:col-span-2">
-                        <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Rooms</h3>
-                        <div id="room-forms-container">
-                            {{ room_formset.management_form }}
-                            
-                            {% for form in room_formset %}
-                            <div class="room-form p-4 border rounded-lg mb-4 bg-gray-100 dark:bg-gray-800">
-                                {% for field in form %}
-                                {% if field.name == 'id' %}
-                                    {{ field.as_hidden }}
-                                {% elif field.name != 'room_picture' %}
-                                    <p>{{ field.label_tag }} {{ field }}</p>
-                                {% endif %}
-                                {% endfor %}
+
+                        <!-- Survey Rooms -->
+                        <div class="form-group sm:col-span-2">
+                            <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Rooms</h3>
+                            <div id="room-forms-container">
+                                {{ room_formset.management_form }}
                                 
-                                <div class="form-group flex items-center justify-center w-full">
-                                    <!-- Correct the 'for' attribute in the label -->
-                                    <label for="{{ form.room_picture.id_for_label }}" class="flex flex-col items-center justify-center w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-                                        <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload Room Picture</h3>
-                                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                {% for form in room_formset %}
+                                    <div class="room-form p-4 border rounded-lg mb-4 bg-gray-100 dark:bg-gray-800">
+                                        {% for field in form %}
+                                            {% if field.name == 'id' %}
+                                                {{ field.as_hidden }}
+                                            {% elif field.name != 'room_picture' %}
+                                                <p>{{ field.label_tag }} {{ field }}</p>
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        <!-- Room Picture Upload with Preview -->
+                                        <div class="form-group flex items-center justify-center flex-wrap w-full">
+                                            <label class="drop-area relative overflow-hidden flex flex-col items-center justify-between w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600" data-preview-id="room_picture_preview_{{ forloop.counter }}">
+                                                   {{ form.room_picture }}
+                                                <img id="room_picture_preview_{{ forloop.counter }}" class="image-preview" style="display:none;" />
+                                                <div class="flex flex-col flex-wrap ">
+                                                    <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload Internal Picture</h3>
+                                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                        <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                                        </svg>
+                                                        <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">PNG or JPG MAX 1500x1500px</p>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                            {% if form.room_picture.errors %}
+                                                <div class="error-message text-red-500 text-sm mt-2">
+                                                    {% for error in form.room_picture.errors %}
+                                                        <p>{{ error }}</p>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <button type="button" class="delete-room btn bg-fuchsia-700 px-5 py-3 rounded-lg mt-2 text-whiteSmoke">Delete Room</button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="flex justify-center flex-col mx-auto ">
+                            <button type="button" id="add-room" class="ml-[50%] text-center btn bg-blue-700 text-whiteSmoke px-5 py-3 rounded-lg mt-2">Add Room</button>
+                            </div>
+                        </div>
+
+                        <!-- Company Information -->
+                        <div class="form-group sm:col-span-2">
+                            <h3 class="block mb-4 text-sm font-medium text-gray-900 dark:text-white text-left">Company Information</h3>
+                            <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+                                
+                                <!-- Company Logo Upload with Preview -->
+                                <div class="form-group flex items-center justify-center  flex-wrap w-full">
+                                    <label class="drop-area relative overflow-hidden flex flex-col items-center justify-between w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600" data-preview-id="company_logo_preview">
+                                        {{ form.company_logo }}
+                                        <img id="company_logo_preview" class="image-preview" style="display:none; max-width: 400px; height:auto; margin-top: 10px;" />
+                                        <div class="flex flex-col flex-wrap ">
+                                        <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload Company Logo</h3>
+                                        <div class="flex flex-col items-center justify-center pt-4 pb-4">
                                             <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                                             </svg>
                                             <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">PNG or JPG MAX 1500x1500px</p>
                                         </div>
+                                    </div>
                                     </label>
-                                    <!-- Render the input field outside the label -->
-                                    {{ form.room_picture }}
-                                    <img id="room_picture_preview_{{ forloop.counter }}" class="room-picture-preview"  style="display:none; min-width: 50px; max-width: 500px; height:auto; position:absolute;" />
+                                    {% if form.company_logo.errors %}
+                                        <div class="error-message text-red-500 text-sm mt-2">
+                                            {% for error in form.company_logo.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div> 
+
+                                <!-- Company and Surveyor Names -->
+                                <div class="form-group w-full">
+                                    <label for="company" class="block mb-4 text-sm font-medium text-gray-900 dark:text-white">Company Name</label>
+                                    {{ form.company }}
+                                    {% if form.company.errors %}
+                                        <div class="error-message text-red-500 text-sm mt-2">
+                                            {% for error in form.company.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+
+                                    <label for="surveyor" class="block my-4 text-sm font-medium text-gray-900 dark:text-white">Surveyor Name</label>
+                                    {{ form.surveyor }}
+                                    {% if form.surveyor.errors %}
+                                        <div class="error-message text-red-500 text-sm mt-2">
+                                            {% for error in form.surveyor.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
-                   
-    
-                                <button type="button" class="delete-room btn btn-danger mt-2">Delete Room</button>
                             </div>
-                            {% endfor %}
-                        </div>
-                        <button type="button" id="add-room">Add Room</button>
-                    </div>
-
-                <!-- Company and Surveyor Form -->
-                <div class="form-group sm:col-span-2">
-                    <h3 class="block mb-4 text-sm font-medium text-gray-900 dark:text-white text-left">Company Information</h3>
-                    <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
-                        <div class="form-group flex items-center justify-center w-full">
-                            <label for="company_logo" class="flex flex-col items-center justify-center mb-4 w-full h-[16rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-                                <h3 class="block my-2 text-sm font-medium text-gray-900 dark:text-white">Upload Company Logo</h3>
-                                <div class="flex flex-col items-center justify-center pt-4 pb-4">
-                                    <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                                    </svg>
-                                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
-                                </div>
-                                {{ form.company_logo }}
-                                <img id="company_logo_preview" style="display:none; min-width: 50px; max-width: 200px; height:auto; position:absolute;" />
-                            </label>
-                            
-                        </div> 
-
-                        <div class="form-group w-full">
-                            <label for="company" class="block mb-4 text-sm font-medium text-gray-900 dark:text-white">Company Name</label>
-                            {{ form.company }}
-
-                            <label for="surveyor" class="block my-4 text-sm font-medium text-gray-900 dark:text-white">Surveyor Name</label>
-                            {{ form.surveyor }}
                         </div>
                     </div>
-                </div>
 
-                <button type="submit" class="inline-flex items-center py-2.5 mt-s4 m:mt-6 text-sm font-medium text-center text-white bg-primary-100 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800 justify-center  px-5 bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 dark:focus:ring-blue-900">
-                    Create Report
-                </button>
-            </form>
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger" role="alert">
-                    {% for error in form.non_field_errors %}
-                    <p>{{ error }}</p>
-                    {% endfor %}
-                </div>
-{% endif %}
-        </div>
-    </section>
+                    <!-- Submit Button -->
+                    <button type="submit" class="inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 hover:bg-blue-800 justify-center px-5">
+                        Create Report
+                    </button>
+                </form>
 
-    <script src="{% static 'js/datepicker.js' %}" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js" defer></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const startDatepicker = document.getElementById('start_time');
-            const endDatepicker = document.getElementById('end_time');
+                <!-- Form Non-Field Errors -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger mt-4" role="alert">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    </article>
+</div>
+
+<!-- Include necessary scripts -->
+<script src="{% static 'js/datepicker.js' %}" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js" defer></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Initialize Datepickers
+    document.addEventListener('DOMContentLoaded', function () {
+        const startDatepicker = document.getElementById('id_start_time');
+        const endDatepicker = document.getElementById('id_end_time');
+        if (startDatepicker && endDatepicker) {
             new Datepicker(startDatepicker, {
                 format: 'yyyy-mm-dd',
                 autohide: true
@@ -239,182 +293,188 @@
                 format: 'yyyy-mm-dd',
                 autohide: true
             });
+        }
+    });
+
+    function initializeDropArea(dropArea) {
+        const fileInput = dropArea.querySelector('input[type="file"]');
+        const previewId = dropArea.getAttribute('data-preview-id');
+        const previewImg = document.getElementById(previewId);
+
+        if (!fileInput || !previewImg) {
+            console.error('File input or preview image not found within drop area.');
+            return;
+        }
+
+        // Function to read and preview images
+        function readURL(input, imgElement) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    imgElement.src = e.target.result;
+                    imgElement.style.display = 'block';
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Change event for file input
+        fileInput.addEventListener('change', function () {
+            readURL(this, previewImg);
         });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            let roomCount = parseInt(document.getElementById('id_rooms-TOTAL_FORMS').value);
-            console.log(roomCount);
+        // Drag and Drop events
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropArea.classList.add('highlight');
+            }, false);
+        });
 
-            document.getElementById('add-room').addEventListener('click', function () {
-                const roomFormContainer = document.getElementById('room-forms-container');
-                const firstRoomForm = roomFormContainer.querySelector('.room-form');
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropArea.classList.remove('highlight');
+            }, false);
+        });
 
-                if (firstRoomForm) {
-                    const newRoomForm = firstRoomForm.cloneNode(true);
-                    const formRegex = new RegExp(`rooms-(\\d+)-`, 'g');
-                    newRoomForm.innerHTML = newRoomForm.innerHTML.replace(formRegex, `rooms-${roomCount}-`);
+        // Handle dropped files
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files[0]) {
+                fileInput.files = files;
+                readURL(fileInput, previewImg);
+            }
+        });
+    }
 
-                    // Clear the values in the cloned form
-                    newRoomForm.querySelectorAll('input, select, textarea').forEach(input => {
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize existing drop-areas
+        document.querySelectorAll('.drop-area').forEach(dropArea => {
+            initializeDropArea(dropArea);
+        });
+
+        // Initialize Datepickers
+        const startDatepicker = document.getElementById('id_start_time');
+        const endDatepicker = document.getElementById('id_end_time');
+        if (startDatepicker && endDatepicker) {
+            new Datepicker(startDatepicker, {
+                format: 'yyyy-mm-dd',
+                autohide: true
+            });
+            new Datepicker(endDatepicker, {
+                format: 'yyyy-mm-dd',
+                autohide: true
+            });
+        }
+
+        // Handle Room Forms: Add and Delete
+        let roomCount = parseInt(document.getElementById('id_rooms-TOTAL_FORMS').value);
+
+        document.getElementById('add-room').addEventListener('click', function () {
+            const roomFormContainer = document.getElementById('room-forms-container');
+            const firstRoomForm = roomFormContainer.querySelector('.room-form');
+
+            if (firstRoomForm) {
+                const newRoomForm = firstRoomForm.cloneNode(true);
+                const formRegex = new RegExp('rooms-(\\d+)-', 'g'); 
+                newRoomForm.innerHTML = newRoomForm.innerHTML.replace(formRegex, `rooms-${roomCount}-`);
+
+                // Clear the values in the cloned form
+                newRoomForm.querySelectorAll('input, select, textarea').forEach(input => {
+                    if (input.type !== 'hidden') {
                         input.value = '';
                         if (input.type === 'checkbox' || input.type === 'radio') {
                             input.checked = false;
                         }
-                    });
+                    }
+                });
 
-                    roomFormContainer.appendChild(newRoomForm);
-
-                    // Rebind the delete event
-                    newRoomForm.querySelector('.delete-room').addEventListener('click', function () {
-                        if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
-                            alert('You cannot delete the last room form.');
-                            return;
-                        }
-                        newRoomForm.remove();
-                        roomCount--;
-                        document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
-                    });
-
-                    roomCount++;
-                    document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
-                } else {
-                    console.error('No room forms available to clone.');
+                // Reset image preview
+                const previewImg = newRoomForm.querySelector('.image-preview');
+                if (previewImg) {
+                    previewImg.src = '#';
+                    previewImg.style.display = 'none';
                 }
-            });
 
-            document.querySelectorAll('.delete-room').forEach(button => {
-                button.addEventListener('click', function () {
-                    const roomFormContainer = document.getElementById('room-forms-container');
+                // Update the preview ID for the new room
+                const dropArea = newRoomForm.querySelector('.drop-area');
+                const newPreviewId = `room_picture_preview_${roomCount}`;
+                dropArea.setAttribute('data-preview-id', newPreviewId);
+                const newImgPreview = newRoomForm.querySelector('.image-preview');
+                newImgPreview.id = newPreviewId;
+
+                // Append the new form
+                roomFormContainer.appendChild(newRoomForm);
+
+                // Initialize the new drop-area
+                initializeDropArea(dropArea);
+
+                // Bind delete event to the new form's delete button
+                const deleteButton = newRoomForm.querySelector('.delete-room');
+                deleteButton.addEventListener('click', function () {
                     if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
                         alert('You cannot delete the last room form.');
                         return;
                     }
-                    button.closest('.room-form').remove();
+                    newRoomForm.remove();
                     roomCount--;
                     document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
                 });
-            });
-        });
-    </script>
 
-<script>
-    // Function to handle image preview
-    function readURL(input, imgElementId) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                var imgElement = document.getElementById(imgElementId);
-                if (imgElement) {  // Check if imgElement is found
-                    imgElement.src = e.target.result;
-                    imgElement.style.display = 'block';  // Make sure the image is visible
-                } else {
-                    console.error('Image element with ID ' + imgElementId + ' not found.'); // Debugging log
-                }
-            };
-
-            reader.readAsDataURL(input.files[0]); // Read the file as a data URL
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        console.log('DOM fully loaded and parsed'); // Debugging log
-
-        // External picture preview
-        const externalPictureInput = document.querySelector("input[name='external_picture']");
-        if (externalPictureInput) {
-            externalPictureInput.addEventListener("change", function() {
-                console.log('External picture input changed'); // Debugging log
-                readURL(this, 'external_picture'); // Ensure the ID matches your HTML for the external picture preview
-            });
-        } else {
-            console.error('External picture input not found'); // Debugging log
-        }
-
-        // Room picture previews
-        document.querySelectorAll("input[name$='room_picture']").forEach(function(inputElement) {
-            inputElement.addEventListener("change", function() {
-                console.log('Room picture input changed'); // Debugging log
-                var imgElement = this.closest('.room-form').querySelector('.room-picture-preview');
-                if (imgElement) {
-                    readURL(this, imgElement.id);
-                } else {
-                    console.error('Image element for room picture not found'); // Debugging log
-                }
-            });
+                roomCount++;
+                document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
+            } else {
+                console.error('No room forms available to clone.');
+            }
         });
 
-        // Company logo preview
-        const companyLogoInput = document.querySelector("input[name='company_logo']");
-        if (companyLogoInput) {
-            companyLogoInput.addEventListener("change", function() {
-                console.log('Company logo input changed'); // Debugging log
-                readURL(this, 'company_logo_preview'); // Ensure the ID matches your HTML for the company logo preview
-            });
-        } else {
-            console.error('Company logo input not found'); // Debugging log
-        }
-    });
-</script><script>
-    // Function to handle image preview
-    function readURL(input, imgElementId) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                var imgElement = document.getElementById(imgElementId);
-                if (imgElement) {  // Check if imgElement is found
-                    imgElement.src = e.target.result;
-                    imgElement.style.display = 'block';  // Make sure the image is visible
-                } else {
-                    console.error('Image element with ID ' + imgElementId + ' not found.'); // Debugging log
+        // Initial binding for existing delete buttons
+        document.querySelectorAll('.delete-room').forEach(button => {
+            button.addEventListener('click', function () {
+                const roomFormContainer = document.getElementById('room-forms-container');
+                if (roomFormContainer.querySelectorAll('.room-form').length <= 1) {
+                    alert('You cannot delete the last room form.');
+                    return;
                 }
-            };
-
-            reader.readAsDataURL(input.files[0]); // Read the file as a data URL
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        console.log('DOM fully loaded and parsed'); // Debugging log
-
-        // External picture preview
-        const externalPictureInput = document.querySelector("input[name='external_picture']");
-        if (externalPictureInput) {
-            externalPictureInput.addEventListener("change", function() {
-                console.log('External picture input changed'); // Debugging log
-                readURL(this, 'external_picture'); // Ensure the ID matches your HTML for the external picture preview
-            });
-        } else {
-            console.error('External picture input not found'); // Debugging log
-        }
-
-        // Room picture previews
-        document.querySelectorAll("input[name$='room_picture']").forEach(function(inputElement) {
-            inputElement.addEventListener("change", function() {
-                console.log('Room picture input changed'); // Debugging log
-                var imgElement = this.closest('.room-form').querySelector('.room-picture-preview');
-                if (imgElement) {
-                    readURL(this, imgElement.id);
-                } else {
-                    console.error('Image element for room picture not found'); // Debugging log
-                }
+                const roomForm = this.closest('.room-form');
+                roomForm.remove();
+                roomCount--;
+                document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
             });
         });
-
-        // Company logo preview
-        const companyLogoInput = document.querySelector("input[name='company_logo']");
-        if (companyLogoInput) {
-            companyLogoInput.addEventListener("change", function() {
-                console.log('Company logo input changed'); // Debugging log
-                readURL(this, 'company_logo_preview'); // Ensure the ID matches your HTML for the company logo preview
-            });
-        } else {
-            console.error('Company logo input not found'); // Debugging log
-        }
     });
 </script>
 
-    {% endblock %}
-</body>
-</html>
+<!-- Custom Styles -->
+<style>
+    /* Highlight drop area when a file is dragged over it */
+    .drop-area.highlight {
+        border-color: #3498db;
+        background-color: #f0f8ff;
+    }
+
+    /* Style for image previews */
+    .image-preview {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 5px;
+        max-width: 100%;
+        height: auto;
+    } 
+
+    /* Ensure image previews are responsive */
+    .image-preview {
+        max-width: 100%;
+        /* height: auto; */
+    }
+</style>
+
+{% endblock %}

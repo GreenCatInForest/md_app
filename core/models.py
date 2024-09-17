@@ -186,7 +186,7 @@ class Report (models.Model):
     occupied = models.BooleanField(default=False)
     occupied_during_all_monitoring = models.BooleanField(default=False)
     number_of_occupants = models.IntegerField(default=0)
-    report_file = models.FileField(upload_to='reports/', null=True, blank=True)
+    report_file = models.FileField(upload_to='reports_save/', null=True, blank=True)
 
       # Ensure the file path is correctly formatted using instance-specific information
     def save(self, *args, **kwargs):

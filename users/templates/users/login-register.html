@@ -3,18 +3,8 @@
 
 
 {% block content %}
-<div class="log-in-container">
-    <div class="col col-1">
-        <svg class="bg-bulb absolute top-30 left-0 bg-opacity-0 opacity-25 overflow-x-hidden blur-2xl max-h-[100vh]" width="652" height="611" viewBox="0 0 352 311" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M153.766 8.93022C253.205 -37.7537 218.766 113.43 310.142 120.93C401.519 128.43 323.268 300.695 254.017 290.312C184.766 279.93 174.766 341.43 72.3913 290.312C-29.9834 239.195 1.76592 205.93 16.2659 120.93C30.7659 35.9303 54.3281 55.6142 153.766 8.93022Z" fill="url(#paint0_linear_39_276)" fill-opacity="0.95"/>
-            <defs>
-            <linearGradient id="paint0_linear_39_276" x1="175.808" y1="0" x2="175.808" y2="310.893" gradientUnits="userSpaceOnUse">
-            <stop offset="0.19" stop-color="#5CC1EC" stop-opacity="0.92"/>
-            <stop offset="1" stop-color="#044EDF"/>
-            </linearGradient>
-            </defs>
-            </svg>
-   <svg class="bg-bulb absolute top-20 left-200 bg-opacity-0 opacity-25 overflow-x-hidden blur-3xl z-0 max-h-[100vh]" width="652" height="611" viewBox="0 0 352 311" fill="none" xmlns="http://www.w3.org/2000/svg">
+<div class="relative">
+<svg class="bg-bulb-login-register-1 absolute top-30 left-0 bg-opacity-0 opacity-25 overflow-x-hidden blur-2xl max-h-[100vh]" width="652" height="611" viewBox="0 0 352 311" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M153.766 8.93022C253.205 -37.7537 218.766 113.43 310.142 120.93C401.519 128.43 323.268 300.695 254.017 290.312C184.766 279.93 174.766 341.43 72.3913 290.312C-29.9834 239.195 1.76592 205.93 16.2659 120.93C30.7659 35.9303 54.3281 55.6142 153.766 8.93022Z" fill="url(#paint0_linear_39_276)" fill-opacity="0.95"/>
     <defs>
     <linearGradient id="paint0_linear_39_276" x1="175.808" y1="0" x2="175.808" y2="310.893" gradientUnits="userSpaceOnUse">
@@ -23,9 +13,22 @@
     </linearGradient>
     </defs>
     </svg>
-    <div>
+       
+   <svg class="bg-bulb-login-register-2" width="652" height="611" viewBox="0 0 352 311" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M153.766 8.93022C253.205 -37.7537 218.766 113.43 310.142 120.93C401.519 128.43 323.268 300.695 254.017 290.312C184.766 279.93 174.766 341.43 72.3913 290.312C-29.9834 239.195 1.76592 205.93 16.2659 120.93C30.7659 35.9303 54.3281 55.6142 153.766 8.93022Z" fill="url(#paint0_linear_39_276)" fill-opacity="0.95"/>
+    <defs>
+    <linearGradient id="paint0_linear_39_276" x1="175.808" y1="0" x2="175.808" y2="310.893" gradientUnits="userSpaceOnUse">
+    <stop offset="0.19" stop-color="#5CC1EC" stop-opacity="0.92"/>
+    <stop offset="1" stop-color="#044EDF"/>
+    </linearGradient>
+    </defs>
+    </svg>
+</div>
+<div class="log-in-container">
+    <div class="col col-1">
+    <div class="canvas">
       <!-- Canvas for Graph -->
-      <canvas id="dynamicGraph" width="400" height="100%"></canvas>
+      <canvas id="dynamicGraph"></canvas>
        <!-- Canvas for Temperature Graph -->
        <canvas id="temperatureGraph" width="400" height="100%"></canvas>
         
@@ -103,7 +106,7 @@
              <div>
                 <div class="input-icon-container remember_me">
                         {{ user_login_form.remember_me }}
-                        <label for="remember_me">Remember Me</label>
+                        <label for="remember_me" class="">Remember Me</label>
                 </div>
                     {% if user_login_form.remember_me.errors %}
                         <div>
@@ -285,13 +288,14 @@
         const chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'], // Time-based labels
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                 // Time-based labels
                 datasets: [{
                     label: 'Index Over Time', // Meaningful label related to your data
                     data: [], // Start with no data
                     borderColor: 'rgba(75, 192, 192, 1)',
                     backgroundColor: 'rgba(75, 192, 192, 0.2)', // Slight fill color to enhance smoothness
-                    borderWidth: 4,
+                    borderWidth: 1,
                     tension: 0.4,  // Smooth the line by adding tension for cubic interpolation
                     fill: false, // Fill under the line
                     pointRadius: 3, // Smaller points for a cleaner look
@@ -306,7 +310,13 @@
                 responsive: true,
                 plugins: {
                     legend: {
-                        display: true
+                        display: true,
+                        labels: {
+                            color: 'white',
+                            font: {
+                                size: 16
+                            },
+                        }
                     },
                     tooltip: {
                         mode: 'index',
@@ -322,14 +332,36 @@
                         display: true,
                         title: {
                             display: true,
-                            text: 'Months of the Year' // Axis name reflecting time
+                            text: 'Months of the Year', // Axis name reflecting time
+                            color: 'white',
+                        },
+                        ticks: {
+                            color: '#60a5fa', // Change x-axis labels color here
+                            font: {
+                                size: 12,
+                                weight: 'normal'
+                            },
+                            // Optional: Rotate labels if they overlap
+                            // maxRotation: 0,
+                            // minRotation: 0,
                         }
                     },
                     y: {
                         display: true,
                         title: {
                             display: false,
-                            text: 'Index Score' // Axis name reflecting your data metric
+                            text: 'Index Score', // Axis name reflecting data metric
+                            color: 'white',
+                        },
+                        ticks: {
+                            color: '#60a5fa', // Change x-axis labels color here
+                            font: {
+                                size: 12,
+                                weight: 'normal'
+                            },
+                            // Optional: Rotate labels if they overlap
+                            // maxRotation: 0,
+                            // minRotation: 0,
                         },
                         min: 0, // Start y-axis at 0
                         max: 6  // Upper limit matching your BMI scale
@@ -397,7 +429,23 @@
                 responsive: true,
                 plugins: {
                     legend: {
-                        display: true
+                        display: true,
+                        labels: {
+                            color: 'white',
+                            font: {
+                                size: 16
+                            },
+                        },
+                        ticks: {
+                            color: '#60a5fa', // Change x-axis labels color here
+                            font: {
+                                size: 12,
+                                weight: 'normal'
+                            },
+                            // Optional: Rotate labels if they overlap
+                            // maxRotation: 0,
+                            // minRotation: 0,
+                        },
                     },
                     tooltip: {
                         mode: 'index',
@@ -413,14 +461,36 @@
                         display: true,
                         title: {
                             display: true,
-                            text: 'Time (hours)' 
-                        }
+                            text: 'Time (hours)', 
+                            color: 'white',
+                        },
+                        ticks: {
+                            color: '#60a5fa', // Change x-axis labels color here
+                            font: {
+                                size: 12,
+                                weight: 'normal'
+                            },
+                            // Optional: Rotate labels if they overlap
+                            // maxRotation: 0,
+                            // minRotation: 0,
+                        },
                     },
                     y: {
                         display: true,
                         title: {
                             display: true,
-                            text: label 
+                            text: label,
+                            color: 'white',
+                        },
+                        ticks: {
+                            color: '#60a5fa', // Change x-axis labels color here
+                            font: {
+                                size: 12,
+                                weight: 'normal'
+                            },
+                            // Optional: Rotate labels if they overlap
+                            // maxRotation: 0,
+                            // minRotation: 0,
                         },
                         min: 0,
                         max: 15  // Adjust based on expected range of data

@@ -10,8 +10,8 @@
     </head>
 <body>
 {% block content %}
-
-    <svg class="bg-bulb absolute top-30 right-0 bg-opacity-0 opacity-25 overflow-x-hidden blur-2xl z-0 max-h-[100vh]" width="652" height="611" viewBox="0 0 352 311" fill="none" xmlns="http://www.w3.org/2000/svg">
+<div class="relative">
+    <svg class="bg-bulb absolute top-30 right-0 bg-opacity-0 opacity-25 overflow-x-hidden blur-2xl z-0 max-h-screen" width="852" height="811" viewBox="0 0 352 311" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M153.766 8.93022C253.205 -37.7537 218.766 113.43 310.142 120.93C401.519 128.43 323.268 300.695 254.017 290.312C184.766 279.93 174.766 341.43 72.3913 290.312C-29.9834 239.195 1.76592 205.93 16.2659 120.93C30.7659 35.9303 54.3281 55.6142 153.766 8.93022Z" fill="url(#paint0_linear_39_276)" fill-opacity="0.95"/>
         <defs>
         <linearGradient id="paint0_linear_39_276" x1="175.808" y1="0" x2="175.808" y2="310.893" gradientUnits="userSpaceOnUse">
@@ -20,15 +20,33 @@
         </linearGradient>
         </defs>
     </svg>
-    <div class="center z-[100] cursor-pointer">
+    <svg class="bg-bulb absolute top-100 left-0 bg-opacity-0 opacity-85 sm:opacity-0 overflow-x-hidden z-0 max-h-screen" width="852" height="811" viewBox="0 0 352 311" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M153.766 8.93022C253.205 -37.7537 218.766 113.43 310.142 120.93C401.519 128.43 323.268 300.695 254.017 290.312C184.766 279.93 174.766 341.43 72.3913 290.312C-29.9834 239.195 1.76592 205.93 16.2659 120.93C30.7659 35.9303 54.3281 55.6142 153.766 8.93022Z" fill="url(#paint0_linear_39_276)" fill-opacity="0.95"/>
+        <defs>
+        <linearGradient id="paint6_linear_39_276" x1="175.808" y1="0" x2="175.808" y2="310.893" gradientUnits="userSpaceOnUse">
+        <stop offset="0.19" stop-color="#5CC1EC" stop-opacity="0.92"/>
+        <stop offset="1" stop-color="#044EDF"/>
+        </linearGradient>
+        </defs>
+    </svg>
+    <svg class="bg-bulb absolute top-[-10] md:-left-40 bg-opacity-0 opacity-85  rotate-180 overflow-x-hidden z-0 min-w-fit" width="2652" height="1611" viewBox="0 0 652 111" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M153.766 8.93022C253.205 -37.7537 218.766 113.43 310.142 120.93C401.519 128.43 323.268 300.695 254.017 290.312C184.766 279.93 174.766 341.43 72.3913 290.312C-29.9834 239.195 1.76592 205.93 16.2659 120.93C30.7659 35.9303 54.3281 55.6142 153.766 8.93022Z" fill="url(#paint0_linear_39_276)" fill-opacity="0.95"/>
+        <defs>
+            <linearGradient id="paint1_linear_34_276" x1="150%" y1="50%" x2="220%" y2="200%" gradientUnits="objectBoundingBox">
+                <stop offset="0.9" stop-color="#4087A5" stop-opacity="0.92"/>
+                <stop offset="1" stop-color="#03379C" stop-opacity="0.92"/>
+            </linearGradient>
+        </defs>
+    </svg>
+    <!-- <div class="center z-[100] cursor-pointer">
         <div class="drop z-[100] cursor-pointer"></div>
-      </div>
+      </div> -->
         <div id="index-main-wrapper">
             <!-- <img src="{% static 'images/maple-logger1.png'%}" alt="login" class="maple-logger-img w-[40%]"> -->
           <section class="z-50">
             <div class="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16">
-                <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl lg:text-6xl ">Innovative Moisture Diagnostics</h1>
-                <p class="mb-8 text-lg font-bold text-gray-300 lg:text-xl sm:px-16 lg:px-48">to Support Building Professionals</p>
+                <h1 class="">Innovative Moisture Diagnostics</h1>
+                <p class="mb-8 text-lg font-bold lg:text-xl sm:px-16 lg:px-48">to Support Building Professionals</p>
                 <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0">
                     {% if user.is_authenticated %}
                     <a href="{% url 'report' %}" class=" inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 ">Generate a report
@@ -53,15 +71,18 @@
             <article class="featured-products">
                 <div class="featured-product">
                     <img class="" src="{% static 'images/icons8-hygrometer-50.png' %}" alt="Featured Product 1"/>
-                    <h5>Obtain Equipment</h5>
+                    <a href="https://www.maple-diagnostics.com/" class="link-feature"> 
+                    Obtain Equipment
+                    </a>  
+                    <!-- <h5>Obtain Equipment</h5> -->
                     <p>Moisture diagnostic equipment for rent</p>
                     <p>Can be re-used on multiple properties</p>
                 </div>
                 <div class="featured-product">
                     <img src="{% static 'images/icons8-graph-report-50.png' %}" alt="Featured Product 2"/>
                     <h5>Connect the sensors to your PC to upload data securely to the cloud</h5>
-                    <p>Automatically generated reports, using your data</p>
-                    <p class="group flex items-center gap-2"><span class="text-xl align-middle group-hover:text-light-accent3">∞ </span> Unlimited number of reports</p>
+                    <p>Automatically generate reports, using your data</p>
+                    <p class="flex items-center gap-2"><span class="text-xl align-middle">∞ </span> Unlimited number of reports</p>
                     
                 </div>
                 <div class="featured-product">
@@ -75,7 +96,7 @@
         </section>
         
       </div>  
-      
+    </div>      
 {% endblock %}  
 
         

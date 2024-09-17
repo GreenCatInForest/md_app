@@ -30,7 +30,7 @@ def get_secret(secret_name):
 SECRET_KEY = 'django-insecure-idti^1w#yturas75q%so7$br7sdyv6m3#x0pwfq94ryg0s9_o7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     '192.168.0.100',
@@ -154,7 +154,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 CSRF_COOKIE_SECURE = True
+""" SESSION_COOKIE_SECURE = True  affects login in safari"""
 SESSION_COOKIE_SECURE = True
+""" Better Lax """ 
+SESSION_COOKIE_SAMESITE = 'None' 
 
 
 CSRF_TRUSTED_ORIGINS = [

@@ -1,0 +1,800 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    @apply m-0 p-0 transition-all duration-100 ease-in-out box-border;
+}
+
+body {
+    @apply font-sans antialiased m-0 p-0}
+
+form {
+  @apply flex flex-col flex-wrap 
+  /* gap-6 */
+  ;
+}
+
+form p {
+  @apply flex flex-col  flex-wrap items-center justify-center gap-4 pb-4 shadow-blue-400;
+}
+
+input,
+select {
+  @apply p-2 w-full small_tablet:w-1/2 rounded-lg text-dark_blue bg-whiteSmoke;
+}
+
+/* Layout Templates */
+
+.wrapper {
+    display:grid;
+    grid-template-columns: 16rem 1fr 16rem ;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "header header header"
+      "main main main"
+      "footer footer footer";
+      min-height: 100vh;
+    @apply bg-whiteSmoke overflow-y-hidden;
+  }
+
+  .wrapper.dark {
+    @apply bg-blue-950;
+  }
+  
+  wrapper
+  @media (max-width: 1920px) {
+    .wrapper {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto minmax(5rem, auto) 1fr;
+      grid-template-areas:
+      "header"
+      "main"
+      "footer";
+      min-height: 100vh;
+    }
+  }
+  
+  header {
+    grid-area: header;
+    @apply bg-blue-950; 
+  }
+
+  footer {
+    grid-area: footer;
+
+  }
+
+  /* Layout Main Template */
+  
+  main {
+    grid-area: main;
+    @apply shadow-xl hover:shadow-light-accent3  shadow-blue-400;
+    display:grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat 
+    auto minmax(5rem, auto) 1fr;
+    min-height: 100vh;
+  
+  }
+
+  @media (max-width: 1920px) {
+    main {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto minmax(5rem, auto) 1fr;
+      min-height: 100vh;
+    }
+  }
+
+#index-main-wrapper {
+  @apply flex flex-col flex-wrap justify-center;
+}
+
+#index-main-wrapper {
+  @apply bg-white text-blue-950 flex flex-col flex-wrap justify-center;
+}
+#index-main-wrapper p {
+  @apply text-gray-300;
+}
+
+#index-main-wrapper.dark, 
+#index-main-wrapper.dark #index-main-wrapper, 
+#index-main-wrapper.dark #index-main-wrapper div,
+#index-main-wrapper.dark #index-main-wrapper div a,
+#index-main-wrapper.dark #index-main-wrapper div a:hover,
+#index-main-wrapper.dark #index-main-wrapper div a.active {
+  @apply bg-blue-950 text-white flex flex-col flex-wrap justify-center;
+}
+
+
+
+#index-main-wrapper p {
+  @apply text-blue-950;
+}
+
+.banner-index-text {
+  @apply text-4xl font-bold text-center text-whiteSmoke my-20;
+}
+
+.banner-index-text {
+  @apply text-4xl font-bold text-blue-950 my-20;
+}
+
+
+
+.featured-products {
+  @apply flex flex-col xsdd:flex-row flex-wrap gap-2 justify-around items-center;
+}
+
+.featured-product {
+  @apply flex flex-col flex-wrap gap-8 sm:gap-2 justify-center items-center w-full sm:w-1/4;
+}
+
+.featured-product img.light {
+  filter: invert(37%) sepia(89%) saturate(7344%) hue-rotate(211deg) brightness(80%) contrast(136%);
+}
+
+/* Layout Logged in */
+#index-main-wrapper {
+  @apply  dark:bg-blue-950 flex flex-col flex-wrap mb-8 justify-center;
+}
+
+.banner-index-text {
+  @apply text-4xl font-bold text-center text-whiteSmoke my-20;
+}
+
+/* Featured Section */
+
+.featured-products {
+  @apply flex flex-col xsdd:flex-row flex-wrap gap-2 justify-around items-center;
+}
+
+.featured-product {
+  @apply flex flex-col text-center flex-wrap gap-8 sm:gap-2 justify-center items-center w-full sm:w-1/4 min-h-16 line-clamp-1 z-[100];
+}
+
+.featured-product img {
+  @apply w-[2rem] h-auto m-4 transition-transform duration-300 ease-in-out bg-blend-multiply ;
+}
+
+.featured-product:hover img {
+  @apply scale-125 ; /* Slightly zoom in the image on hover */
+}
+
+@media (max-width: 1920px) {
+  .featured-product {
+      width: 100%; /* Full width for smaller screens */
+      margin: 0 0 20px 0; /* Add margin bottom for spacing */
+  }
+}
+
+/* .forgot-password,  */
+
+
+
+/* .register-form button {
+  @apply bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-800 transition-colors duration-300 ease-in-out mt-4 inline-block;
+} */
+
+/* Components */
+
+/* Base NavBar */
+
+#base-navbar {
+    @apply flex flex-col flex-wrap 
+    small_tablet:flex-row justify-center small_tablet:justify-between items-center gap-4 mx-8 
+
+  }
+
+header.light, header.light #base-navbar, header.light #base-navbar div, header.light #base-navbar div a,
+header.light #base-navbar div a:hover, header.light #base-navbar div a.active {
+    @apply bg-blue-900 
+  }
+
+
+  
+  #base-navbar .nav-items-wrapper {
+    @apply  flex flex-col small_tablet:flex-row flex-wrap justify-center small_tablet:justify-around items-center gap-8 z-40;
+  }
+  
+  .maple-logo-header {
+    @apply w-full small_tablet:w-[200px];
+  }
+
+  .base-navbar-link {
+    @apply relative uppercase font-extrabold;
+  }
+
+  .base-navbar-link.active:hover:after {
+    content: '•'; /* Symbol to display underneath */
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    @apply text-white;
+  }
+
+  .base-navbar-link:hover {
+    @apply text-blue-400;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  }
+
+  .base-navbar-link:hover:before {
+    content: '•'; /* Symbol to display underneath */
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    @apply text-white;
+  }
+
+  
+
+  #dark-mode-btn-toggle.light {
+    filter: invert(50%) sepia(100%) saturate(300%) hue-rotate(190deg) brightness(95%) contrast(90%);
+    }
+    
+  
+/*   
+  .base-navbar-link.active:before {
+      content: '•';
+      font-size: 1.5rem;
+      display: inline-block;
+      margin-right: 3px;
+      color: transparent;
+    }
+
+  .base-navbar-link:hover:before,
+  .base-navbar-link.w--current:before {
+      color: white;
+    } */
+
+  
+
+/* Base Footer */
+
+footer p {
+    @apply text-center text-sm p-4;
+  }
+  
+
+ 
+/* User Account Nav */
+
+.account-menu-item img {
+    @apply max-w-10 max-h-10 rounded-full; 
+    /* mix-blend-mode: overlay; */
+  
+  }
+  
+  .account-menu-item {
+    @apply flex flex-row flex-wrap justify-center small_tablet:justify-start items-center hover:bg-sky-400 rounded-lg w-full py-4 px-4 gap-4;
+  } 
+
+  .user-account-navbar {
+    @apply flex flex-col flex-wrap bg-tufts_blue gap-3 justify-between items-center shadow-xl;
+  } 
+  
+  .account-menu-item a::before {
+    content: attr(data-label); 
+  }
+
+  .index_btn::before {
+    content: attr(data-label); 
+  }
+
+  .index_btn {
+    @apply flex flex-wrap text-center p-3 bg-tufts_blue text-white text-wrap shadow-lg shadow-black_pearl transition-all duration-500 ease-in-out
+    hover:text-black_pearl hover:bg-light-accent3 hover:p-6 hover:rounded-none small_tablet:w-10/12;
+  }
+  
+  .index_btn:first-child {
+    @apply bg-light-accent3 flex items-center justify-center text-black_pearl my-auto hover:bg-pink-600 transition-all duration-500 ease-in-out hover:text-whiteSmoke hover:text-sm small_tablet:w-10/12;
+  }
+  
+  #index_new_user_btn {
+    @apply p-10 text-xl text-center bg-white rounded-full text-black_pearl shadow-xl shadow-slate-800  w-full small_tablet:w-2/12;
+  }
+  
+  /* Dashboard Article */
+  
+ .user-dashboard-article {
+    @apply flex flex-col flex-wrap gap-4 justify-center items-center;
+  }
+  
+  /* Report Constructor */
+
+#report-constructor {
+    @apply flex flex-col flex-wrap;
+  }
+
+
+#report-constructor form {
+    @apply flex flex-col flex-wrap gap-6;
+}
+
+.report-form-field {
+    @apply flex flex-col small_tablet:flex-row flex-wrap items-center justify-center small_tablet:justify-start gap-8
+    border-b-2 border-light-accent3 pb-4 hover:shadow-xl shadow-blue-400;
+}
+
+.report-form-field label {
+    @apply font-semibold ;
+}
+.report-form-field input,
+.report-form-field select {
+    @apply p-2 rounded-lg text-dark_blue bg-whiteSmoke;
+}
+
+.title {
+    @apply text-3xl font-bold mb-4 text-center;
+}
+.sub-title {
+    @apply text-xl font-semibold mb-4 text-center;
+}
+
+.days-of-week {
+@apply grid grid-cols-7 mb-1;
+grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
+}
+
+.datepicker-grid {
+    @apply grid grid-cols-7 gap-2;
+    grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
+}
+
+
+.room-forms-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px; 
+}
+
+#blur-container {
+  display: none;  /* Initially hidden */
+  position: fixed; /* Cover the entire screen */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(8px); /* Apply a blur effect */
+  background-color: rgba(255, 255, 255, 0.2); /* Slightly translucent */
+  z-index: 1; /* Ensure it is above other elements */
+  display: flex; /* Flexbox for centering the image */
+  align-items: center;
+  justify-content: center;
+}
+
+#company-logo-container.blur-background {
+  backdrop-filter: blur(8px); /* Adjust blur intensity */
+  background-color: rgba(255, 255, 255, 0.3); /* Adjust background color and transparency */
+}
+
+/* Additional styles for smooth transitions */
+#company-logo-container {
+  transition: backdrop-filter 0.3s ease, background-color 0.3s ease; /* Smooth transition for blur effect */
+}
+
+#loading-spinner {
+  display: none; /* Hidden by default */
+  justify-content: center;
+  align-items: center;
+  position: absolute; /* Position it absolutely over the form */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8); /* Light background to give emphasis */
+  z-index: 1000; /* Make sure it covers the form */
+}
+
+.center {
+  position: absolute;
+  top: 60%;
+  left: 70%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.drop {
+  height: 75px;
+  width: 75px;
+  border-radius: 58% 43% 33% 64% / 50% 38% 53% 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(173, 216, 230, 0.8), rgba(173, 216, 230, 0.2), transparent);
+  box-shadow: inset -5px -5px 15px rgba(255, 255, 255, 0.5), inset 5px 5px 15px rgba(0, 0, 0, 0.1), 2px 5px 10px rgba(0, 0, 0, 0.2);
+  position: relative; /* Position relative to enable absolute positioning for pseudo-elements */
+  transition: all 0.3s ease; /* Smooth transition for all properties */
+}
+
+.drop::before {
+  content: "";
+  position: absolute;
+  border-radius: 38% 55% 46% 48%;
+  background: rgba(255, 255, 255, 0.7);
+  width: 22px;
+  transform: rotate(-30deg);
+  height: 7px;
+  top: 10px;
+  left: 8px;
+  transition: all 0.3s ease; /* Smooth transition for highlight changes */
+}
+
+.drop::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  width: 5px;
+  height: 5px;
+  top: 35px;
+  left: 10px;
+  transition: all 0.3s ease; /* Smooth transition for reflection changes */
+}
+
+.drop:hover {
+  width: 80px; /* Slightly increase width */
+  height: 70px; /* Slightly decrease height */
+  border-radius: 58% 43% 33% 64% / 50% 50% 40% 60%; /* Change to mimic flattening */
+  box-shadow: inset -3px -3px 12px rgba(255, 255, 255, 0.5), inset 3px 3px 12px rgba(0, 0, 0, 0.1), 2px 4px 8px rgba(0, 0, 0, 0.2); /* Adjust shadow for hover */
+}
+
+.drop:hover::before {
+  width: 23px; /* Slightly reduced size for hover effect */
+  height: 15px; /* Slightly reduced height */
+  background: rgba(255, 255, 255, 0.4);
+  top: 10px; /* Adjusted position */
+  left: 25px; /* Adjusted position */
+}
+
+
+.drop:hover::after {
+  width: 4px; /* Adjust size of reflection */
+  height: 4px; /* Adjust size of reflection */
+  top: 45px; /* Adjust position */
+  left: 22px; /* Adjust position */
+}
+
+.log-in-container {
+  @apply flex flex-col sm:flex-row gap-8 justify-center items-center min-h-[100vh] bg-blue-950 relative;
+  /* background-image: url('/static/images/hydra-unsplash.jpg'); */
+  /* background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center; */
+  /*overflow: hidden;  Hide any overflow content */
+
+}
+
+.log-in-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /*background-color: rgba(0, 0, 180, 0.5);  Adjust the blue color and opacity here */
+  pointer-events: none; /* Ensure that the overlay does not block interactions with other elements */
+  z-index: 1; /* Position the overlay above the background image but below other content */
+ ;
+}
+
+.log-in-container > * {
+  position: relative; /* Position all children relative to bring them above the overlay */
+  z-index: 2; /* Ensure that text and other content appear above the overlay */
+
+  
+}
+
+
+.col-1 {
+@apply items-center flex-col w-full sm:w-[45%] justify-center h-0 sm:min-h-[70vh] md:min-h-[80vh] xl:h-full relative left-0 -top-20 lg:top-0 bg-blue-700/30;
+/* background-color: rgba(255, 255, 255, 0.3); */
+backdrop-filter: blur(30px);
+border-radius: 0 10% 8% 0;
+transition: border-radius .3s;
+/* opacity: 0.8; */
+overflow: hidden; /* Hide any overflow content */
+
+}
+
+.col-2 {
+  @apply flex items-center mt-0 sm:mt-[10%] flex-col w-full sm:w-[45%] min-h-[100vh] ;
+  position: relative;
+  padding: 20px;
+  overflow: hidden; /* Hide any overflow content */
+}
+
+.login-form form {
+  @apply w-full h-[100vh];
+}
+.register-form form {
+  @apply w-full h-[100vh];
+}
+
+.btn-box {
+  @apply flex flex-col sm:flex-row justify-center gap-6 sm:mb-[20px] z-50;
+}
+
+.btn-form {
+  @apply font-bold text-white py-[5px] px-[30px] rounded-[30px] cursor-pointer transition duration-200 ease-in-out
+  hover:opacity-75;
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-login-form {
+@apply bg-blue-700;
+}
+
+
+.login-form {
+  @apply flex flex-col items-center w-full absolute ;
+  padding: 0 4vw;
+  left: 50%;
+  transform: translateX(-50%);
+  
+}
+
+.register-form {
+  @apply mt-8 text-center flex flex-col w-full absolute;
+  padding: 0 4vw;
+  left: -50%;
+  transform: translateX(-50%);
+}
+
+
+
+.login-form-title, .register-form-title {
+  @apply mt-[120px] mb-[40px] text-2xl font-medium text-center ;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.login-form-title {
+  @apply sm:mt-[80px]
+}
+
+.register-form-title {
+  @apply sm:mt-[40px]
+}
+
+.register-form-terms-conditions {
+  @apply flex flex-col sm:flex-row items-center justify-center gap-2 p-0;
+}
+
+
+.login-form-inputs,
+.register-form-inputs {
+  @apply w-full;
+}
+
+.input-icon-container {
+  @apply relative flex flex-wrap items-center min-h-[55px];
+}
+.input-icon-container.register-form-terms,
+.input-icon-container.remember_me {
+  @apply justify-start;
+}
+.input-icon-container.register-form-terms input,
+.input-icon-container.remember_me input {
+  @apply w-[45px];
+}
+
+.input-icon-container.remember_me label {
+  @apply text-white hover:text-blue-400 transition-all duration-300 ease-in-out;
+}
+
+.input-icon-container.forgot-password-wrapper {
+  @apply flex justify-end gap-[5px];
+}
+
+
+
+.input-field,
+.input-field-report {
+  @apply w-full h-[55px] pr-[15px] my-[10px] text-white z-[1];
+  flex-grow: 1;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  backdrop-filter: blur(30px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+::placeholder {
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.input-icon-container .icon {
+  @apply absolute top-[50%] right-[50px] w-[25px] z-[-2] xs:z-[2];
+  transform: translateY(-50%);
+}
+
+.input-icon-container .icon-eye {
+  @apply absolute top-[50%] right-[50px] w-[22px] z-[-2] xs:z-[2];
+  transform: translateY(-50%);
+}
+
+.error-message,
+.errorlist {
+  color: red;
+  font-size: 0.9em;
+  margin: 5px 0 0 0; /* Add margin to separate from input but not above */
+}
+
+.errorlist {
+  top: 100%; /* Start below input */
+  left: 0;
+  width: 100%;
+  margin: 0;
+  padding: 5px 10px;
+  color: red;
+  font-size: 0.9em;
+  z-index: 0; /* Error below input */
+}
+
+.forgot-password {
+@apply flex justify-end gap-[5px];
+}
+
+
+.forgot-password a {
+  @apply text-blue-400 hover:scale-110 hover:text-blue-400 transition-all duration-300 ease-in-out ;
+  text-decoration: none;
+  position: relative; 
+  padding-left: 15px; 
+}
+
+.forgot-password a::before {
+  content: ''; 
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%); 
+  width: 5px; 
+  height: 5px; 
+  border-radius: 50%; 
+  transition: background-color 0.3s ease-in-out; 
+  @apply bg-blue-700 
+}
+
+.forgot-password a:hover::before {
+ @apply bg-blue-400;
+}
+
+/* Nav Bar Hamburger Menu Button */
+
+.hamburger-menu-btn {
+  @apply flex flex-col items-start justify-center w-[30px] cursor-pointer gap-[6px];
+  transition: transform 0.3s ease;
+}
+
+.hamburger-menu-btn-line {
+  @apply w-full h-[4px] bg-white;
+  box-shadow: 0px 2px 5px rgba(255, 255, 255, 0.5);
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, width 0.3s ease, background-color 0.3s ease, opacity 0.3s ease;
+}
+
+
+.hamburger-menu-btn:hover .hamburger-menu-btn-line {
+  width: 26px; 
+  background-color: rgba(255, 255, 255, 0.7); 
+}
+
+.hamburger-menu-btn-line:first-child {
+  @apply w-full;
+  transform: translateY(-4px);
+}
+
+.hamburger-menu-btn-line:nth-child(3) {
+  @apply w-[16px];
+  transform: translateY(4px);
+}
+
+
+.hamburger-menu-btn.active .hamburger-menu-btn-line:nth-child(1) {
+  transform: translateY(10px) rotate(45deg);
+  width: 30px; 
+  background-color: #60A5FA; 
+}
+
+.hamburger-menu-btn.active .hamburger-menu-btn-line:nth-child(2) {
+  opacity: 0; 
+}
+
+.hamburger-menu-btn.active .hamburger-menu-btn-line:nth-child(3) {
+  transform: translateY(-10px) rotate(-45deg);
+  width: 30px; 
+  background-color: #60A5FA; 
+}
+
+/* Navbar visibility toggle */
+.base-navbar.hidden {
+  display: none;
+}
+
+.base-navbar.visible {
+  display: block;
+}
+
+.input-field.error,
+.input-field-report.error {
+  border: 2px solid red; /* Highlight fields with errors */
+  background-color: rgba(255, 0, 0, 0.1); /* Slight red background for error fields */
+}
+
+.error-message,
+.errorlist {
+  @apply text-red-500;
+  color: red;
+  font-size: 0.9em;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.login-form,
+.register-form {
+  @apply flex flex-col items-center w-full absolute transition-all duration-500 ease-in-out;
+  padding: 0 4vw;
+}
+
+.login-form.active {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.register-form.active {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.login-form:not(.active) {
+  left: 150%;
+}
+
+#dynamic-graph {
+  
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.disclaimer {
+  margin-top: 20px;  /* Adds some space above the disclaimer */
+  text-align: center;  /* Centers the text */
+  color: #555;  /* Gives a neutral color */
+  font-size: 14px;  /* Adjusts the font size */
+  color: gray;
+}
+
+
+/* .form-fields {
+  @apply flex flex-col items-center justify-center gap-4;
+}
+
+.form-fields .input-wrapper {
+  @apply transition-all w-full flex justify-center bg-dark text-light rounded-full px-4 py-2 border-light border-solid border items-center max-w-xs gap-3;
+} */
+/* 
+.form-fields .input-wrapper > input, .form-fields .input-wrapper > textarea {
+  @apply bg-transparent border-transparent w-full focus:outline-none;
+}
+
+.form-fields .input-wrapper > svg {
+  @apply transition-all;
+}
+
+.form-fields .input-wrapper:hover,
+.form-fields .input-wrapper:focus-within {
+  @apply border-secondary scale-105;
+}
+.form-fields .input-wrapper:hover > svg,
+.form-fields .input-wrapper:focus-within > svg {
+  @apply fill-secondary scale-110;
+} */

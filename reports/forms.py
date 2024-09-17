@@ -18,7 +18,7 @@ class ReportForm(forms.ModelForm):
         ]
         widgets = {
             'company': TextInput(attrs={
-                'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
+                'class': 'report-constructor-form-field',
                 'placeholder': 'Enter company name',
                 'id':'company',
                 'required': True,
@@ -28,13 +28,13 @@ class ReportForm(forms.ModelForm):
                 'id': 'company_logo',
             }),
             'surveyor': TextInput(attrs={
-                'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
+                'class': 'report-constructor-form-field',
                 'placeholder': 'Enter surveyor name',
                 'id':'surveyor',
                 'required': True,
             }),
             'property_address': TextInput(attrs={
-                'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
+                'class': 'report-constructor-form-field',
                 'placeholder': 'Enter property address',
                 'id':'property_address',
                 'required': True,
@@ -44,7 +44,7 @@ class ReportForm(forms.ModelForm):
                 'id': 'external_picture',
             }),
             'external_logger': TextInput(attrs={
-                'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
+                'class': 'report-constructor-form-field',
                 'placeholder': 'External Sensor Serial Number',
                 'id':'external_logger',
                 'required': True,
@@ -77,10 +77,10 @@ class ReportForm(forms.ModelForm):
            
             'start_time': DateInput(attrs={'type': 'text', 
                                            'id':'start_time',
-                                            'class': "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500", 
+                                            'class': "date-picker-input", 
                                             'placeholder': 'Select sensor installation date'}),
             'end_time': DateInput(attrs={'type': 'text', 'id':'end_time',
-                                          'class': "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
+                                          'class': "date-picker-input",
                                          'placeholder': 'Select sensor removal date'}),
         }
 
@@ -88,7 +88,7 @@ class ReportForm(forms.ModelForm):
         super(ReportForm, self).__init__(*args, **kwargs)
 
         for field in self.fields:
-            self.fields['external_logger'].widget.attrs.update({'class': 'input-field-report'})
+            self.fields['external_logger'].widget.attrs.update({'class': 'report-constructor-form-field'})
 
         # self.fields['start_time'].input_formats = ['%Y-%m-%d']
         # self.fields['end_time'].input_formats = ['%Y-%m-%d']
@@ -106,7 +106,6 @@ class ReportForm(forms.ModelForm):
 
         for field_name, field in self.fields.items():
             if self.errors.get(field_name):
-                # If the field has errors, add 'error' class to the field's widget
                 existing_classes = field.widget.attrs.get('class', '')
                 new_classes = f"{existing_classes} error".strip()
                 field.widget.attrs['class'] = new_classes
@@ -158,7 +157,7 @@ class RoomForm(forms.ModelForm):
         }
         widgets = {
             'room_name': TextInput(attrs={
-                'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
+                'class': 'report-constructor-form-field',
                 'placeholder': 'Enter room name',
                 'id':'room_name',
                 'required': True,
@@ -168,18 +167,18 @@ class RoomForm(forms.ModelForm):
                 'id':'room_picture',
             }),
             'room_ambient_logger': TextInput(attrs={
-                'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
+                'class': 'report-constructor-form-field',
                 'placeholder': 'Ambient Sensor',
                 'id':'room_ambient_logger',
                 'required': True,
             }),
             'room_surface_logger': TextInput(attrs={
-                'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
+                'class': 'report-constructor-form-field',
                 'placeholder': 'Surface Sensor',
                 'id':'room_surface_logger'
             }),
             'room_monitor_area': TextInput(attrs={
-                'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500',
+                'class': 'report-constructor-form-field',
                 'placeholder': 'Monitor Area',
                 'id':'room_monitor_area',
                 'required': True,
@@ -203,7 +202,6 @@ class RoomForm(forms.ModelForm):
 
         for field_name, field in self.fields.items():
             if self.errors.get(field_name):
-                # If the field has errors, add 'error' class to the field's widget
                 existing_classes = field.widget.attrs.get('class', '')
                 new_classes = f"{existing_classes} error".strip()
                 field.widget.attrs['class'] = new_classes
@@ -212,8 +210,6 @@ class RoomForm(forms.ModelForm):
         cleaned_data = super().clean()
         room_ambient_logger = normalize_logger_serial(cleaned_data.get('room_ambient_logger'))
         room_surface_logger = normalize_logger_serial(cleaned_data.get('room_surface_logger'))
-        
-        
 
         return cleaned_data
 
@@ -223,6 +219,5 @@ class RoomForm(forms.ModelForm):
 RoomFormSet = modelformset_factory(
     Room,
     form=RoomForm,  
-    extra=1,
-    
+    extra=1, 
 )

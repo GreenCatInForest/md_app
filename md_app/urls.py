@@ -20,6 +20,7 @@ from django.urls.conf import include
 from django.conf import settings
 from django.conf.urls.static import static
 from core.views import custom_404, custom_500
+from users import views
 
 urlpatterns = [
     path ('', include('core.urls')),
@@ -28,6 +29,7 @@ urlpatterns = [
     path('reports/', include('reports.urls')),
     path('users/', include('users.urls')),
     path("__reload__/", include("django_browser_reload.urls")),
+    path('accounts/login/', views.user_login_register, name='login_register'),
 ]
 
 handler404 = custom_404

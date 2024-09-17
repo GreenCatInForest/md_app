@@ -75,6 +75,7 @@ def user_login_register(request):
 
                     if user is not None:
                         login(request, user)
+                        print(f"User {user.email} logged in. Session key: {request.session.session_key}")
                         if remember_me:
                         # Set session to expire in 30 days
                             request.session.set_expiry(60 * 60 * 24 * 30)
