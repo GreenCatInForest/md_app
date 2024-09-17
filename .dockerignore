@@ -16,3 +16,10 @@ venv/
 
 .node_modules
 .node_modules/
+
+__pycache__
+*.pyc
+*.pyo
+.git
+.venv
+node_modules

@@ -17,8 +17,8 @@ pytz
 fpdf
 PyPDF2
 
-django-tailwind 
-django-tailwind[reload] 
+django
+django-tailwind[reload]
 
 gunicorn
 whitenoise

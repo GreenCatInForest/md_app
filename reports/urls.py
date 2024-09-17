@@ -10,5 +10,5 @@ urlpatterns = [
     path('reports/', historical_reports_view, name='historical_reports'),
     path('reports/<int:report_id>/', report_detail_view, name='report_detail'),
     path('download-report/<int:report_id>/', download_report, name='download_report'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] 
     

@@ -1,13 +1,17 @@
-
+# Define reusable configurations using anchors
+x-app: &default-app
+  build:
+    context: "."
+  volumes:
+    - .:/code
+  restart: "unless-stopped"
 
 services:
   db:
     image: postgres:latest  
     container_name: maple-db
-    # restart: always
     volumes:
       - pg_data:/var/lib/postgresql/data
-      # - ./create_user.sh:/docker-entrypoint-initdb.d/create_user.sh
     env_file:
       - .env
     environment:
@@ -18,7 +22,7 @@ services:
       - "5433:5432"
 
   web:
-    build: .
+    <<: *default-app  # Reuse the default-app configuration
     container_name: maple-web
     command: >
       sh -c "wait-for-it.sh db:5432 
@@ -27,24 +31,23 @@ services:
       && python manage.py migrate 
       && gunicorn md_app.wsgi:application --bind 0.0.0.0:1091 --workers 4 --timeout 1200"
     volumes:
-      - .:/code
-      # - static_volume:/code/staticfiles
+      - .:/code  # Override or add specific volumes if needed
     ports:
       - "1091:1091"
     depends_on:
       - db
 
-  # nginx:
-  #   image: nginx:latest
-  #   container_name: maple-nginx
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Mounts custom nginx.conf
-  #     - ./core/templates/core/404.html:/code/core/templates/core/404.html:ro  # Mounts custom 404.html
-  #     - ./staticfiles:/code/staticfiles:ro  # Mounts static files
-  #   ports:
-  #   - "8991:8991"  
-  #   depends_on:
-  #     - web
+  tailwind:
+    <<: *default-app  # Reuse the default-app configuration
+    container_name: maple-tailwind
+    command: "python manage.py tailwind start"
+    volumes:
+      - .:/code  # Ensure volumes are consistent or override if necessary
+    ports:
+      - "3000:3000"  # Example port, adjust as needed
+    tty: true
+    depends_on:
+      - web
 
   pgadmin:
     image: dpage/pgadmin4
@@ -62,6 +65,3 @@ services:
 volumes:
   pg_data:
   pg_admin:
-  # static_volume:
-
-
