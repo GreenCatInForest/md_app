@@ -396,27 +396,38 @@ footer p {
     @apply flex flex-col flex-wrap gap-6;
 }
 
-#report-constructor form label {
-@apply block mb-2 text-base font-semibold text-gray-900
+#report-constructor form label:not(.custom-label-class) {
+  @apply block mb-2 text-base font-semibold text-gray-900;
+}
+
+#report-constructor form label.custom-label-class {
+  @apply block mb-2 text-base font-semibold text-whiteSmoke;
 }
 
 #report-constructor form label.dark {
   @apply text-white
   }
 
-.report-constructor-form-field {
-  @apply  text-base rounded-lg text-blackcurrant font-normal
+.report-constructor-form-field,
+.report-constructor-form-field.input-field-report {
+  @apply  text-sm rounded-lg text-whiteSmoke
    focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 
    shadow-sm shadow-slate-700 border-[1px]
    bg-slate-600 border-slate-300 placeholder-whiteSmoke focus:outline-none
 }
 
-.report-constructor-form-field.dark {
-  @apply  text-sm rounded-lg text-blackcurrant
+.report-constructor-form-field.dark,
+.report-constructor-form-field.input-field-report.dark {
+  @apply text-sm rounded-lg text-blackcurrant
    focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 
    shadow-sm shadow-slate-700 border-[1px]
    bg-slate-200 border-slate-300 placeholder-blackcurrant focus:outline-none
 }
+
+.custom-label-class {
+  @apply  text-whiteSmoke;
+}
+
 /* 
 .report-constructor-form-field.dark {
   @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500
@@ -490,6 +501,14 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px; 
+}
+
+.room-form {
+  @apply p-4 border-2 rounded-lg mb-4 bg-gray-800 text-whiteSmoke
+}
+
+.room-form.dark {
+  @apply p-4 border rounded-lg mb-4 bg-gray-800 
 }
 
 #blur-container {
@@ -784,7 +803,7 @@ overflow: hidden; /* Hide any overflow content */
 
 .input-field,
 .input-field-report {
-  @apply w-full h-[55px] pr-[15px] my-[10px] text-white z-[1] bg-blue-100;
+  @apply w-full h-[55px] pr-[15px] my-[10px] text-whiteSmoke z-[1] bg-slate-600;
   flex-grow: 1;
   border: none;
   border-radius: 8px;
@@ -796,7 +815,7 @@ overflow: hidden; /* Hide any overflow content */
 
 .input-field.dark,
 .input-field-report.dark {
-  @apply w-full h-[55px] pr-[15px] my-[10px] text-white z-[1];
+  @apply w-full h-[55px] pr-[15px] my-[10px] text-whiteSmoke z-[1] bg-slate-600;
   flex-grow: 1;
   background-color: rgba(255, 255, 255, 0.2);
   border: none;
@@ -806,10 +825,10 @@ overflow: hidden; /* Hide any overflow content */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-::placeholder {
+.input-field.dark::placeholder,
+.input-field-report.dark::placeholder {
   color: white;
-  font-size: 16px;
-  font-weight: 600;
+  @apply text-sm font-normal;
 }
 
 .input-icon-container .icon {

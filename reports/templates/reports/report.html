@@ -158,12 +158,20 @@
                                 {{ room_formset.management_form }}
                                 
                                 {% for form in room_formset %}
-                                    <div class="room-form p-4 border rounded-lg mb-4 bg-gray-100 dark:bg-gray-800">
+                                    <div class="room-form">
                                         {% for field in form %}
                                             {% if field.name == 'id' %}
                                                 {{ field.as_hidden }}
                                             {% elif field.name != 'room_picture' %}
-                                                <p>{{ field.label_tag }} {{ field }}</p>
+                                            <p>
+                                                <label for="{{ field.id_for_label }}" class="custom-label-class">
+                                                    {{ field.label }}
+                                                </label>{{ field }}</p>
+                                            {% endif %}
+                                            {% if field.errors %}
+                                            <div class="error">
+                                                {{ field.errors }}
+                                            </div>
                                             {% endif %}
                                         {% endfor %}
                                         

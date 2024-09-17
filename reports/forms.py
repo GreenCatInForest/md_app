@@ -196,9 +196,11 @@ class RoomForm(forms.ModelForm):
         super(RoomForm, self).__init__(*args, **kwargs)
 
         for field in self.fields:
-            self.fields['room_name'].widget.attrs.update({'class': 'input-field-report'})
-            self.fields['room_ambient_logger'].widget.attrs.update({'class': 'input-field-report'})
-            self.fields['room_surface_logger'].widget.attrs.update({'class': 'input-field-report'})
+            self.fields['room_name'].widget.attrs.update({'class': 'report-constructor-form-field '})
+            self.fields['room_ambient_logger'].widget.attrs.update({'class': 'report-constructor-form-field '})
+            self.fields['room_surface_logger'].widget.attrs.update({'class': 'report-constructor-form-field '})
+            self.fields['room_monitor_area'].widget.attrs.update({'class': 'report-constructor-form-field '})
+            
 
         for field_name, field in self.fields.items():
             if self.errors.get(field_name):
