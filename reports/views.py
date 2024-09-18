@@ -367,7 +367,7 @@ def report_view(request):
 
 @login_required
 def historical_reports_view(request):
-    reports = Report.objects.filter(report_file__isnull=False, user=request.user)
+    reports = Report.objects.filter(report_file__isnull=False, user=request.user).order_by('-id')
     return render(request, 'reports/historical_reports.html', {'reports': reports})
 
 @login_required

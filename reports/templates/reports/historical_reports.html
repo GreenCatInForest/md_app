@@ -29,7 +29,7 @@
                     <td class="py-2 px-4 border-b text-gray-900">
                         {% if report.report_file %}
                         <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>
-                        <a href="{% url 'report_detail' report.id %}" class="text-blue-500 hover:underline">Download Report</a>
+                        <!-- <a href="{% url 'report_detail' report.id %}" class="text-blue-500 hover:underline">Download Report</a> -->
                         {% else %}
                         <p>No file available</p>
                     {% endif %}
