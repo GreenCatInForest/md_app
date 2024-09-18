@@ -10,22 +10,23 @@
                 <tr>
                     <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Date of Report</th>
                     <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Property Address</th>
-                    <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Rooms Name</th>
                     <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Survey time</th>
+                    <!-- <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Rooms Name</th> -->
                     <th class="py-2 px-4 border-b-2 border-gray-200 text-left text-gray-700">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for report in reports %}
                 <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 border-b text-gray-900">{{ report.report_timestamp|date:"Y-m-d H:i" }}</td>
+                    <td class="py-2 px-4 border-b text-gray-900">{{ report.report_timestamp|date:"Y-m-d" }}</td>
                     <td class="py-2 px-4 border-b text-gray-900">{{ report.property_address }}</td>
                     <td class="py-2 px-4 border-b text-gray-900">{{ report.start_time}}</td>
-                    <td class="py-2 px-4 border-b text-gray-900">
+                    <!-- <td class="py-2 px-4 border-b text-gray-900">
                         {% for room in report.rooms.all %}
-                            {{ room.room_name }}{% if not forloop.last %}, {% endif %}
+                            {{ room.room_name }}{% if not forloop.last %}
+                            {% endif %}
                         {% endfor %}
-                    </td>
+                    </td> -->
                     <td class="py-2 px-4 border-b text-gray-900">
                         {% if report.report_file %}
                         <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>
