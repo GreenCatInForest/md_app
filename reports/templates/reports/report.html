@@ -32,47 +32,47 @@
                     <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
                         
                         <!-- Survey Date Range Picker -->
-                        <div class="w-full sm:col-span-2 date-picker-wrapper">
-                            <h3 class="block mb-2 text-sm font-medium text-gray-900 text-left">Survey Date Range</h3>
-                            <div id="date-range-picker" class="flex items-center flex-col sm:flex-row flex-wrap justify-center gap-4 sm:justify-between">
-                                <!-- Start Date Picker -->
-                                <div class="w-full sm:w-[48%]">
-                                    <div class="relative sm:w-full">
-                                        <div class="date-picker-icon-wrapper absolute">
-                                            <svg class="w-4 h-4 text-whiteSmoke" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
-                                            </svg>
-                                        </div>
-                                        {{ form.start_time }}
+                         <!-- Date Picker -->
+
+
+                        <div class="w-full sm:col-span-2">
+                            <h3 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-left">Survey Date Range</h3>
+                            <div id="date-range-picker" class="flex items-center">
+                                <div class="relative sm:w-full">
+                                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                        </svg>
                                     </div>
+                                    {{ form.start_time }}
                                     {% if form.start_time.errors %}
-                                        <div class="error-message text-red-500 text-sm mt-2">
-                                            {% for error in form.start_time.errors %}
-                                                <p>{{ error }}</p>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    <div class="error-message text-red-500 text-sm mt-2">
+                                        {% for error in form.end_time.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                                 </div>
                                 
-                                <!-- End Date Picker -->
-                                <div class="w-full sm:w-[48%]">
-                                    <div class="relative sm:w-full">
-                                        <div class="date-picker-icon-wrapper absolute ">
-                                            <svg class="w-4 h-4 text-whiteSmoke" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
-                                            </svg>
-                                        </div>
-                                        {{ form.end_time }}
-                                    </div>  
+                                <span class="mx-4 text-gray-500">to</span>
+                                
+                                <div class="relative sm:w-full">
+                                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                        </svg>
+                                    </div>
+                                    {{ form.end_time }}
                                     {% if form.end_time.errors %}
-                                        <div class="error-message text-red-500 text-sm mt-2">
-                                            {% for error in form.end_time.errors %}
-                                                <p>{{ error }}</p>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
+                                    <div class="error-message text-red-500 text-sm mt-2">
+                                        {% for error in form.end_time.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                                 </div>
                             </div>
+                    
                         </div>
 
                         <!-- Property Address -->
@@ -290,9 +290,8 @@
 <script>
     // Initialize Datepickers
     document.addEventListener('DOMContentLoaded', function () {
-        const startDatepicker = document.getElementById('id_start_time');
-        const endDatepicker = document.getElementById('id_end_time');
-        if (startDatepicker && endDatepicker) {
+            const startDatepicker = document.getElementById('start_time');
+            const endDatepicker = document.getElementById('end_time');
             new Datepicker(startDatepicker, {
                 format: 'yyyy-mm-dd',
                 autohide: true
@@ -301,8 +300,7 @@
                 format: 'yyyy-mm-dd',
                 autohide: true
             });
-        }
-    });
+        });
 
     function initializeDropArea(dropArea) {
         const fileInput = dropArea.querySelector('input[type="file"]');
