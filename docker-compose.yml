@@ -2,13 +2,14 @@
 x-app: &default-app
   build:
     context: "."
+    dockerfile: Dockerfile
   volumes:
     - .:/code
   restart: "unless-stopped"
 
 services:
   db:
-    image: postgres:latest  
+    image: postgres:latest
     container_name: maple-db
     volumes:
       - pg_data:/var/lib/postgresql/data
@@ -25,26 +26,30 @@ services:
     <<: *default-app  # Reuse the default-app configuration
     container_name: maple-web
     command: >
-      sh -c "wait-for-it.sh db:5432 
-      -- python manage.py collectstatic --noinput 
-      && python manage.py makemigrations 
-      && python manage.py migrate 
-      && gunicorn md_app.wsgi:application --bind 0.0.0.0:1091 --workers 4 --timeout 1200"
+      sh -c "wait-for-it.sh db:5432 -- 
+             python manage.py collectstatic --noinput 
+             && python manage.py makemigrations 
+             && python manage.py migrate 
+             && gunicorn md_app.wsgi:application --bind 0.0.0.0:1091 --workers 4 --timeout 1200"
     volumes:
-      - .:/code  # Override or add specific volumes if needed
+      - .:/code  # Ensure code is mounted
     ports:
       - "1091:1091"
     depends_on:
       - db
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
 
   tailwind:
-    <<: *default-app  # Reuse the default-app configuration
+    <<: *default-app
     container_name: maple-tailwind
     command: "python manage.py tailwind start"
     volumes:
-      - .:/code  # Ensure volumes are consistent or override if necessary
+      - .:/code
     ports:
-      - "3000:3000"  # Example port, adjust as needed
+      - "3000:3000"
     tty: true
     depends_on:
       - web
@@ -62,6 +67,27 @@ services:
     volumes:
       - pg_admin:/var/lib/pgadmin
 
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: always
+
+  celery:
+    <<: *default-app
+    container_name: maple-celery
+    command: celery -A md_app worker -l info
+    volumes:
+      - .:/code
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
 volumes:
   pg_data:
   pg_admin:
+  redis-data:

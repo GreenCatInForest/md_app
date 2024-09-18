@@ -2,19 +2,25 @@
 # coding: utf-8
 
 # In[13]:
+import logging
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.dates import DayLocator, HourLocator
 from PyPDF2 import PdfReader, PdfMerger
+
 import os
 import datetime
 from fpdf import FPDF
 import pandas as pd
 import textwrap as twp
 import re
+
 # coding: utf-8
 from enum import IntEnum
 import subprocess
+
+
 
 output_dir = '/code/imgs/'
 if not os.path.exists(output_dir):
@@ -927,16 +933,18 @@ class RoomData:
 
 def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
            occupied, monitor_time, occupied_during_all_monitoring, occupant_number, Problem_rooms, Monitor_areas, moulds, Image_property, room_pictures,
-           Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4,Image_logo, comment, popup=True):
-    # global DATA
-    import logging
-    # Configure logging
+           Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4,Image_logo, comment, popup=True, progress_callback=None):
+
+   
+    # Initialize logging
     logging.basicConfig(level=logging.DEBUG)
     app_logger = logging.getLogger(__name__)
+    app_logger.debug("Starting RPTGen with datafiles: %s", datafiles)
 
-    app_logger.debug(datafiles)
+    if progress_callback:
+            progress_callback(10, "Initializing report generation.")
 
-    # Add additional debug information as needed
+    # Additional debug information
     for file_path in datafiles:
         with open(file_path, 'r') as file:
             app_logger.debug(f"Contents of {file_path}: {file.read()[:500]}")  # Log a snippet of the file
@@ -1005,6 +1013,14 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
             room_data_list.append(RoomData(datafile=datafile, index=room_no))
         room_no = room_no + 1
 
+    # Update progress after processing each datafile
+        if progress_callback:
+            progress_percentage = 20 + (room_no / len(datafiles)) * 30  # 20% to 50%
+            status_message = f"Processed datafile {room_no}/{len(datafiles)}."
+            progress_callback(int(progress_percentage), status_message)
+
+    if progress_callback:
+            progress_callback(70, "Generating PDF report.")
     class BasePDF(FPDF):
         grid_line = True
 
@@ -1851,6 +1867,9 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         print("file1:" + cover_pdf_file_name)
         print("file2:" + pdf_name)
 
+        if progress_callback:
+            progress_callback(80, "Finalizing PDF report.") 
+
         with open(cover_pdf_file_name, 'rb') as file1, open(pdf_name, 'rb') as file2:
             reader1 = PdfReader(file1)
             reader2 = PdfReader(file2)
@@ -1862,22 +1881,29 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
             with open(filename, 'wb') as output_file:
                 merger.write(output_file)
                 
-         
+        
 
         # Clean up temporary files
         os.remove(cover_pdf_file_name)
         os.remove(pdf_name)
         return filename
+    
+    
 
     except Exception as e:
         print("Error encountered during pdf merge and deletion: " + str(e))
         filename = None  # Ensure filename is set to None if an error occurs
+        
 
     # Cross-platform way to open the file
     if filename and os.path.exists(filename):
+        if progress_callback:
+            progress_callback(100, "Report generation completed.")
         print(f"{filename} generation is completed.")
     else:
         print('Failed to generate the report. Please check the logs for more details.')
+        app_logger.error("Exception in RPTGen: %s", str(e))
+        raise e
 
 # RPTGen('SensorsData.xlsx','Surveyor Paula','06/20/2020 16:20:58 ','6 Gower street,WC1E,6BT','2/19/2018  4:00:00 PM', 2,\
 # '3/5/2018  3:00:00 PM',500, pd.to_timedelta('1 days 06:05:01.00003'),'Bedroom A','floor',1,'imgs/Property.jpg','imgs/mould.jpeg','imgs/mould.jpeg','imgs/mould.jpeg',\

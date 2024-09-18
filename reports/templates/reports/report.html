@@ -279,6 +279,10 @@
                     </div>
                 {% endif %}
             </div>
+            <div id="spinner" style="display: none;">
+                <p>Generating Report: <span id="progress">0</span>%</p>
+                <div class="loader"></div> <!-- Add spinner styling in CSS -->
+            </div>
         </section>
     </article>
 </div>
@@ -461,6 +465,64 @@
     });
 </script>
 
+<script>
+    $(document).ready(function(){
+        $('#report-form').on('submit', function(event){
+            event.preventDefault(); // Prevent the default form submission
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: "{% url 'report_view' %}",  // Ensure the URL name matches your urls.py
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function(){
+                    $('#spinner').show();
+                    $('#progress').text('0');
+                },
+                success: function(data){
+                    var task_id = data.task_id;
+                    checkProgress(task_id);
+                },
+                error: function(xhr, status, error){
+                    $('#spinner').hide();
+                    alert('An error occurred: ' + xhr.responseJSON.errors);
+                }
+            });
+        });
+
+        function checkProgress(task_id){
+            var interval = setInterval(function(){
+                $.ajax({
+                    url: "/reports/task-status/" + task_id + "/",  // Adjust the URL as needed
+                    type: 'GET',
+                    success: function(data){
+                        $('#progress').text(Math.floor(data.progress));
+                        if(data.state === 'PROGRESS'){
+                            // Continue polling
+                        } else if(data.state === 'SUCCESS'){
+                            clearInterval(interval);
+                            $('#spinner').hide();
+                            window.location.href = "/reports/download/" + data.result + "/";  // Adjust the URL to download the report
+                        } else if(data.state === 'FAILURE'){
+                            clearInterval(interval);
+                            $('#spinner').hide();
+                            alert('Report generation failed: ' + data.result);
+                        }
+                    },
+                    error: function(xhr, status, error){
+                        clearInterval(interval);
+                        $('#spinner').hide();
+                        alert('An error occurred while checking progress.');
+                    }
+                });
+            }, 1000); // Poll every second
+        }
+    });
+    </script>
+
 <!-- Custom Styles -->
 <style>
     /* Highlight drop area when a file is dragged over it */
@@ -483,6 +545,23 @@
         max-width: 100%;
         /* height: auto; */
     }
-</style>
+
+    /* Loader styling */
+    .loader {
+        border: 16px solid #f3f3f3; /* Light gray */
+        border-top: 16px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 2s linear infinite;
+        margin: auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    </style>
 
 {% endblock %}

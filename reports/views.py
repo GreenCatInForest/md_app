@@ -7,7 +7,7 @@ import pandas as pd
 from io import StringIO
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, JsonResponse
 from django.utils import timezone
 from django.utils._os import safe_join
 from django.contrib.auth.decorators import login_required
@@ -21,6 +21,8 @@ from .utils import PCAdataTool
 from .utils.normalize_logger_serial import normalize_logger_serial  
 from .utils.resize_and_save_image import resize_and_save_image
 from .utils.room_data import RoomData
+
+from .tasks import progress_callback, generate_report
 
 
 # Configure logging
@@ -341,24 +343,31 @@ def report_view(request):
             app_logger.debug("Form data prepared. Calling RPTGen...")
             app_logger.debug(f"Form data being sent to RPTGen: {form_data}")
 
-            # Generate the report
-            try:
-                pdf_file_path = PCAdataTool.RPTGen(**form_data)
-                if not pdf_file_path or not os.path.exists(pdf_file_path):
-                    raise Exception("PDF file was not generated or found.")
-                app_logger.debug(f"Generated PDF file path: {pdf_file_path}")
-                report_instance.report_file = pdf_file_path
-                report_instance.save()
-                return FileResponse(open(pdf_file_path, 'rb'), content_type='application/pdf', filename=os.path.basename(pdf_file_path))
-            except Exception as e:
-                app_logger.error(f"Error generating report: {e}")
-                return HttpResponse('Error generating report.', status=500)
-
+            task = generate_report.delay(form_data)
+            
+            return JsonResponse({'task_id': task.id}, status=202)
         else:
-            app_logger.error("Form or formset validation failed.")
-            app_logger.error(f"Form errors: {form.errors}")
-            app_logger.error(f"RoomFormSet errors: {room_formset.errors}")
-            return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+            # Handle form errors
+            return JsonResponse({'errors': form.errors}, status=400)
+
+            # Generate the report
+        #     try:
+        #         pdf_file_path = PCAdataTool.RPTGen(**form_data)
+        #         if not pdf_file_path or not os.path.exists(pdf_file_path):
+        #             raise Exception("PDF file was not generated or found.")
+        #         app_logger.debug(f"Generated PDF file path: {pdf_file_path}")
+        #         report_instance.report_file = pdf_file_path
+        #         report_instance.save()
+        #         return FileResponse(open(pdf_file_path, 'rb'), content_type='application/pdf', filename=os.path.basename(pdf_file_path))
+        #     except Exception as e:
+        #         app_logger.error(f"Error generating report: {e}")
+        #         return HttpResponse('Error generating report.', status=500)
+
+        # else:
+        #     app_logger.error("Form or formset validation failed.")
+        #     app_logger.error(f"Form errors: {form.errors}")
+        #     app_logger.error(f"RoomFormSet errors: {room_formset.errors}")
+        #     return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
 
     else:
         room_formset = RoomFormSet(queryset=Room.objects.none(), prefix='rooms')
@@ -392,3 +401,30 @@ def download_report(request, report_id):
         raise Http404("Report does not exist.")
     except ValueError:
         raise Http404("Invalid file path.")
+    
+@login_required
+def get_task_status(request, task_id):
+    task = generate_report.AsyncResult(task_id)
+    if task.state == 'PENDING':
+        response = {
+            'state': task.state,
+            'progress': 0
+        }
+    elif task.state != 'FAILURE':
+        response = {
+            'state': task.state,
+            'progress': task.info.get('current', 0) / task.info.get('total', 1) * 100
+        }
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+    else:
+        # Something went wrong in the background job
+        response = {
+            'state': task.state,
+            'progress': 100,
+            'result': str(task.info),  # this is the exception raised
+        }
+    return JsonResponse(response)
+
+def report_status(request, task_id):
+    return render(request, 'reports/report_status.html', {'task_id': task_id})
