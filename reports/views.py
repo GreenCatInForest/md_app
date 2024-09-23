@@ -20,7 +20,8 @@ from core.models import Logger as LoggerModel, Logger_Data, Room, Report
 from .utils import PCAdataTool
 from .utils.normalize_logger_serial import normalize_logger_serial  
 from .utils.resize_and_save_image import resize_and_save_image
-from .utils.room_data import RoomData
+from .utils.data_handler import fetch_logger_data, clean_data, RoomData
+from .utils.file_handler import save_uploaded_file
 
 
 # Configure logging
@@ -28,57 +29,6 @@ logging.basicConfig(level=logging.DEBUG)
 app_logger = logging.getLogger(__name__)
 
 User = get_user_model()
-
-
-def fetch_logger_data(logger_serial, start_timestamp, end_timestamp):
-    """Fetch logger data within the specified timestamp range and return as a DataFrame."""
-    try:
-        logger = LoggerModel.objects.get(serial_number=logger_serial)
-        data = Logger_Data.objects.filter(logger=logger, timestamp__range=(start_timestamp, end_timestamp))
-
-        if not data.exists():
-            return None  # No data found for this logger within the range
-        return pd.DataFrame(list(data.values()))
-
-    except LoggerModel.DoesNotExist:
-        # Log this error for debugging purposes
-        app_logger.error(f"Sensor with serial number {logger_serial} does not exist.")
-        return None
-
-def clean_data(combined_data: pd.DataFrame) -> pd.DataFrame:
-    # Drop any duplicate columns
-    combined_data = combined_data.loc[:, ~combined_data.columns.duplicated()]
-    
-    # Handle missing values if any
-    combined_data.fillna("", inplace=True)
-    
-    # Ensure all columns that should be numeric are numeric
-    numeric_cols = ['IndoorAirTemp', 'SurfaceTemp', 'IndoorRelativeH', 
-                    'OutdoorAirTemp', 'OutdoorRelativeH']
-    for col in numeric_cols:
-        combined_data[col] = pd.to_numeric(combined_data[col], errors='coerce')
-    
-    return combined_data
-
-def save_uploaded_file(uploaded_file):
-    if uploaded_file:
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1])
-        for chunk in uploaded_file.chunks():
-            temp_file.write(chunk)
-        temp_file.close()
-        return temp_file.name
-    return ''
-
-# REDUNDAND FUNCTION
-# def save_uploaded_room_pic(uploaded_file):
-#     if uploaded_file:
-#         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1])
-#         for chunk in uploaded_file.chunks():
-#             temp_file.write(chunk)
-#         temp_file.close()
-#         return temp_file.name
-#     return ''
-
 
 @login_required
 def report_view(request):
