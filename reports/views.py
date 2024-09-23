@@ -19,9 +19,9 @@ from .forms import ReportForm, RoomFormSet
 from core.models import Logger as LoggerModel, Logger_Data, Room, Report
 from .utils import PCAdataTool
 from .utils.normalize_logger_serial import normalize_logger_serial  
-from .utils.resize_and_save_image import resize_and_save_image
 from .utils.data_handler import fetch_logger_data, clean_data, RoomData
 from .utils.file_handler import save_uploaded_file
+from .utils.image_handler import resize_and_save_image
 
 
 # Configure logging
