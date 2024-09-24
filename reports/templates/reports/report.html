@@ -302,7 +302,7 @@
             });
         });
 
-    function initializeDropArea(dropArea) {
+        function initializeDropArea(dropArea) {
         const fileInput = dropArea.querySelector('input[type="file"]');
         const previewId = dropArea.getAttribute('data-preview-id');
         const previewImg = document.getElementById(previewId);
@@ -367,19 +367,8 @@
             initializeDropArea(dropArea);
         });
 
-        // Initialize Datepickers
-        const startDatepicker = document.getElementById('id_start_time');
-        const endDatepicker = document.getElementById('id_end_time');
-        if (startDatepicker && endDatepicker) {
-            new Datepicker(startDatepicker, {
-                format: 'yyyy-mm-dd',
-                autohide: true
-            });
-            new Datepicker(endDatepicker, {
-                format: 'yyyy-mm-dd',
-                autohide: true
-            });
-        }
+    });
+
 
         // Handle Room Forms: Add and Delete
         let roomCount = parseInt(document.getElementById('id_rooms-TOTAL_FORMS').value);
@@ -456,7 +445,6 @@
                 document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
             });
         });
-    });
 </script>
 
 
