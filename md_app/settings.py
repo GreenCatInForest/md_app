@@ -162,8 +162,8 @@ SESSION_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = [
     'https://logger.cambridgelogic.com',
     'http://logger.cambridgelogic.com',
-    'https://sensors.maple-diagnostics.com/',
-    'http://sensors.maple-diagnostics.com/',
+    'https://sensors.maple-diagnostics.com',
+    'http://sensors.maple-diagnostics.com',
     'https://*.127.0.0.1',
     'http://*.127.0.0.1',
 ]
