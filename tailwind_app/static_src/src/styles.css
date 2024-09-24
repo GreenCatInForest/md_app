@@ -1036,3 +1036,20 @@ overflow: hidden; /* Hide any overflow content */
   background-color: #f0f0f0;
 }
 
+
+.drop-area.highlight {
+  border-color: #3498db;
+  background-color: #f0f8ff;
+}
+
+.image-preview {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  max-width: 100%;
+  height: auto;
+} 
+
+.image-preview {
+  max-width: 100%;
+}
