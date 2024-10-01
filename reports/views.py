@@ -6,6 +6,8 @@ import re
 import pandas as pd
 from io import StringIO
 
+from django.shortcuts import render
+
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.http import FileResponse, Http404
 from django.utils import timezone
@@ -392,3 +394,7 @@ def download_report(request, report_id):
         raise Http404("Report does not exist.")
     except ValueError:
         raise Http404("Invalid file path.")
+    
+@login_required
+def manuals_view (request):
+    return render(request, "reports/manuals.html", {})
