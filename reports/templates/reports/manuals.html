@@ -25,11 +25,11 @@
                     <div class="report-btn-wrapper">
                         <a href="#">
                             User Instructions</a>
-                        <a href="#">
+                        <a href="#" id="installer-download-button">
                             Installer For Windows
                             <img class="w-[10px] ms-2 rtl:rotate-180" aria-hidden="true" src="{% static 'images/icon-download.png' %}" />
                         </a>
-                        <a href="{% url 'historical_reports' %}">
+                        <a href="{% url 'historical_reports' %}" id="drivers-download-button">
                             Sensor USB Driver
                             <img class="w-[10px] ms-2 rtl:rotate-180" aria-hidden="true" src="{% static 'images/icon-download.png' %}" />
                         </a>  
@@ -37,5 +37,9 @@
                 </div>
             </section>
     {% endblock %}
+
+    <script>
+
+    </script>
 </body>
 </html>
