@@ -15,7 +15,27 @@
 </head>
 <body>
     {% block content %}
-          Manuals
+    <div class="user-content">
+        <article id="report-constructor">
+            <!-- Report Constructor Banner -->
+            <section class="report-constructor-banner">
+                <div class="container mx-auto">
+                    <h1>Manuals</h1>
+                    <p>Please read user instructions, download the Installer, and generate the Reports.</p>
+                    <div class="report-btn-wrapper">
+                        <a href="#">
+                            User Instructions</a>
+                        <a href="#">
+                            Installer For Windows
+                            <img class="w-[10px] ms-2 rtl:rotate-180" aria-hidden="true" src="{% static 'images/icon-download.png' %}" />
+                        </a>
+                        <a href="{% url 'historical_reports' %}">
+                            Sensor USB Driver
+                            <img class="w-[10px] ms-2 rtl:rotate-180" aria-hidden="true" src="{% static 'images/icon-download.png' %}" />
+                        </a>  
+                    </div>
+                </div>
+            </section>
     {% endblock %}
 </body>
 </html>

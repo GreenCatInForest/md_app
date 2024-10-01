@@ -370,17 +370,20 @@ footer p {
 .report-btn-wrapper {
   @apply flex flex-col gap-6 space-y-4 sm:flex-row sm:justify-center sm:space-y-0;
 }
-
-.report-btn-wrapper a:first-child {
+.report-btn-wrapper a:nth-child(1) {
   @apply inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 
 }
 
-.report-btn-wrapper a:nth-child(2) {  
+.report-btn-wrapper a:nth-child(2) {
+  @apply inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 
+}
+
+.report-btn-wrapper a:nth-child(3) {  
   @apply inline-flex justify-center items-center   py-3 px-5  text-base font-medium text-center text-white border-[2px] border-blackcurrant bg-blackcurrant
  rounded-lg hover:bg-gray-100 hover:text-gray-800 z-[50];
 }
 
-.report-btn-wrapper a:nth-child(2).dark {
+.report-btn-wrapper a:nth-child(3).dark {
   @apply inline-flex justify-center items-center  py-3 px-5  text-base font-medium text-center text-white border-[1px] border-blue-400 bg-blackcurrant
  rounded-lg hover:bg-gray-100 hover:text-gray-800 z-[50];
 }
