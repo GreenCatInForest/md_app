@@ -226,4 +226,14 @@ class Room(models.Model):
     def __str__(self):
         return f"Room {self.room_name} in Report {self.report_id}"
     
+class Downloads(models.Model):
+    name = models.CharField(max_length=255)
+    file = models.FileField(upload_to='downloads/')
+    class Meta:
+        db_table = 'md_downloads'
+        verbose_name_plural = 'downloads'
+
+    def _str_(self):
+        return self.name
+    
 
