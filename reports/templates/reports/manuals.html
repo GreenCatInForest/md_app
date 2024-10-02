@@ -20,21 +20,38 @@
             <!-- Report Constructor Banner -->
             <section class="report-constructor-banner">
                 <div class="container mx-auto">
-                    <h1>Manuals</h1>
-                    <p>Please read user instructions, download the Installer, and generate the Reports.</p>
-                    <div class="report-btn-wrapper">
-                        <a href="#">
+                    <h1>Support</h1>
+                    <p class="text-center">Everything you need to use app in one place. Click to download any file.</p>
+                        {% if all_manuals %}
+                        <div class="manual-list">
+                            {% for manual in all_manuals %}
+                            <div class="manual-item-wrapper">
+                                <div class="manual-item">
+                                    <a href="{% url 'manual_download' manual.id %}">
+                                        <h2>{{ manual.name }}</h2><br/>
+                                        <p class="manual-description">{{ manual.description }}</p>
+                                        <img class="w-[10px] ms-2 rtl:rotate-180" aria-hidden="true" src="{% static 'images/icon-download.png' %}" />
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No manuals available for download.</p>
+                    {% endif %}
+                        <!-- <a href="#">
                             User Instructions</a>
                         <a href="#" id="installer-download-button">
-                            Installer For Windows
+                            Installer Windows
                             <img class="w-[10px] ms-2 rtl:rotate-180" aria-hidden="true" src="{% static 'images/icon-download.png' %}" />
                         </a>
                         <a href="{% url 'historical_reports' %}" id="drivers-download-button">
-                            Sensor USB Driver
+                            Sensor USB Driver Windows
                             <img class="w-[10px] ms-2 rtl:rotate-180" aria-hidden="true" src="{% static 'images/icon-download.png' %}" />
-                        </a>  
+                        </a>   -->
+                    <p class="mt-[2rem]">To get started, download the files and follow the User Instructions. </p>
+                    <p>For support, please contact: <span class="font-extrabold text-blue-400">support@maple-diagnostics.com</span></p>
                     </div>
-                </div>
             </section>
     {% endblock %}
 

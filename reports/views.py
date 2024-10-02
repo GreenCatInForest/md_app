@@ -6,7 +6,6 @@ import re
 import pandas as pd
 from io import StringIO
 
-from django.shortcuts import render
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.http import FileResponse, Http404
@@ -16,9 +15,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from datetime import datetime, timezone as dt_timezone
 from django.conf import settings
+from django.views import View
+from django.views.generic.list import ListView
 
 from .forms import ReportForm, RoomFormSet
-from core.models import Logger as LoggerModel, Logger_Data, Room, Report
+from core.models import Logger as LoggerModel, Logger_Data, Room, Report, Downloads
 from .utils import PCAdataTool
 from .utils.normalize_logger_serial import normalize_logger_serial  
 from .utils.resize_and_save_image import resize_and_save_image
@@ -397,4 +398,20 @@ def download_report(request, report_id):
     
 @login_required
 def manuals_view (request):
-    return render(request, "reports/manuals.html", {})
+    all_manuals = Downloads.objects.all()
+    return render(request, "reports/manuals.html", {'all_manuals':all_manuals})
+
+@login_required
+def manual_download(request, download_id):
+    manual = get_object_or_404(Downloads, id=download_id)
+    try:
+        # Extract just the basename of the file
+        filename = manual.file.name.split('/')[-1]
+        response = FileResponse(manual.file.open('rb'), as_attachment=True, filename=filename)
+        return response
+    except FileNotFoundError:
+        raise Http404("File does not exist")
+
+
+
+

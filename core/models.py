@@ -228,12 +228,18 @@ class Room(models.Model):
     
 class Downloads(models.Model):
     name = models.CharField(max_length=255)
+    description = models.TextField(max_length=400, null=True, blank=True)
     file = models.FileField(upload_to='downloads/')
     class Meta:
         db_table = 'md_downloads'
         verbose_name_plural = 'downloads'
 
-    def _str_(self):
+    def __str__(self):
         return self.name
+    
+    def get_file_url(self):
+        if self.file:
+            return self.file.url  
+        return None
     
 

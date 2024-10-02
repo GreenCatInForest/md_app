@@ -358,12 +358,12 @@ footer p {
     @apply mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl lg:text-6xl text-white;
   }
 
-.report-constructor-banner p {
+.report-constructor-banner p:not(.manual-description) {
     @apply mb-8 text-lg font-semibold text-blackcurrant lg:text-xl sm:px-16 lg:px-48;
   }
 
 
-.report-constructor-banner p.dark {
+.report-constructor-banner p.dark:not(.manual-description) {
     @apply mb-8 text-lg font-normal lg:text-xl sm:px-16 lg:px-48 text-gray-300;
   }
 
@@ -386,6 +386,25 @@ footer p {
 .report-btn-wrapper a:nth-child(3).dark {
   @apply inline-flex justify-center items-center  py-3 px-5  text-base font-medium text-center text-white border-[1px] border-blue-400 bg-blackcurrant
  rounded-lg hover:bg-gray-100 hover:text-gray-800 z-[50];
+}
+
+.manual-list {
+  @apply flex flex-col gap-6;
+}
+.manual-item-wrapper {
+  @apply flex flex-col sm:flex-row flex-wrap 
+  justify-center items-center py-3 px-5 text-base font-medium text-center
+   text-white rounded-lg bg-blue-700 hover:bg-blue-800 
+}
+
+.manual-item a {
+  @apply flex flex-col sm:flex-row justify-start items-center font-normal sm:px-2;
+}
+
+
+
+.manual-item a p {
+  @apply px-0 sm:px-[4rem];
 }
 
 
