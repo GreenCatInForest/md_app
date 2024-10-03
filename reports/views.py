@@ -190,7 +190,7 @@ def report_view(request):
             # Start time: Midnight on the day after the start_date
             # End time: 23:59 on the day before the end_date
             adjusted_start_date = raw_start_date + timedelta(days=1)
-            adjusted_end_date = raw_end_date - timedelta(days=1)
+            adjusted_end_date = raw_end_date
 
             if adjusted_start_date > adjusted_end_date:
                 form.add_error(None, 'After adjustment, the start date is after the end date.')
@@ -198,8 +198,8 @@ def report_view(request):
             
             # Convert dates to UTC datetime
             start_date_utc = timezone.make_aware(datetime.combine(adjusted_start_date, datetime.min.time()), dt_timezone.utc)
-            end_date_utc = timezone.make_aware(datetime.combine(adjusted_end_date, datetime.max.time()), dt_timezone.utc)
-
+            end_date_utc = timezone.make_aware(datetime.combine(adjusted_end_date, datetime.min.time()), dt_timezone.utc)
+            print (start_date_utc, end_date_utc)
             start_timestamp = int(start_date_utc.timestamp())
             end_timestamp = int(end_date_utc.timestamp())
 
