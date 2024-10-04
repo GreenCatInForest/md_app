@@ -10,6 +10,7 @@ from io import StringIO
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.http import FileResponse, Http404
 from django.utils import timezone
+from datetime import datetime, time, timedelta
 from django.utils._os import safe_join
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
@@ -71,16 +72,6 @@ def save_uploaded_file(uploaded_file):
         temp_file.close()
         return temp_file.name
     return ''
-
-# REDUNDAND FUNCTION
-# def save_uploaded_room_pic(uploaded_file):
-#     if uploaded_file:
-#         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1])
-#         for chunk in uploaded_file.chunks():
-#             temp_file.write(chunk)
-#         temp_file.close()
-#         return temp_file.name
-#     return ''
 
 
 @login_required
@@ -191,11 +182,24 @@ def report_view(request):
             print (f"External Logger Serial: {external_logger_serial}")
             print (f"Ambient Logger Serials: {ambient_logger_serials}")
             print (f"Surface Logger Serials: {surface_logger_serials}")
+
+            raw_start_date = form.cleaned_data['start_time']  
+            raw_end_date = form.cleaned_data['end_time']
+
+            # Adjust the dates:
+            # Start time: Midnight on the day after the start_date
+            # End time: 23:59 on the day before the end_date
+            adjusted_start_date = raw_start_date + timedelta(days=1)
+            adjusted_end_date = raw_end_date
+
+            if adjusted_start_date > adjusted_end_date:
+                form.add_error(None, 'After adjustment, the start date is after the end date.')
+                return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
             
             # Convert dates to UTC datetime
-            start_date_utc = timezone.make_aware(datetime.combine(form.cleaned_data['start_time'], datetime.min.time()), dt_timezone.utc)
-            end_date_utc = timezone.make_aware(datetime.combine(form.cleaned_data['end_time'], datetime.max.time()), dt_timezone.utc)
-
+            start_date_utc = timezone.make_aware(datetime.combine(adjusted_start_date, datetime.min.time()), dt_timezone.utc)
+            end_date_utc = timezone.make_aware(datetime.combine(adjusted_end_date, datetime.min.time()), dt_timezone.utc)
+            print (start_date_utc, end_date_utc)
             start_timestamp = int(start_date_utc.timestamp())
             end_timestamp = int(end_date_utc.timestamp())
 
