@@ -26,5 +26,7 @@ whitenoise
 celery 
 redis
 
+stripe
+
 
 
