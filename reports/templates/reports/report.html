@@ -278,6 +278,12 @@
                         {% endfor %}
                     </div>
                 {% endif %}
+
+                <div id="overlay"></div>
+                <div id="spinner">
+                    <img src="{% static '' %}" alt="Loading...">
+                    <div id="progress-text">Initializing report generation...</div>
+                </div>
             </div>
         </section>
     </article>
@@ -445,6 +451,93 @@
                 document.getElementById('id_rooms-TOTAL_FORMS').value = roomCount;
             });
         });
+</script>
+<script>
+    $(document).ready(function(){
+        $('#report-form').on('submit', function(e){
+            e.preventDefault();  // Prevent default form submission
+
+            var form = $(this)[0];
+            var formData = new FormData(form);
+
+            // Send AJAX request
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function(){
+                    // Optionally, disable the submit button to prevent multiple clicks
+                    $('button[type="submit"]').attr('disabled', 'disabled');
+                },
+                success: function(response){
+                    if(response.payment_id && response.task_id){
+                        var paymentID = response.payment_id;
+                        var taskID = response.task_id;
+
+                        // Show overlay and spinner
+                        $('#overlay').show();
+                        $('#spinner').show();
+                        $('#progress-text').text('Report is being generated...');
+
+                        // Start polling for task status
+                        var pollInterval = setInterval(function(){
+                            $.ajax({
+                                url: '/task-status/' + taskID + '/',
+                                type: 'GET',
+                                success: function(statusResponse){
+                                    if(statusResponse.state === 'PROGRESS'){
+                                        $('#progress-text').text(statusResponse.status + ' (' + statusResponse.current + '/' + statusResponse.total + ')');
+                                    }
+                                    else if(statusResponse.state === 'SUCCESS'){
+                                        clearInterval(pollInterval);
+                                        $('#progress-text').text('Report generation completed! Redirecting to payment page...');
+
+                                        // Redirect to the payment URL
+                                        window.location.href = '/payments/create-checkout-session/' + paymentID + '/';
+                                    }
+                                    else if(statusResponse.state === 'FAILURE'){
+                                        clearInterval(pollInterval);
+                                        $('#spinner').hide();
+                                        $('#overlay').hide();
+                                        $('button[type="submit"]').removeAttr('disabled');
+                                        alert('An error occurred during report generation: ' + statusResponse.status);
+                                    }
+                                },
+                                error: function(){
+                                    clearInterval(pollInterval);
+                                    $('#spinner').hide();
+                                    $('#overlay').hide();
+                                    $('button[type="submit"]').removeAttr('disabled');
+                                    alert('An error occurred while fetching task status.');
+                                }
+                            });
+                        }, 2000);  // Poll every 2 seconds
+                    }
+                    else {
+                        alert('Unexpected response from server.');
+                        $('button[type="submit"]').removeAttr('disabled');
+                    }
+                },
+                error: function(xhr, status, error){
+                    // Hide overlay and spinner if previously shown
+                    $('#overlay').hide();
+                    $('#spinner').hide();
+
+                    // Re-enable the submit button
+                    $('button[type="submit"]').removeAttr('disabled');
+
+                    // Display error messages
+                    if(xhr.responseJSON && xhr.responseJSON.error){
+                        alert('Error: ' + xhr.responseJSON.error);
+                    } else {
+                        alert('An error occurred while submitting the form.');
+                    }
+                }
+            });
+        });
+    });
 </script>
 
 

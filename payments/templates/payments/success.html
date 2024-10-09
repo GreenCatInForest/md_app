@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Manuals - Maple Diagnostics {% endblock %}
+{% load static %}  
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Successful</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    {% block content %}
+    <h1>Payment Successful!</h1>
+    <p>Your payment for the report has been processed successfully.</p>
+    <a href="{% url 'reports:download-report' report.id %}">Download Report PDF</a>
+    {% endblock %}
+</body>
+</html>

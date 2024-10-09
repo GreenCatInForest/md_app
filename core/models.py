@@ -194,6 +194,21 @@ class Report (models.Model):
             self.report_file = f'reports/{self.id}/{self.property_address}_{self.start_time.strftime("%Y%m%d%H%M%S")}.pdf'
         super().save(*args, **kwargs)
 
+    def total_paid(self):
+        return self.payments.filter(payment_status='paid').aggregate(total=models.Sum('amount'))['total'] or Decimal('0.00')
+    total_paid.short_description = 'Total Paid'
+
+    def total_pending(self):
+        return self.payments.filter(payment_status='pending').aggregate(total=models.Sum('amount'))['total'] or Decimal('0.00')
+    total_pending.short_description = 'Total Pending'
+
+    def is_fully_paid(self):
+        # Assuming 'amount_due' is a field representing total required payment
+        amount_due = getattr(self, 'amount_due', Decimal('0.00'))  # Replace with actual field
+        return self.total_paid() >= amount_due
+    is_fully_paid.boolean = True
+    is_fully_paid.short_description = 'Fully Paid'
+
 
     # def __str__(self):
     #     return self.start_time.strftime("%Y%m%d-%H:%M:%S")
@@ -242,4 +257,56 @@ class Downloads(models.Model):
             return self.file.url  
         return None
     
+class Payment(models.Model):
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending Payment'),
+        ('paid', 'Paid'),
+        ('failed', 'Payment Failed'),
+        ('refunded', 'Refunded'),
+    ]
 
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='payments',
+        verbose_name='User'
+    )
+    report = models.ForeignKey( 
+        Report, 
+        on_delete=models.CASCADE, 
+        related_name='payments',  
+        verbose_name='Report'
+    )
+    payment_status = models.CharField(
+        max_length=10, 
+        choices=PAYMENT_STATUS_CHOICES, 
+        default='pending',
+        verbose_name='Payment Status'
+    )
+    stripe_checkout_session_id = models.CharField(
+        max_length=255, 
+        blank=True, 
+        null=True,
+        verbose_name='Stripe Checkout Session ID'
+    )
+    amount = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        validators=[MinValueValidator(0.01)],
+        verbose_name='Amount'
+    )
+    currency = models.CharField(
+        max_length=10, 
+        default='GBP',
+        verbose_name='Currency'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created At')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Updated At')
+
+    class Meta:
+        verbose_name = 'Payment'
+        verbose_name_plural = 'Payments'
+
+    def __str__(self):
+        return f"Payment {self.id} for Report {self.report.id} by {self.user.email}"
+    

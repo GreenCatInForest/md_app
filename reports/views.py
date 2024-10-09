@@ -1,3 +1,5 @@
+import stripe
+
 import logging
 import os
 import tempfile
@@ -5,6 +7,14 @@ import re
 
 import pandas as pd
 from io import StringIO
+from decimal import Decimal
+
+from celery.result import AsyncResult
+
+from django.conf import settings
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
@@ -20,12 +30,16 @@ from django.views import View
 from django.views.generic.list import ListView
 
 from .forms import ReportForm, RoomFormSet
-from core.models import Logger as LoggerModel, Logger_Data, Room, Report, Downloads
+from core.models import Logger as LoggerModel, Logger_Data, Room, Report, Downloads, Payment
 from .utils import PCAdataTool
 from .utils.normalize_logger_serial import normalize_logger_serial  
 from .utils.resize_and_save_image import resize_and_save_image
 from .utils.room_data import RoomData
 
+from .tasks import generate_report_task
+
+# Configure strapi 
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -319,8 +333,9 @@ def report_view(request):
             app_logger.debug(f"Images collected: Image_property={image_property}, image_logo={image_logo}")
             app_logger.debug(f"Images collected: Image_indoor1={image_indoor1}, Image_indoor2={image_indoor2}, Image_indoor3={image_indoor3}, Image_indoor4={image_indoor4}")
 
-                # Save DataFrame to a temporary CSV file if needed by RPTGen
-
+    
+            # Convert timedelta to total seconds to make it JSON serializable for Celery
+            monitor_time_seconds = (end_date_utc - start_date_utc).total_seconds()
 
             form_data = {
                 'surveyor': form.cleaned_data['surveyor'],
@@ -328,7 +343,7 @@ def report_view(request):
                 'company': form.cleaned_data['company'],
                 'Address': form.cleaned_data['property_address'],
                 'occupied': form.cleaned_data['occupied'],
-                'monitor_time': end_date_utc - start_date_utc,
+                'monitor_time': monitor_time_seconds,
                 'occupied_during_all_monitoring': form.cleaned_data['occupied_during_all_monitoring'],
                 'occupant_number': form.cleaned_data['number_of_occupants'],
                 'Problem_rooms': [room.get('room_name', 'Unknown Room') for room in room_formset.cleaned_data],
@@ -347,19 +362,36 @@ def report_view(request):
 
             app_logger.debug("Form data prepared. Calling RPTGen...")
             app_logger.debug(f"Form data being sent to RPTGen: {form_data}")
+            
 
-            # Generate the report
-            try:
-                pdf_file_path = PCAdataTool.RPTGen(**form_data)
-                if not pdf_file_path or not os.path.exists(pdf_file_path):
-                    raise Exception("PDF file was not generated or found.")
-                app_logger.debug(f"Generated PDF file path: {pdf_file_path}")
-                report_instance.report_file = pdf_file_path
-                report_instance.save()
-                return FileResponse(open(pdf_file_path, 'rb'), content_type='application/pdf', filename=os.path.basename(pdf_file_path))
-            except Exception as e:
-                app_logger.error(f"Error generating report: {e}")
-                return HttpResponse('Error generating report.', status=500)
+        # Call the Payments
+
+            payment = Payment.objects.create(
+                    user=user,
+                    report=report_instance,
+                    amount=Decimal('9.99'),  # Set the appropriate amount
+                    currency='GBP',  # Updated to GBP as per user code
+                )
+            
+            app_logger.debug("Payment instance created. Initiating Celery task...")
+
+            task = generate_report_task.delay(form_data, report_instance.id)
+            return JsonResponse({'payment_id': payment.id, 'task_id': task.id})
+
+# Passed report generation to Celery
+
+            # # Generate the report
+            # try:
+            #     pdf_file_path = PCAdataTool.RPTGen(**form_data)
+            #     if not pdf_file_path or not os.path.exists(pdf_file_path):
+            #         raise Exception("PDF file was not generated or found.")
+            #     app_logger.debug(f"Generated PDF file path: {pdf_file_path}")
+            #     report_instance.report_file = pdf_file_path
+            #     report_instance.save()
+            #     return FileResponse(open(pdf_file_path, 'rb'), content_type='application/pdf', filename=os.path.basename(pdf_file_path))
+            # except Exception as e:
+            #     app_logger.error(f"Error generating report: {e}")
+            #     return HttpResponse('Error generating report.', status=500)
 
         else:
             app_logger.error("Form or formset validation failed.")
@@ -417,5 +449,50 @@ def manual_download(request, download_id):
         raise Http404("File does not exist")
 
 
+def task_status(request, task_id):
+    try:
+        task = AsyncResult(task_id)
+        if not task:
+            raise Http404("Task not found")
+        response_data = {
+            'task_id': task.id,
+            'state': task.state,
+            'status': task.info.get('status', '') if task.info else '',
+            'progress': task.info.get('current', 0) / task.info.get('total', 1) if task.info else 0,
+        }
+    except Exception as e:
+        response_data = {
+            'error': str(e),
+        }
+        return JsonResponse(response_data, status=500)
+    
+    return JsonResponse(response_data)
 
-
+# @login_required
+# def task_status(request, task_id):
+#     """
+#     Returns the current status of a Celery task.
+#     """
+#     task = AsyncResult(task_id)
+#     if task.state == 'PENDING':
+#         # Task is yet to start
+#         response = {
+#             'state': task.state,
+#             'status': 'Pending...'
+#         }
+#     elif task.state != 'FAILURE':
+#         response = {
+#             'state': task.state,
+#             'status': task.info.get('status', ''),
+#             'current': task.info.get('current', 0),
+#             'total': task.info.get('total', 1),
+#         }
+#         if 'result' in task.info:
+#             response['result'] = task.info['result']
+#     else:
+#         # Something went wrong in the background job
+#         response = {
+#             'state': task.state,
+#             'status': str(task.info),  # this is the exception raised
+#         }
+#     return JsonResponse(response)

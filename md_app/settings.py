@@ -9,12 +9,29 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import environ
 import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Initialize environment variables
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+OUTPUT_DIR = os.path.join(BASE_DIR, 'media', 'imgs')
+OUTPUT_REPORT_DIR = os.path.join(BASE_DIR, 'media', 'reports')
+
+# Read the .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+# Stripe settings
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 
 def get_secret(secret_name):
     try:
@@ -27,7 +44,7 @@ def get_secret(secret_name):
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-idti^1w#yturas75q%so7$br7sdyv6m3#x0pwfq94ryg0s9_o7'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -61,9 +78,11 @@ INSTALLED_APPS = [
     'loggers',
     'reports',
     'dbbackup',
-    
-
+    'payments',
+    'django_celery_results',
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -101,6 +120,20 @@ TEMPLATES = [
 
 
 
+# Celery Configuration with Defaults
+CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://redis:6379/0')
+CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://redis:6379/0')
+
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+CELERY_BEAT_SCHEDULE = {}
+CELERY_TIMEZONE = 'UTC'
+
+# Redis Configuration for External (Host-Based) Usage with Default
+EXTERNAL_REDIS_URL = env('REDIS_HOST_URL', default='redis://localhost:6380/0')
 WSGI_APPLICATION = 'md_app.wsgi.application'
 
 
@@ -112,11 +145,11 @@ load_dotenv()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'maple_db_dev',
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'db',  # Service name of PostgreSQL in docker-compose
-        'PORT': '5432',
+        'NAME': env('DB_NAME'),
+        'USER': env('POSTGRES_USER'),
+        'PASSWORD': env('POSTGRES_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
     }
 }
 

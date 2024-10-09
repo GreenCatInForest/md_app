@@ -15,19 +15,30 @@ import re
 # coding: utf-8
 from enum import IntEnum
 import subprocess
+from django.conf import settings
 
-output_dir = '/code/imgs/'
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
+def output_dir():
+    """
+    Ensures that the output directory exists and returns its path.
+    """
+    output_dir_path = settings.OUTPUT_DIR  # Use the OUTPUT_DIR defined in settings.py
+    os.makedirs(output_dir_path, exist_ok=True)  # Create the directory if it doesn't exist
+    return output_dir_path
 
-output_report_dir = '/code/reports_save/'
-if not os.path.exists(output_report_dir):
-    os.makedirs(output_report_dir)
+def output_report_dir():
+    """
+    Ensures that the output report directory exists and returns its path.
+    """
+    output_report_dir_path = settings.OUTPUT_REPORT_DIR  # Use the OUTPUT_REPORT_DIR defined in settings.py
+    os.makedirs(output_report_dir_path, exist_ok=True)  # Create the directory if it doesn't exist
+    return output_report_dir_path
+
 
 # Generate and save the figure
 fig, ax = plt.subplots()
 # (plotting code here)
-plt.savefig(os.path.join(output_dir, 'Fig1.0.png'))
+
+plt.savefig(os.path.join(output_dir(), 'Fig1.0.png'))
 plt.close()
 
 
@@ -531,9 +542,9 @@ class RoomData:
 
         # plt.savefig("imgs/Fig1.png")
         if filename:
-            plt.savefig(filename)
+            plt.savefig(os.path.join(output_dir(),filename))
         else:
-            plt.savefig("imgs/Fig1.png")
+            plt.savefig(os.path.join(output_dir(),"imgs/Fig1.png"))
 
     def gen_figure2(self, filename=None):
 
@@ -605,9 +616,9 @@ class RoomData:
         ax.plot([0.15, 0.15], [0, 1], '#8c97c2', lw=56, alpha=0.1)
 
         if filename:
-            plt.savefig(filename)
+            plt.savefig(os.path.join(output_dir(),filename))
         else:
-            plt.savefig("imgs/Fig2.png")
+            plt.savefig(os.path.join(output_dir(),"imgs/Fig2.png"))
 
     def gen_figure3(self, filename=None):
 
@@ -684,9 +695,9 @@ class RoomData:
         ax.plot([24.5, 24.5], [0, 100], '#daa30a', lw=56, alpha=0.1)
 
         if filename:
-            plt.savefig(filename)
+            plt.savefig(os.path.join(output_dir(),filename))
         else:
-            plt.savefig("imgs/Fig3.png")
+            plt.savefig(os.path.join(output_dir(),"imgs/Fig3.png"))
 
     def gen_figure4(self, filename=None):
 
@@ -737,9 +748,9 @@ class RoomData:
         fig4.legend(lns, labs, bbox_to_anchor=(0., 0.93, 1, .1), loc='lower center', ncol=3, mode="tight",
                     borderaxespad=0.)
         if filename:
-            plt.savefig(filename)
+            plt.savefig(os.path.join(output_dir(),filename))
         else:
-            plt.savefig(f'imgs/Fig4{self.suffix}.png')
+            plt.savefig(os.path.join(output_dir(),f'imgs/Fig4{self.suffix}.png'))
 
     def gen_figure6(self, filename=None):
         fig6 = plt.figure(figsize=(10, 6), dpi=180)  # Thermal vs moisture graph
@@ -785,9 +796,9 @@ class RoomData:
         plt.subplots_adjust(left=0.1, bottom=0.15, right=0.9, top=0.85, wspace=0, hspace=0)
         # plt.savefig(f"imgs/Fig6{self.prefix}.png")
         if filename:
-            plt.savefig(filename)
+            plt.savefig(os.path.join(output_dir(),filename))
         else:
-            plt.savefig(f"imgs/Fig6{self.suffix}.png")
+            plt.savefig(os.path.join(output_dir(),f"imgs/Fig6{self.suffix}.png"))
         # TBC morris 26 Jul
 
     def gen_figure10(self, filename=None):
@@ -821,9 +832,9 @@ class RoomData:
             f'Table 2{self.suffix} Average environmental parameters gathered by the sensors. See Section 6 Symbols and definitions.',
             fontweight='bold')
         if filename:
-            plt.savefig(filename)
+            plt.savefig(os.path.join(output_dir(),filename))
         else:
-            plt.savefig("imgs/Tab1C.png")
+            plt.savefig(os.path.join(output_dir(),"imgs/Tab1C.png"))
 
     def gen_table2c(self, filename=None):
 
@@ -852,9 +863,9 @@ class RoomData:
         table.set_fontsize(14)
         plt.title(f'Table 3{self.suffix} Average calculated parameters from raw data', fontweight='bold')
         if filename:
-            plt.savefig(filename)
+            plt.savefig(os.path.join(output_dir(),filename))
         else:
-            plt.savefig("imgs/Tab2C.png")
+            plt.savefig(os.path.join(output_dir(),"imgs/Tab2C.png"))
 
     def gen_table1(self, filename=None):
         a = [["Envelope", "", "", "", "", "", "", "", ""], ["Ventilation", "", "", "", "", "", "", "", ""],
@@ -920,9 +931,9 @@ class RoomData:
         table.set_fontsize(14)
         plt.title(f'Table 1{self.suffix} Building Moisture Index (BMI): imbalance scores')
         if filename:
-            plt.savefig(filename)
+            plt.savefig(os.path.join(output_dir(),filename))
         else:
-            plt.savefig("imgs/Tab1.png")
+            plt.savefig(os.path.join(output_dir(),"imgs/Tab1.png"))
 
 
 def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
@@ -941,7 +952,7 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         with open(file_path, 'r') as file:
             app_logger.debug(f"Contents of {file_path}: {file.read()[:500]}")  # Log a snippet of the file
 
-    output_file_name = os.path.join(output_report_dir, "PCA_BMI_Report")
+    output_file_name = os.path.join(output_report_dir(), "PCA_BMI_Report")
 
     table_of_content = []
 

@@ -1,31 +1,25 @@
-asgiref==3.8.1
+asgiref
 Django
 djangorestframework
 drf-spectacular
 pillow
 psycopg2-binary
 django-dbbackup
-
 python-dotenv
-
+django-environ
 numpy
 pandas
-matplotlib 
-datetime
+matplotlib
 pytz
-
 fpdf
 PyPDF2
-
-django
 django-tailwind[reload]
-
 gunicorn
 whitenoise
-
-celery 
+celery
+django-celery-results
 redis
-
+flower
 stripe
 
 
