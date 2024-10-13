@@ -1,12 +1,31 @@
-# Define reusable configurations using anchors
 x-app: &default-app
   build:
     context: "."
+    dockerfile: Dockerfile  # Ensure the correct Dockerfile is referenced
   volumes:
     - .:/code
   restart: "unless-stopped"
+  environment:
+    - PYTHONPATH=/code  # Ensures Python can locate modules
+    - MPLCONFIGDIR=/code/.config/matplotlib  # Address Matplotlib warnings
 
 services:
+  redis:
+    image: redis:6.2
+    container_name: maple-redis
+    ports:
+      - "6380:6379" # Host Port:Container Port
+    volumes:
+      - redis_data:/data
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   db:
     image: postgres:latest  
     container_name: maple-db
@@ -15,39 +34,11 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_DB: maple_db_dev
+      POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5433:5432"
-
-  web:
-    <<: *default-app  # Reuse the default-app configuration
-    container_name: maple-web
-    command: >
-      sh -c "wait-for-it.sh db:5432 
-      -- python manage.py collectstatic --noinput 
-      && python manage.py makemigrations 
-      && python manage.py migrate 
-      && gunicorn md_app.wsgi:application --bind 0.0.0.0:1091 --workers 4 --timeout 1200"
-    volumes:
-      - .:/code  # Override or add specific volumes if needed
-    ports:
-      - "1091:1091"
-    depends_on:
-      - db
-
-  tailwind:
-    <<: *default-app  # Reuse the default-app configuration
-    container_name: maple-tailwind
-    command: "python manage.py tailwind start"
-    volumes:
-      - .:/code  # Ensure volumes are consistent or override if necessary
-    ports:
-      - "3000:3000"  # Example port, adjust as needed
-    tty: true
-    depends_on:
-      - web
 
   pgadmin:
     image: dpage/pgadmin4
@@ -62,6 +53,68 @@ services:
     volumes:
       - pg_admin:/var/lib/pgadmin
 
+  web:
+    <<: *default-app  # Reuse the default-app configuration
+    container_name: maple-web
+    build:
+      context: .
+    command: >
+      sh -c "wait-for-it.sh db:5432 
+      -- python manage.py collectstatic --noinput 
+      && python manage.py makemigrations 
+      && python manage.py migrate 
+      && gunicorn md_app.wsgi:application --bind 0.0.0.0:1091 --workers 4 --timeout 1200"
+    ports:
+      - "1091:1091"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+
+  celery:
+    <<: *default-app  # Reuse the default-app configuration
+    container_name: maple-celery
+    build:
+      context: .
+    command: celery -A md_app.celery worker --loglevel=info
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+
+  tailwind:
+    <<: *default-app  # Reuse the default-app configuration
+    container_name: maple-tailwind
+    command: "python manage.py tailwind start"
+    ports:
+      - "3000:3000"  # Example port, adjust as needed
+    tty: true
+    depends_on:
+      - web
+
+
+  flower:
+    <<: *default-app
+    container_name: maple-flower
+    ports:
+      - "5555:5555"
+    build:
+      context: .
+    command: celery -A md_app.celery flower --port=5555
+    volumes:
+      - .:/code
+    depends_on:
+      - celery
+      - redis
+    env_file:
+      - .env
+    restart: unless-stopped
+
 volumes:
   pg_data:
   pg_admin:
+  redis_data:
