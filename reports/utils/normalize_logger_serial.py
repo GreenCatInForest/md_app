@@ -12,6 +12,9 @@ def contains_letters(cleaned_serial):
 
 def normalize_logger_serial(serial, dash_position=3):
     """Remove non-numeric characters and reformat the logger serial input."""
+
+    if not serial:
+        return ''  
     cleaned_serial = re.sub(r'\D', '', serial)
     if len(cleaned_serial) > dash_position:
         cleaned_serial = cleaned_serial[:dash_position] + '-' + cleaned_serial[dash_position:]

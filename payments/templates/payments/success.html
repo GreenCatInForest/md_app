@@ -12,8 +12,43 @@
 <body>
     {% block content %}
     <h1>Payment Successful!</h1>
-    <p>Your payment for the report has been processed successfully.</p>
+    <p>Your report is being generated. Please wait...</p>
+    <div id="spinner"></div>
+    <div id="status"></div>
     <a href="{% url 'reports:download-report' report.id %}">Download Report PDF</a>
+    <script>
+        // Start polling for task status
+        var taskId = "{{ task_id }}";
+        pollTaskStatus(taskId);
+
+        function pollTaskStatus(taskId) {
+            var interval = setInterval(function() {
+                fetch(`/task-status/${taskId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.state === 'PROGRESS') {
+                        document.getElementById('status').innerText = `Stage: ${data.status} (${data.current}/${data.total})`;
+                    } else if (data.state === 'SUCCESS') {
+                        clearInterval(interval);
+                        document.getElementById('spinner').style.display = 'none';
+                        document.getElementById('status').innerText = 'Report generated successfully!';
+                        // Redirect to the download page
+                        window.location.href = `/download-report/${data.result}/`;
+                    } else if (data.state === 'FAILURE') {
+                        clearInterval(interval);
+                        document.getElementById('spinner').style.display = 'none';
+                        document.getElementById('status').innerText = `Error: ${data.status}`;
+                    } else {
+                        // Handle other states if necessary
+                        document.getElementById('status').innerText = `State: ${data.state}`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }, 3000); // Poll every 3 seconds
+        }
+    </script>
     {% endblock %}
 </body>
 </html>

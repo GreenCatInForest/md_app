@@ -26,7 +26,7 @@ def create_checkout_session(request, payment_id):
 
     if payment.payment_status == 'paid':
         # Payment already completed
-        return redirect('payments:payment-success')
+        return redirect('payments:success')
     
     domain_url = request.build_absolute_uri('/')[:-1]  # Remove trailing slash
     try:
@@ -45,8 +45,8 @@ def create_checkout_session(request, payment_id):
                 },
             ],
             mode='payment',
-            success_url=domain_url + reverse('payments:payment-success') + '?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url=domain_url + reverse('payments:payment-cancel'),
+            success_url=domain_url + reverse('payments:success') + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=domain_url + reverse('payments:cancel'),
             metadata={
                 'payment_id': payment.id,
                 'report_id': report.id,
