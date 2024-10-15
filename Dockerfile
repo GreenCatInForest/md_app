@@ -81,3 +81,4 @@ USER appuser
 
 # Define the default command to run the application
 CMD ["gunicorn", "md_app.wsgi:application", "--bind", "0.0.0.0:1091"]
+

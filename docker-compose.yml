@@ -34,8 +34,8 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: maple_db_dev
+      POSTGRES_USER: H0d6yqiQ
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5433:5432"
