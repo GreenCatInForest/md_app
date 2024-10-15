@@ -46,17 +46,12 @@ RUN apt-get update && \
 # Copy application code
 COPY . /code/
 
-ENV SECRET_KEY=${'SECRET_KEY'} \
-    DB_NAME=your_db_name \
-    DB_USER=your_db_user \
-    DB_PASSWORD=your_db_password \
-    DB_HOST=db \
-    DB_PORT=5432
+
 
 # Install Tailwind and collect static files
-RUN SECRET_KEY=${POSTGRES_USER} python manage.py tailwind install --no-input && \
-    SECRET_KEY=nothing python manage.py tailwind build --no-input && \
-    SECRET_KEY=nothing python manage.py collectstatic --no-input
+RUN SECRET_KEY=${SECRET_KEY} python manage.py tailwind install --no-input && \
+    SECRET_KEY=${SECRET_KEY} python manage.py tailwind build --no-input && \
+    SECRET_KEY=${SECRET_KEY} python manage.py collectstatic --no-input
 
 # Stage 2: Production Stage
 FROM python:3.11-slim
