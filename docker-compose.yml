@@ -89,7 +89,11 @@ services:
   tailwind:
     <<: *default-app  # Reuse the default-app configuration
     container_name: maple-tailwind
-    command: "python manage.py tailwind start"
+    command: >
+      sh -c "python manage.py tailwind start
+            && tail -f /dev/null"
+    volumes:
+      - ./tailwind_app:/code/tailwind_app
     ports:
       - "3000:3000"  # Example port, adjust as needed
     tty: true

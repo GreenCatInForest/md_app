@@ -75,7 +75,7 @@ RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
 # Change ownership of the project directory
 RUN chown -R appuser:appgroup /code
-
+RUN chmod -R 755 /code/tailwind_app/static_src
 # Switch to the non-root user
 USER appuser
 

@@ -73,6 +73,9 @@ INSTALLED_APPS = [
     'loggers',
     'reports',
     'dbbackup',
+    'celery',
+    'django_celery_results', 
+    'django_celery_beat',
     
 
 ]
@@ -118,7 +121,7 @@ WSGI_APPLICATION = 'md_app.wsgi.application'
 # Celery Configuration with Defaults
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://redis:6379/0')
 CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://redis:6379/0')
-
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
