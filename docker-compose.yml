@@ -32,6 +32,8 @@ services:
       && gunicorn md_app.wsgi:application --bind 0.0.0.0:1091 --workers 4 --timeout 1200"
     volumes:
       - .:/code  # Override or add specific volumes if needed
+    env_file:
+      - .env
     ports:
       - "1091:1091"
     depends_on:
