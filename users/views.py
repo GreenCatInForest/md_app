@@ -118,8 +118,12 @@ class LogoutIfAuthenticatedMixin:
 class CustomPasswordResetView(LogoutIfAuthenticatedMixin, PasswordResetView):
     form_class = CustomPasswordResetForm
     template_name = "users/password-forgot.html"
-    email_template_name = "users/password_reset_email.txt"
+    email_template_name = "users/password_reset_email.html"
     subject_template_name = "users/password_reset_subject.txt"
+    success_message = "We've emailed you instructions for setting your password, " \
+                      "if an account exists with the email you entered. You should receive them shortly." \
+                      " If you don't receive an email, " \
+                      "please make sure you've entered the address you registered with, and check your spam folder."
     success_url = "/users/reset/done/"
     
     def form_valid(self, form):
