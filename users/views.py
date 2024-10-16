@@ -10,6 +10,7 @@ from django.conf import settings
 
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
+from django.urls import reverse_lazy
 
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegisterForm, UserLoginForm, PasswordResetRequestForm, CustomPasswordResetForm
@@ -27,6 +28,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from .serializers import ResetPasswordRequestSerializer, ResetPasswordSerializer
+
+from django.contrib.auth.tokens import default_token_generator
+from .forms import CustomPasswordResetForm  
+
 
 import os
 
@@ -117,22 +122,22 @@ class LogoutIfAuthenticatedMixin:
     
 class CustomPasswordResetView(LogoutIfAuthenticatedMixin, PasswordResetView):
     form_class = CustomPasswordResetForm
-    template_name = "users/password-forgot.html"
-    email_template_name = "users/password_reset_email.html"
-    subject_template_name = "users/password_reset_subject.txt"
-    success_message = "We've emailed you instructions for setting your password, " \
-                      "if an account exists with the email you entered. You should receive them shortly." \
-                      " If you don't receive an email, " \
-                      "please make sure you've entered the address you registered with, and check your spam folder."
-    success_url = "/users/reset/done/"
-    
+    template_name = "registration/password_reset_form.html"
+    email_template_name = "registration/password_reset_email.html"
+    subject_template_name = "registration/password_reset_subject.txt"
+    success_message = ("We've emailed you instructions for setting your password, "
+                       "if an account exists with the email you entered. You should receive them shortly. "
+                       "If you don't receive an email, "
+                       "please make sure you've entered the address you registered with, and check your spam folder.")
+    success_url = reverse_lazy('password_reset_done')  # Use reverse_lazy for URLs
+
     def form_valid(self, form):
         email = form.cleaned_data["email"]
         user = get_user_model().objects.filter(email=email).first()
         if user:
             self.send_mail(form, user)
         return super().form_valid(form)
-    
+
     def send_mail(self, form, user):
         context = {
             "email": user.email,
@@ -141,67 +146,20 @@ class CustomPasswordResetView(LogoutIfAuthenticatedMixin, PasswordResetView):
             "uid": urlsafe_base64_encode(force_bytes(user.pk)),
             "user": user,
             "token": default_token_generator.make_token(user),
-            "protocol": "http",
+            "protocol": "http",  # Change to 'https' if using HTTPS
         }
         subject = render_to_string(self.subject_template_name, context)
         subject = "".join(subject.splitlines())
-        email = render_to_string(self.email_template_name, context)
-        send_mail(subject, email, settings.DEFAULT_FROM_EMAIL, [user.email])
-    
-# Implement the password reset behaviour customisation
-class CustomPasswordResetDoneView(LogoutIfAuthenticatedMixin, PasswordResetDoneView):pass
-class CustomPasswordResetConfirmView(LogoutIfAuthenticatedMixin, PasswordResetConfirmView):pass
-class CustomPasswordResetCompleteView(LogoutIfAuthenticatedMixin, PasswordResetCompleteView):pass    
+        email_content = render_to_string(self.email_template_name, context)
+        send_mail(subject, email_content, settings.DEFAULT_FROM_EMAIL, [user.email])
 
+class CustomPasswordResetDoneView(LogoutIfAuthenticatedMixin, PasswordResetDoneView):
+    template_name = 'registration/password_reset_done.html'
 
-def password_reset_request_view(request):
-    if request.method == "POST":
-        form = PasswordResetRequestForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data["email"]
-            user = User.objects.filter(email=email).first()
-            if user:
-                subject = "Password Reset Requested"
-                email_template_name = "password/password_reset_email.txt"
-                context = {
-                    "email": user.email,
-                    "domain": request.META["HTTP_HOST"],
-                    "site_name": "Your Website",
-                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                    "user": user,
-                    "token": default_token_generator.make_token(user),
-                    "protocol": "http",
-                }
-                email_message = render_to_string(email_template_name, context)
-                send_mail(subject, email_message, settings.DEFAULT_FROM_EMAIL, [user.email])
-                messages.success(request, "A link to reset your password has been sent to your email.")
-                return redirect("login")
-            else:
-                messages.error(request, "No account found with that email address.")
-    else:
-        form = PasswordResetRequestForm()
-    return render(request, "password/password_reset_form.html", {"form": form})
+class CustomPasswordResetConfirmView(LogoutIfAuthenticatedMixin, PasswordResetConfirmView):
+    template_name = 'registration/password_reset_confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
 
-def password_reset_confirm_view(request, uidb64, token):
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-
-    if user is not None and default_token_generator.check_token(user, token):
-        if request.method == "POST":
-            new_password = request.POST.get("new_password")
-            confirm_password = request.POST.get("confirm_password")
-            if new_password == confirm_password:
-                user.set_password(new_password)
-                user.save()
-                messages.success(request, "Your password has been reset successfully.")
-                return redirect("login")
-            else:
-                messages.error(request, "Passwords do not match.")
-        return render(request, "password/password_reset_confirm.html")
-    else:
-        messages.error(request, "The password reset link is invalid or has expired.")
-        return redirect("password_reset_request")
+class CustomPasswordResetCompleteView(LogoutIfAuthenticatedMixin, PasswordResetCompleteView):
+    template_name = 'registration/password_reset_complete.html'
     
