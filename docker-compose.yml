@@ -2,12 +2,17 @@
 x-app: &default-app
   build:
     context: "."
+  args:
+        USER_ID: "${USER_ID}"
+        GROUP_ID: "${GROUP_ID}"
   volumes:
     - .:/code
   restart: "unless-stopped"
   environment:
     - PYTHONPATH=/code  # Ensures Python can locate modules
     - MPLCONFIGDIR=/code/.config/matplotlib  # Address Matplotlib warnings
+  env_file:
+      - .env
 
 services:
 

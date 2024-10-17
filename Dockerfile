@@ -21,8 +21,13 @@ RUN apt-get update && \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a system group and user before chown
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+# Arguments for user and group IDs
+ARG USER_ID=1002
+ARG GROUP_ID=1002
+
+# Create a system group and user with specific UID and GID
+RUN addgroup --gid $GROUP_ID appgroup && \
+    adduser --disabled-password --no-create-home --uid $USER_ID --gid $GROUP_ID --ingroup appgroup appuser
 
 # Install Node.js for Tailwind CSS
 ARG NODE_MAJOR=20
@@ -39,7 +44,8 @@ RUN pip install --upgrade pip && \
 # Create necessary directories and set ownership
 RUN mkdir -p /code/imgs && \
     mkdir -p /code/.config/matplotlib && \
-    chown -R appuser:appgroup /code/imgs /code/.config/matplotlib
+    mkdir -p /code/staticfiles/admin/img && \
+    chown -R appuser:appgroup /code/imgs /code/.config/matplotlib /code/staticfiles
 
 # Copy wait-for-it.sh and make it executable
 COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
@@ -79,8 +85,6 @@ RUN SECRET_KEY=${SECRET_KEY} python manage.py tailwind install --no-input && \
 # Expose port
 EXPOSE 1091
 
-# Create a non-root user for security
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
 # Change ownership of the project directory
 RUN chown -R appuser:appgroup /code
