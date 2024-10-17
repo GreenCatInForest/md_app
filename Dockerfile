@@ -34,11 +34,6 @@ COPY requirements.txt /code/
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Create necessary directories and set ownership
-RUN mkdir -p /code/imgs && \
-    mkdir -p /code/.config/matplotlib && \
-    mkdir -p /code/staticfiles/admin/img && 
-
 # Copy wait-for-it.sh and make it executable
 COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
 RUN chmod +x /usr/local/bin/wait-for-it.sh
