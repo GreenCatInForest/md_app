@@ -21,6 +21,8 @@ RUN apt-get update && \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
 
+# Create a system group and user before chown
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
 # Install Node.js for Tailwind CSS
 ARG NODE_MAJOR=20
@@ -34,9 +36,10 @@ COPY requirements.txt /code/
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Create necessary directories and set permissions
-RUN mkdir -p /code/imgs && chown -R appuser:appgroup /code/imgs
-RUN mkdir -p /code/.config/matplotlib && chown -R appuser:appgroup /code/.config/matplotlib
+# Create necessary directories and set ownership
+RUN mkdir -p /code/imgs && \
+    mkdir -p /code/.config/matplotlib && \
+    chown -R appuser:appgroup /code/imgs /code/.config/matplotlib
 
 # Copy wait-for-it.sh and make it executable
 COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
