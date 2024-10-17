@@ -80,8 +80,6 @@ services:
   celery:
     <<: *default-app  # Reuse the default-app configuration
     container_name: maple-celery
-    build:
-      context: .
     command: celery -A md_app.celery worker --loglevel=info
     volumes:
       - .:/code
@@ -109,8 +107,6 @@ services:
     container_name: maple-flower
     ports:
       - "5555:5555"
-    build:
-      context: .
     command: celery -A md_app.celery flower --port=5555
     volumes:
       - .:/code
