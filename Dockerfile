@@ -21,14 +21,7 @@ RUN apt-get update && \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# Arguments for user and group IDs
-ARG USER_ID=1002
-ARG GROUP_ID=1002
 
-# Create a system group and user with specific UID and GID
-RUN addgroup --gid $GROUP_ID appgroup && \
-    adduser --disabled-password --no-create-home --uid $USER_ID --gid $GROUP_ID appuser
-    
 # Install Node.js for Tailwind CSS
 ARG NODE_MAJOR=20
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - && \
@@ -44,8 +37,7 @@ RUN pip install --upgrade pip && \
 # Create necessary directories and set ownership
 RUN mkdir -p /code/imgs && \
     mkdir -p /code/.config/matplotlib && \
-    mkdir -p /code/staticfiles/admin/img && \
-    chown -R appuser:appgroup /code/imgs /code/.config/matplotlib /code/staticfiles
+    mkdir -p /code/staticfiles/admin/img && 
 
 # Copy wait-for-it.sh and make it executable
 COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
@@ -86,11 +78,6 @@ RUN SECRET_KEY=${SECRET_KEY} python manage.py tailwind install --no-input && \
 EXPOSE 1091
 
 
-# Change ownership of the project directory
-RUN chown -R appuser:appgroup /code
-
-# Switch to the non-root user
-USER appuser
 
 # Define the default command to run the application
 CMD ["gunicorn", "md_app.wsgi:application", "--bind", "0.0.0.0:1091"]
