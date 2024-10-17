@@ -158,7 +158,7 @@ class CustomPasswordResetDoneView(LogoutIfAuthenticatedMixin, PasswordResetDoneV
 
 class CustomPasswordResetConfirmView(LogoutIfAuthenticatedMixin, PasswordResetConfirmView):
     template_name = 'registration/password_reset_confirm.html'
-    success_url = reverse_lazy('password_reset_complete')
+    success_url = reverse_lazy('password-reset-complete')
 
 class CustomPasswordResetCompleteView(LogoutIfAuthenticatedMixin, PasswordResetCompleteView):
     template_name = 'registration/password_reset_complete.html'
