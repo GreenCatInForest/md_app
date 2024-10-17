@@ -31,18 +31,25 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path("__reload__/", include("django_browser_reload.urls")),
     path('accounts/login/', views.user_login_register, name='login_register'),
-       # Use your custom password reset views instead of auth_views
-    path('password-forgot/',
-         views.CustomPasswordResetView.as_view(),
-         name='password-forgot'),
+    path('password_reset_form/',
+         auth_views.PasswordResetView.as_view(
+             template_name='registration/password_reset_form.html'
+         ),
+         name='password_reset_form'),
     path('password-reset/done/',
-         views.CustomPasswordResetDoneView.as_view(),
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='registration/password_reset_done.html'
+         ),
          name='password_reset_done'),
     path('password-reset-confirm/<uidb64>/<token>/',
-         views.CustomPasswordResetConfirmView.as_view(),
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='registration/password_reset_confirm.html'
+         ),
          name='password_reset_confirm'),
-    path('password-reset-complete/',
-         views.CustomPasswordResetCompleteView.as_view(),
+    path('password_reset_complete/',
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='registration/password_reset_complete.html'
+         ),
          name='password_reset_complete'),
 ]
 
