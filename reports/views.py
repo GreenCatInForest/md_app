@@ -5,10 +5,10 @@ import re
 
 import pandas as pd
 from io import StringIO
-
+from celery.result import AsyncResult
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, JsonResponse
 from django.utils import timezone
 from datetime import datetime, time, timedelta
 from django.utils._os import safe_join
@@ -26,6 +26,37 @@ from .utils.normalize_logger_serial import normalize_logger_serial
 from .utils.resize_and_save_image import resize_and_save_image
 from .utils.room_data import RoomData
 
+from .tasks import long_running_task
+
+
+def task_status(request, task_id):
+    result = AsyncResult(task_id)
+    if result.state == 'PENDING':
+        response = {
+            'state': result.state,
+            'status': 'Pending...'
+        }
+    elif result.state != 'FAILURE':
+        response = {
+            'state': result.state,
+            'status': result.info if result.info else 'Processing...'
+        }
+        if result.state == 'SUCCESS':
+            response['result'] = result.result
+    else:
+        # Something went wrong in the background job
+        response = {
+            'state': result.state,
+            'status': str(result.info),  # this is the exception raised
+        }
+    return JsonResponse(response)
+
+
+def start_task(request):
+    if request.method == 'POST':
+        task = long_running_task.delay()
+        return JsonResponse({'task_id': task.id})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)

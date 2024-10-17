@@ -283,6 +283,15 @@
     </article>
 </div>
 
+<h1 style="text-align:center;">Celery Spinner Example</h1>
+<div style="text-align:center;">
+    <button id="start-button">Start Long-Running Task</button>
+</div>
+
+<div class="spinner" id="spinner"></div>
+
+<div id="result"></div>
+
 <!-- Include necessary scripts -->
 <script src="{% static 'js/datepicker.js' %}" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js" defer></script>
@@ -446,7 +455,71 @@
             });
         });
 </script>
+<script>
+    document.getElementById('start-button').addEventListener('click', function() {
+        // Show the spinner
+        document.getElementById('spinner').style.display = 'block';
+        document.getElementById('result').innerHTML = '';
 
+        // Start the task via AJAX
+        fetch("{% url 'start_task' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // Include CSRF token
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.task_id) {
+                // Poll for task status
+                pollTask(data.task_id);
+            } else {
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('result').innerHTML = 'Error starting task.';
+            }
+        });
+    });
+
+    function pollTask(taskId) {
+        const interval = setInterval(() => {
+            fetch(`/task-status/${taskId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.state === 'SUCCESS') {
+                    clearInterval(interval);
+                    document.getElementById('spinner').style.display = 'none';
+                    document.getElementById('result').innerHTML = data.result;
+                } else if (data.state === 'FAILURE') {
+                    clearInterval(interval);
+                    document.getElementById('spinner').style.display = 'none';
+                    document.getElementById('result').innerHTML = 'Task failed: ' + data.status;
+                } else {
+                    // Task is still running
+                    console.log(data.status);
+                }
+            });
+        }, 1000); // Poll every 1 second
+    }
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
 
 
 {% endblock %}

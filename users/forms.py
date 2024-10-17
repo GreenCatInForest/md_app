@@ -7,6 +7,8 @@ from core.models import User
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 
+from django.core.mail import send_mail
+
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(
         widget=forms.EmailInput(

@@ -3,11 +3,7 @@ LABEL maintainer="cambridgelogic.com"
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED=1 
- # Install system dependencies
-ENV MPLCONFIGDIR=/code/.config/matplotlib
-
-
-# Set work directory
+ 
 WORKDIR /code
 
 # Install system dependencies
@@ -29,20 +25,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - && \
     rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man && \
     apt-get clean
 
-# Copy and install Python dependencies
-COPY requirements.txt /code/
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
 
-# Create necessary directories and set permissions
-RUN mkdir -p /code/imgs && chown -R appuser:appgroup /code/imgs
-RUN mkdir -p /code/.config/matplotlib && chown -R appuser:appgroup /code/.config/matplotlib
 
-# Copy wait-for-it.sh and make it executable
-COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
-RUN chmod +x /usr/local/bin/wait-for-it.sh
-
-# Copy the rest of the application code
 COPY . /code/
 
 
