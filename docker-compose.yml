@@ -2,9 +2,9 @@
 x-app: &default-app
   build:
     context: "."
-  args:
-        USER_ID: "${USER_ID}"
-        GROUP_ID: "${GROUP_ID}"
+    args:
+          USER_ID: "${USER_ID}"
+          GROUP_ID: "${GROUP_ID}"
   volumes:
     - .:/code
   restart: "unless-stopped"
