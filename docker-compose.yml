@@ -65,6 +65,9 @@ services:
       && gunicorn md_app.wsgi:application --bind 0.0.0.0:1091 --workers 4 --timeout 1200"
     volumes:
       - .:/code  # Override or add specific volumes if needed
+    environment:
+      - PYTHONPATH=/code
+      - MPLCONFIGDIR=/code/.config/matplotlib
     env_file:
       - .env
     ports:
@@ -80,6 +83,9 @@ services:
     command: celery -A md_app.celery worker --loglevel=info
     volumes:
       - .:/code
+    environment:
+      - PYTHONPATH=/code
+      - MPLCONFIGDIR=/code/.config/matplotlib
     depends_on:
       - db
       - redis
@@ -109,6 +115,9 @@ services:
     command: celery -A md_app.celery flower --port=5555
     volumes:
       - .:/code
+    environment:
+      - PYTHONPATH=/code
+      - MPLCONFIGDIR=/code/.config/matplotlib
     depends_on:
       - celery
       - redis
