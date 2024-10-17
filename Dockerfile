@@ -27,8 +27,8 @@ ARG GROUP_ID=1002
 
 # Create a system group and user with specific UID and GID
 RUN addgroup --gid $GROUP_ID appgroup && \
-    adduser --disabled-password --no-create-home --uid $USER_ID --gid $GROUP_ID --ingroup appgroup appuser
-
+    adduser --disabled-password --no-create-home --uid $USER_ID --gid $GROUP_ID appuser
+    
 # Install Node.js for Tailwind CSS
 ARG NODE_MAJOR=20
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - && \
