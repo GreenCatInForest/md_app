@@ -31,7 +31,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path("__reload__/", include("django_browser_reload.urls")),
     path('accounts/login/', views.user_login_register, name='login_register'),
-        path('password_reset_form/',
+    path('password_reset_form/',
          auth_views.PasswordResetView.as_view(
              template_name='registration/password_reset_form.html'
          ),
