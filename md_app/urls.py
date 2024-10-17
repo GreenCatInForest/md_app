@@ -21,6 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from core.views import custom_404, custom_500
 from users import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path ('', include('core.urls')),
@@ -30,6 +31,26 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path("__reload__/", include("django_browser_reload.urls")),
     path('accounts/login/', views.user_login_register, name='login_register'),
+    path('password_reset_form/',
+         auth_views.PasswordResetView.as_view(
+             template_name='registration/password_reset_form.html'
+         ),
+         name='password_reset_form'),
+    path('password-reset/done/',
+         auth_views.PasswordResetDoneView.as_view(
+             template_name='registration/password_reset_done.html'
+         ),
+         name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/',
+         auth_views.PasswordResetConfirmView.as_view(
+             template_name='registration/password_reset_confirm.html'
+         ),
+         name='password_reset_confirm'),
+    path('password-reset-complete/',
+         auth_views.PasswordResetCompleteView.as_view(
+             template_name='registration/password_reset_complete.html'
+         ),
+         name='password_reset_complete'),
 ]
 
 handler404 = custom_404
