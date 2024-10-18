@@ -120,6 +120,8 @@ class LogoutIfAuthenticatedMixin:
             logout(request)
         return super().dispatch(request, *args, **kwargs)
     
+# Implement the password reset behaviour customisation
+    
 class CustomPasswordResetView(LogoutIfAuthenticatedMixin, PasswordResetView):
     form_class = CustomPasswordResetForm
     template_name = "registration/password_reset_form.html"
@@ -160,5 +162,7 @@ class CustomPasswordResetConfirmView(LogoutIfAuthenticatedMixin, PasswordResetCo
     template_name = 'registration/password_reset_confirm.html'
     success_url = reverse_lazy('password_reset_complete')
 
-class CustomPasswordResetCompleteView(LogoutIfAuthenticatedMixin, PasswordResetCompleteView):
-    template_name = 'registration/password_reset_complete.html'
+# class CustomPasswordResetCompleteView(LogoutIfAuthenticatedMixin, PasswordResetCompleteView):
+#     template_name = 'registration/password_reset_complete.html'
+
+class CustomPasswordResetCompleteView(LogoutIfAuthenticatedMixin, PasswordResetCompleteView):pass

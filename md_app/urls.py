@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 from core.views import custom_404, custom_500
 from users import views
 from django.contrib.auth import views as auth_views
+from users.views import CustomPasswordResetView, CustomPasswordResetCompleteView, CustomPasswordResetConfirmView, CustomPasswordResetDoneView
 
 urlpatterns = [
     path ('', include('core.urls')),
@@ -47,7 +48,7 @@ urlpatterns = [
          ),
          name='password_reset_confirm'),
     path('password_reset_complete/',
-         auth_views.PasswordResetCompleteView.as_view(
+         CustomPasswordResetCompleteView.as_view(
              template_name='registration/password_reset_complete.html'
          ),
          name='password_reset_complete'),
