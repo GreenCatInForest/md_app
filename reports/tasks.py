@@ -11,3 +11,15 @@ def long_running_task():
     # Simulate a long-running task
     time.sleep(10)  # Sleep for 10 seconds
     return 'Task Completed!'
+
+@shared_task
+def add(x, y):
+    """A simple task that adds two numbers."""
+    time.sleep(5)  # Simulate a long-running task
+    return x + y
+
+@shared_task
+def multiply(x, y):
+    """A simple task that multiplies two numbers."""
+    time.sleep(5)
+    return x * y
