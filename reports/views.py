@@ -12,6 +12,7 @@ from django.http import FileResponse, Http404, JsonResponse
 from django.utils import timezone
 from datetime import datetime, time, timedelta
 from django.utils._os import safe_join
+from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from datetime import datetime, timezone as dt_timezone
@@ -26,8 +27,7 @@ from .utils.normalize_logger_serial import normalize_logger_serial
 from .utils.resize_and_save_image import resize_and_save_image
 from .utils.room_data import RoomData
 
-from .tasks import long_running_task
-
+from .tasks import long_running_task, generate_report_task
 
 def task_status(request, task_id):
     result = AsyncResult(task_id)
@@ -36,27 +36,53 @@ def task_status(request, task_id):
             'state': result.state,
             'status': 'Pending...'
         }
+    elif result.state == 'STARTED':
+        responce = {
+            'state': result.state,
+            'status': 'Task started'
+        }
+    elif result.state == 'PROGRESS':
+        responce = {
+            'state': result.state,
+            'status': result.info.get('status', 'Processing...')
+        }
+    elif result.state == 'SUCCESS':
+        responce = {
+            'state': result.state,
+            'status': result.info.get('status', 'Task completed'),
+            'result': result.info.get('pdf_path', '')        }
     elif result.state != 'FAILURE':
         response = {
             'state': result.state,
-            'status': result.info if result.info else 'Processing...'
+            'status': str(result.info),
         }
-        if result.state == 'SUCCESS':
-            response['result'] = result.result
     else:
         # Something went wrong in the background job
         response = {
             'state': result.state,
-            'status': str(result.info),  # this is the exception raised
+            'status': str(result.info), 
         }
     return JsonResponse(response)
 
+#View to return the status and result of a Celery task
 
-def start_task(request):
-    if request.method == 'POST':
-        task = long_running_task.delay()
-        return JsonResponse({'task_id': task.id})
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+@login_required
+@require_GET
+def get_task_status(request, task_id):
+    task_result = AsyncResult(task_id)
+    response = {
+        'task_id': task_id,
+        'state': task_result.state,
+        'status': task_result.info.get('status', '') if task_result.info else '',
+        'result': task_result.result if task_result.state == 'SUCCESS' else None,
+    }
+    return JsonResponse(response)
+
+    }
+
+
+
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -114,6 +140,7 @@ def report_view(request):
 
         if form.is_valid() and room_formset.is_valid():
             app_logger.debug("Form and formset are valid.")
+
             app_logger.debug(f"Number of rooms being processed: {len(room_formset.cleaned_data)}")
 
             # Save the Report object first
@@ -132,6 +159,10 @@ def report_view(request):
                 preview_company_logo = request.FILES['company_logo']
                 
             report_instance.save()
+
+            # After saving all necessary data, trigger the Celery task
+            task = generate_report_task.delay(report_instance.id)
+            return JsonResponse({'task_id': task.id})
 
             # Resize external_picture and company_logo after saving
             # Resize and save external_picture as JPEG with 70% quality
