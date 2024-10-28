@@ -2,6 +2,7 @@ import logging
 import os
 import tempfile
 import re
+import json
 
 import pandas as pd
 from io import StringIO
@@ -27,61 +28,7 @@ from .utils.normalize_logger_serial import normalize_logger_serial
 from .utils.resize_and_save_image import resize_and_save_image
 from .utils.room_data import RoomData
 
-from .tasks import long_running_task, generate_report_task
-
-def task_status(request, task_id):
-    result = AsyncResult(task_id)
-    if result.state == 'PENDING':
-        response = {
-            'state': result.state,
-            'status': 'Pending...'
-        }
-    elif result.state == 'STARTED':
-        responce = {
-            'state': result.state,
-            'status': 'Task started'
-        }
-    elif result.state == 'PROGRESS':
-        responce = {
-            'state': result.state,
-            'status': result.info.get('status', 'Processing...')
-        }
-    elif result.state == 'SUCCESS':
-        responce = {
-            'state': result.state,
-            'status': result.info.get('status', 'Task completed'),
-            'result': result.info.get('pdf_path', '')        }
-    elif result.state != 'FAILURE':
-        response = {
-            'state': result.state,
-            'status': str(result.info),
-        }
-    else:
-        # Something went wrong in the background job
-        response = {
-            'state': result.state,
-            'status': str(result.info), 
-        }
-    return JsonResponse(response)
-
-#View to return the status and result of a Celery task
-
-@login_required
-@require_GET
-def get_task_status(request, task_id):
-    task_result = AsyncResult(task_id)
-    response = {
-        'task_id': task_id,
-        'state': task_result.state,
-        'status': task_result.info.get('status', '') if task_result.info else '',
-        'result': task_result.result if task_result.state == 'SUCCESS' else None,
-    }
-    return JsonResponse(response)
-
-    }
-
-
-
+from .tasks import  generate_report_task
 
 
 # Configure logging
@@ -160,10 +107,6 @@ def report_view(request):
                 
             report_instance.save()
 
-            # After saving all necessary data, trigger the Celery task
-            task = generate_report_task.delay(report_instance.id)
-            return JsonResponse({'task_id': task.id})
-
             # Resize external_picture and company_logo after saving
             # Resize and save external_picture as JPEG with 70% quality
             if external_picture_file:
@@ -235,6 +178,8 @@ def report_view(request):
                             room_form.add_error('room_picture', 'Failed to process room picture.')
                 else:
                         room_instance.save()
+
+
 
             # Fetch logger data from form
             external_logger_serial = normalize_logger_serial(form.cleaned_data['external_logger'])
@@ -409,6 +354,41 @@ def report_view(request):
 
             app_logger.debug("Form data prepared. Calling RPTGen...")
             app_logger.debug(f"Form data being sent to RPTGen: {form_data}")
+            # After saving all necessary data, trigger the Celery task
+
+            image_property = report_instance.external_picture.path if report_instance.external_picture else ''
+            image_logo = report_instance.company_logo.path if report_instance.company_logo else ''
+
+            # Serializing
+
+            serialized_form_data = {
+            'surveyor': form.cleaned_data['surveyor'],
+            'company': form.cleaned_data['company'],
+            'Address': form.cleaned_data['property_address'],
+            'occupied': form.cleaned_data['occupied'],
+            'inspection_time': form_data.inspectiontime.isoformat(),  # Converts datetime to ISO 8601 string format
+            'monitor_time': str(timedelta(days=1, hours=5)), # Converts timedelta to string
+            'comment': form.cleaned_data['notes'],
+            'surveyor': form.cleaned_data['surveyor'],
+            'occupied_during_all_monitoring': form.cleaned_data['occupied_during_all_monitoring'],
+            'occupant_number': form.cleaned_data['number_of_occupants'],
+            'Problem_rooms': [room.get('room_name', 'Unknown Room') for room in room_formset.cleaned_data],
+            'Monitor_areas': [room.get('room_monitor_area', 'Unknown Area') for room in room_formset.cleaned_data],
+            'moulds': [room.get('room_mould_visible', 'No Data') for room in room_formset.cleaned_data],
+            'Image_property': image_property,
+            'Image_logo': image_logo,
+            'comment': form.cleaned_data['notes'],
+            'datafiles': csv_file_paths,  # Pass the path to the CSV file
+            'room_pictures': room_pictures,
+            'Image_indoor1': image_indoor1,
+            'Image_indoor2': image_indoor2,
+            'Image_indoor3': image_indoor3,
+            'Image_indoor4': image_indoor4,
+        }
+            
+            form_data_json = json.dumps(form_data)
+            task = generate_report_task.delay(report_instance.id, form_data_json )
+            return JsonResponse({'task_id': task.id})
 
             # Generate the report
             try:

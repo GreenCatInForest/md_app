@@ -265,7 +265,7 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 hover:bg-blue-800 justify-center px-5">
+                    <button type="submit" id="submit-report-form-btn" class="inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 hover:bg-blue-800 justify-center px-5">
                         Create Report
                     </button>
                 </form>
@@ -292,7 +292,7 @@
     <button id="start-button">Start Long-Running Task</button>
 </div> -->
 
-<div class="spinner" id="spinner"></div>
+<div class="spinner" id="spinner">Loading...</div>
 
 <div id="result"></div>
 
@@ -459,84 +459,67 @@
             });
         });
 </script>
-<script>
-    document.getElementById('start-button').addEventListener('click', function() {
-        // Show the spinner
-        document.getElementById('spinner').style.display = 'block';
-        document.getElementById('result').innerHTML = '';
 
-        // Start the task via AJAX
-        fetch("{% url 'start_task' %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')  // Include CSRF token
-            },
-            body: JSON.stringify({})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.task_id) {
-                // Poll for task status
-                pollTask(data.task_id);
-            } else {
-                document.getElementById('spinner').style.display = 'none';
-                document.getElementById('result').innerHTML = 'Error starting task.';
-            }
-        });
-    });
-
-    function pollTask(taskId) {
-        const interval = setInterval(() => {
-            fetch(`/task-status/${taskId}/`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.state === 'SUCCESS') {
-                    clearInterval(interval);
-                    document.getElementById('spinner').style.display = 'none';
-                    document.getElementById('result').innerHTML = data.result;
-                } else if (data.state === 'FAILURE') {
-                    clearInterval(interval);
-                    document.getElementById('spinner').style.display = 'none';
-                    document.getElementById('result').innerHTML = 'Task failed: ' + data.status;
-                } else {
-                    // Task is still running
-                    console.log(data.status);
-                }
-            });
-        }, 1000); // Poll every 1 second
-    }
-
-    // Function to get CSRF token from cookies
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
 
         const reportForm = document.querySelector('#report-form');
-        const statusContainer = document.querySelector('result');
+        const statusContainer = document.querySelector('#task-status');
+        const errorMessage = document.querySelector('#errorMessage');
+        const successMessage = document.querySelector('#successMessage');
+        const spinner = document.querySelector('.spinner');
+        const submitReportBtn = document.querySelector('#submit-report-form-btn');
+        spinner.style.display = 'none';
 
-        
+        reportForm.addEventListener('submit', (e) => { 
+           e.preventDefault();
+           
+           spinner.style.display = 'block';
+           submitReportBtn.disabled = true;
 
+           // Clear previous messages
+           statusContainer.innerHTML = '';
+
+           const formData = new FormData(reportForm);
+           const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+           console.log('Submitting form with FormData:', Array.from(formData.entries()));
+
+           fetch("{% url 'report' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+           })
+           .then(response => { // Fixed 'responce' to 'response'
+                if (response.ok) {
+                    return response.json();
+                }
+                return response.json().then(err => { throw err; });
+           })
+           .then(data => {
+                if (data.status === 'success') {
+                    console.log('Report generated successfully:', data.pdf_url);
+                    successMessage.innerHTML = `Report generated successfully. <a href="${data.pdf_url}" target="_blank">View Report</a>`;
+                    successMessage.style.display = 'block';
+                } else {
+                    throw new Error(data.message || 'An unexpected error occurred.');
+                }
+           })
+           .catch(error => {
+                console.error('Error:', error);
+                errorMessage.textContent = error.message || 'An unexpected error occurred.';
+                errorMessage.style.display = 'block';
+           })
+           .finally(() => {
+                spinner.style.display = 'none';
+                submitReportBtn.disabled = false;
+           });
+        });  
 
 
     })
-
 </script>
 
 
