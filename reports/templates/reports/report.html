@@ -294,7 +294,9 @@
 
 <div class="spinner" id="spinner">Loading...</div>
 
-<div id="result"></div>
+<div id="result">
+
+</div>
 
 <!-- Include necessary scripts -->
 <script src="{% static 'js/datepicker.js' %}" defer></script>
@@ -470,6 +472,7 @@
         const successMessage = document.querySelector('#successMessage');
         const spinner = document.querySelector('.spinner');
         const submitReportBtn = document.querySelector('#submit-report-form-btn');
+        const result = document.querySelector('#result')
         spinner.style.display = 'none';
 
         reportForm.addEventListener('submit', (e) => { 
@@ -492,7 +495,7 @@
                 },
                 body: formData
            })
-           .then(response => { // Fixed 'responce' to 'response'
+           .then(response => { 
                 if (response.ok) {
                     return response.json();
                 }
@@ -501,16 +504,16 @@
            .then(data => {
                 if (data.status === 'success') {
                     console.log('Report generated successfully:', data.pdf_url);
-                    successMessage.innerHTML = `Report generated successfully. <a href="${data.pdf_url}" target="_blank">View Report</a>`;
-                    successMessage.style.display = 'block';
+                    result.innerHTML = `Report generated successfully. <a href="${data.pdf_url}" target="_blank">View Report</a>`;
+                    result.style.display = 'block';
                 } else {
                     throw new Error(data.message || 'An unexpected error occurred.');
                 }
            })
            .catch(error => {
                 console.error('Error:', error);
-                errorMessage.textContent = error.message || 'An unexpected error occurred.';
-                errorMessage.style.display = 'block';
+                result.textContent = error.message || 'An unexpected error occurred.';
+                result.style.display = 'block';
            })
            .finally(() => {
                 spinner.style.display = 'none';
