@@ -70,6 +70,7 @@ services:
       && gunicorn md_app.wsgi:application --bind 0.0.0.0:1091 --workers 4 --timeout 1200"
     volumes:
       - .:/code  # Override or add specific volumes if needed
+      - shared_tmp:/tmp
     env_file:
       - .env
     ports:
@@ -83,6 +84,7 @@ services:
     command: celery -A md_app.celery worker --loglevel=info
     volumes:
       - .:/code
+      - shared_tmp:/tmp
     depends_on:
       - db
       - redis
@@ -121,3 +123,4 @@ volumes:
   pg_data:
   pg_admin:
   redis_data:
+  shared_tmp:

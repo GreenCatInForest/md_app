@@ -11,12 +11,14 @@ from celery import shared_task, current_task
 from django.conf import settings
 from django.utils import timezone
 from datetime import datetime, timedelta
+from django.shortcuts import get_object_or_404
 from .utils.PCAdataTool import RPTGen
 from .utils.normalize_logger_serial import normalize_logger_serial  
 from .utils.resize_and_save_image import resize_and_save_image
 from .utils.room_data import RoomData
 from core.models import Logger as LoggerModel, Logger_Data, Room, Report
 from django.core.files import File
+
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -28,33 +30,39 @@ def test(param):
 
 
 @shared_task(bind=True)
-def generate_report_task(self, report_id, csv_file_paths, inspectiontime):
+def generate_report_task(self, report_id, csv_file_paths, serialized_form_data):
     
     try:
-        report = Report.objects.get(id=report_id)
+        report = get_object_or_404(Report, id=report_id)
         app_logger.debug(f"Report retrieved: {report}")
-        
+
+    # Deserealizing inspectiontime passed as an ISO format string
+        inspectiontime_str = serialized_form_data['inspection_time']
+        if isinstance(inspectiontime_str, str):
+            inspectiontime = datetime.fromisoformat(inspectiontime_str)
+        else:
+            inspectiontime = inspectiontime_str
+                
         # Extract all necessary parameters from the report instance
         datafiles = csv_file_paths  
         surveyor = report.surveyor
-        inspectiontime = report.inspection_time
         company = report.company
-        Address = report.address
+        address = report.property_address
         occupied = report.occupied
-        monitor_time = report.monitor_time
+        monitor_time = timedelta(seconds=serialized_form_data['monitor_time'])
         occupied_during_all_monitoring = report.occupied_during_all_monitoring
-        occupant_number = report.occupant_number
-        Problem_rooms = report.problem_rooms  # List
-        Monitor_areas = report.monitor_areas  # List
-        moulds = report.moulds  # List
-        Image_property = report.image_property.path if report.image_property else ''
-        room_pictures = [pic.path for pic in report.room_pictures.all()]  # Assuming related field
-        Image_indoor1 = report.image_indoor1.path if report.image_indoor1 else ''
-        Image_indoor2 = report.image_indoor2.path if report.image_indoor2 else ''
-        Image_indoor3 = report.image_indoor3.path if report.image_indoor3 else ''
-        Image_indoor4 = report.image_indoor4.path if report.image_indoor4 else ''
-        Image_logo = report.image_logo.path if report.image_logo else ''
-        comment = report.comment
+        occupant_number = report.number_of_occupants
+        Problem_rooms = serialized_form_data['Problem_rooms']  # List
+        Monitor_areas = serialized_form_data['Monitor_areas']  # List
+        moulds = serialized_form_data['moulds']# List
+        Image_property = serialized_form_data['Image_property']
+        room_pictures = [pic.path for pic in serialized_form_data['room_pictures']] # Assuming related field
+        Image_indoor1 = serialized_form_data['Image_indoor1']
+        Image_indoor2 = serialized_form_data['Image_indoor2']
+        Image_indoor3 = serialized_form_data['Image_indoor3'] 
+        Image_indoor4 = serialized_form_data['Image_indoor4'] 
+        Image_logo = serialized_form_data['Image_logo'] 
+        comment = serialized_form_data['comment']
 
         # Call the RPTGen function with all required parameters
         filename = RPTGen(
@@ -62,7 +70,7 @@ def generate_report_task(self, report_id, csv_file_paths, inspectiontime):
             surveyor=surveyor,
             inspectiontime=inspectiontime,
             company=company,
-            Address=Address,
+            Address=address,
             occupied=occupied,
             monitor_time=monitor_time,
             occupied_during_all_monitoring=occupied_during_all_monitoring,
@@ -121,4 +129,4 @@ def generate_report_task(self, report_id, csv_file_paths, inspectiontime):
 #     except Exception as e:
 #         app_logger.error(f"Error in report generation task: {e}")
 #         self.update_state(state='FAILURE', meta={'status': str(e)})
-#         raise e
+#         raise e 

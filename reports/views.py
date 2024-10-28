@@ -364,10 +364,10 @@ def report_view(request):
             serialized_form_data = {
             'surveyor': form.cleaned_data['surveyor'],
             'company': form.cleaned_data['company'],
-            'Address': form.cleaned_data['property_address'],
+            'address': form.cleaned_data['property_address'],
             'occupied': form.cleaned_data['occupied'],
-            'inspection_time': form_data.inspectiontime.isoformat(),  # Converts datetime to ISO 8601 string format
-            'monitor_time': str(timedelta(days=1, hours=5)), # Converts timedelta to string
+            'inspection_time': form_data['inspectiontime'].isoformat(),  # Converts datetime to ISO 8601 string format
+            'monitor_time': form_data['monitor_time'].total_seconds(),
             'comment': form.cleaned_data['notes'],
             'surveyor': form.cleaned_data['surveyor'],
             'occupied_during_all_monitoring': form.cleaned_data['occupied_during_all_monitoring'],
@@ -386,8 +386,8 @@ def report_view(request):
             'Image_indoor4': image_indoor4,
         }
             
-            form_data_json = json.dumps(form_data)
-            task = generate_report_task.delay(report_instance.id, form_data_json )
+            form_data_json = json.dumps(serialized_form_data)
+            task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data)
             return JsonResponse({'task_id': task.id})
 
             # Generate the report

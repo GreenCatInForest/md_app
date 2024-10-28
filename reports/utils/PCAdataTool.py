@@ -8,6 +8,7 @@ from matplotlib.dates import DayLocator, HourLocator
 from PyPDF2 import PdfReader, PdfMerger
 import os
 import datetime
+from datetime import timedelta
 from fpdf import FPDF
 import pandas as pd
 import textwrap as twp
@@ -1528,6 +1529,10 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
     def fix_q_and_a(title, answer):
         q_and_a(title, answer, 50)
 
+    # Convert monitor_time if it's a float representing seconds
+    if isinstance(monitor_time, float):
+        monitor_time = timedelta(seconds=monitor_time)
+
     days = monitor_time.days
     # hours, remainder = divmod(monitor_time.seconds, 3600)
     # minutes, seconds = divmod(remainder, 60)
@@ -1538,6 +1543,8 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
 
     fix_q_and_a('Building professional:', surveyor)
     fix_q_and_a('Company Name:', company)
+
+    
     formatted_inspectiontime = inspectiontime.strftime('%-d %B %Y')
     fix_q_and_a('Date of inspection:', formatted_inspectiontime)
     # fix_q_and_a('Date of inspection:', str(inspectiontime))
