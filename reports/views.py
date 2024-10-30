@@ -7,12 +7,13 @@ import json
 import pandas as pd
 from io import StringIO
 from celery.result import AsyncResult
+from datetime import datetime, time, timedelta
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.http import FileResponse, Http404, JsonResponse
 from django.utils import timezone
-from datetime import datetime, time, timedelta
 from django.utils._os import safe_join
+from django.urls import reverse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
@@ -77,6 +78,12 @@ def save_uploaded_file(uploaded_file):
         return temp_file.name
     return ''
 
+def serve_report(request, filename):
+    file_path = os.path.join(settings.BASE_DIR, 'reports_save', filename)
+    if os.path.exists(file_path):
+        return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+    else:
+        raise Http404("File not found")
 
 @login_required
 def report_view(request):
@@ -388,7 +395,7 @@ def report_view(request):
             
             form_data_json = json.dumps(serialized_form_data)
             task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data)
-            return JsonResponse({'task_id': task.id})
+            return JsonResponse({'status':'pending', 'task_id': task.id})
 
             # Generate the report
             try:
@@ -413,6 +420,24 @@ def report_view(request):
         room_formset = RoomFormSet(queryset=Room.objects.none(), prefix='rooms')
         form = ReportForm()
         return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+    
+@login_required
+def check_task_status(request, task_id):
+    task_result = AsyncResult(task_id)
+    
+    if task_result.state == 'SUCCESS':
+        result = task_result.result
+        if result.get('status') == 'success':
+            pdf_url = request.build_absolute_uri(result['pdf_url'])
+            return JsonResponse({'status': 'success', 'pdf_url': pdf_url})
+        else:
+            return JsonResponse({'status': 'error', 'message': result.get('message', 'Unknown error')})
+    elif task_result.state == 'FAILURE':
+        return JsonResponse({'status': 'error', 'message': str(task_result.result)})
+    elif task_result.state in ['PENDING', 'STARTED']:
+        return JsonResponse({'status': 'pending'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Unexpected task status.'})
 
 @login_required
 def historical_reports_view(request):

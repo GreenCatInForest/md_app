@@ -466,63 +466,89 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
 
-        const reportForm = document.querySelector('#report-form');
-        const statusContainer = document.querySelector('#task-status');
-        const errorMessage = document.querySelector('#errorMessage');
-        const successMessage = document.querySelector('#successMessage');
-        const spinner = document.querySelector('.spinner');
-        const submitReportBtn = document.querySelector('#submit-report-form-btn');
-        const result = document.querySelector('#result')
-        spinner.style.display = 'none';
+const reportForm = document.querySelector('#report-form');
+const statusContainer = document.querySelector('#task-status');
+const errorMessage = document.querySelector('#errorMessage');
+const successMessage = document.querySelector('#successMessage');
+const spinner = document.querySelector('.spinner');
+const submitReportBtn = document.querySelector('#submit-report-form-btn');
+const result = document.querySelector('#result');
+spinner.style.display = 'none';
 
-        reportForm.addEventListener('submit', (e) => { 
-           e.preventDefault();
-           
-           spinner.style.display = 'block';
-           submitReportBtn.disabled = true;
+reportForm.addEventListener('submit', async (e) => { 
+   e.preventDefault();
+   
+   spinner.style.display = 'block';
+   submitReportBtn.disabled = true;
 
-           // Clear previous messages
-           statusContainer.innerHTML = '';
+   // Clear previous messages
+   statusContainer.innerHTML = '';
 
-           const formData = new FormData(reportForm);
-           const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-           console.log('Submitting form with FormData:', Array.from(formData.entries()));
+   const formData = new FormData(reportForm);
+   const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+   console.log('Submitting form with FormData:', Array.from(formData.entries()));
 
-           fetch("{% url 'report' %}", {
+   try {
+        const response = await fetch("{% url 'report' %}", {
                 method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken
-                },
+                headers: { 'X-CSRFToken': csrfToken },
                 body: formData
-           })
-           .then(response => { 
-                if (response.ok) {
-                    return response.json();
-                }
-                return response.json().then(err => { throw err; });
-           })
-           .then(data => {
-                if (data.status === 'success') {
-                    console.log('Report generated successfully:', data.pdf_url);
-                    result.innerHTML = `Report generated successfully. <a href="${data.pdf_url}" target="_blank">View Report</a>`;
-                    result.style.display = 'block';
-                } else {
-                    throw new Error(data.message || 'An unexpected error occurred.');
-                }
-           })
-           .catch(error => {
-                console.error('Error:', error);
-                result.textContent = error.message || 'An unexpected error occurred.';
-                result.style.display = 'block';
-           })
-           .finally(() => {
-                spinner.style.display = 'none';
-                submitReportBtn.disabled = false;
-           });
-        });  
+            });
+        const data = await response.json();
+    
+        if (data.status === 'pending') {
+                const taskId = data.task_id;
+                pollTaskStatus(taskId);  // Start polling for task status
+            } 
+        else {
+                throw new Error(data.message || 'Failed to start report generation.');
+            }
+    } 
+    catch (error) {
+        console.error('Error:', error);
+        result.textContent = error.message || 'An unexpected error occurred.';
+        result.style.display = 'block';
+    } 
+    finally {
+        spinner.style.display = 'none';
+        submitReportBtn.disabled = false;
+    }
+});
 
+const pollTaskStatus = async (taskId) => {
+    try {
+        const statusResponse = await fetch(`/reports/task-status/${taskId}`);
+        
+        console.log(statusResponse);
+        
+        // Check if the response is JSON by attempting to parse it
+        const contentType = statusResponse.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Expected JSON, received something else");
+        }
 
-    })
+        const statusData = await statusResponse.json();
+        console.log(statusData);
+
+        if (statusData.status === 'success') {
+            result.innerHTML = `Report generated successfully. <a href="${statusData.pdf_url}" target="_blank">View Report</a>`;
+            result.style.display = 'block';
+        }
+        else if (statusData.status === 'error') {
+            result.textContent = statusData.message || 'An unexpected error occurred.';
+            result.style.display = 'block';
+        }
+        else {
+            setTimeout(() => pollTaskStatus(taskId), 2000);
+
+        }
+    } catch (error) {
+        console.error('Error checking task status:', error);
+        result.textContent = 'An unexpected error occurred while checking task status.';
+        result.style.display = 'block';
+    }
+};
+});
 </script>
 
 

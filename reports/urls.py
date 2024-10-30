@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import report_view, historical_reports_view, download_report, report_detail_view, manuals_view, manual_download
+from .views import report_view, historical_reports_view, check_task_status, serve_report, download_report, report_detail_view, manuals_view, manual_download
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -12,6 +12,9 @@ urlpatterns = [
     path('download-report/<int:report_id>/', download_report, name='download_report'),
     path('manuals/', manuals_view, name='manuals'),
     path('manuals/download/<int:download_id>/', manual_download, name='manual_download'),
+    path('task-status/<str:task_id>/', check_task_status, name='check_task_status'),
+    path('reports_save/<str:filename>/', serve_report, name='serve_report'),
+
 
 
 

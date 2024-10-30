@@ -65,6 +65,8 @@ def generate_report_task(self, report_id, csv_file_paths, serialized_form_data):
         comment = serialized_form_data['comment']
 
         # Call the RPTGen function with all required parameters
+        
+        
         filename = RPTGen(
             datafiles=datafiles,
             surveyor=surveyor,
@@ -89,7 +91,6 @@ def generate_report_task(self, report_id, csv_file_paths, serialized_form_data):
             popup=True
         )
         
-        # Assuming 'filename' is the path to the generated PDF
         return {'status': 'success', 'pdf_url': filename}
     except Report.DoesNotExist:
         app_logger.error(f'Report with id {report_id} does not exist.')
