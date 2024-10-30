@@ -79,7 +79,7 @@ def save_uploaded_file(uploaded_file):
     return ''
 
 def serve_report(request, filename):
-    file_path = os.path.join(settings.BASE_DIR, 'reports_save', filename)
+    file_path = os.path.join('reports_save', filename)
     if os.path.exists(file_path):
         return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
     else:
@@ -428,7 +428,8 @@ def check_task_status(request, task_id):
     if task_result.state == 'SUCCESS':
         result = task_result.result
         if result.get('status') == 'success':
-            pdf_url = request.build_absolute_uri(result['pdf_url'])
+            pdf_filename = os.path.basename(result['pdf_url'])
+            pdf_url = request.build_absolute_uri(f'/reports/reports_save/{pdf_filename}')
             return JsonResponse({'status': 'success', 'pdf_url': pdf_url})
         else:
             return JsonResponse({'status': 'error', 'message': result.get('message', 'Unknown error')})
