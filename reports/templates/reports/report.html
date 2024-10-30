@@ -499,6 +499,7 @@ reportForm.addEventListener('submit', async (e) => {
         if (data.status === 'pending') {
                 const taskId = data.task_id;
                 pollTaskStatus(taskId);  // Start polling for task status
+                spinner.style.display = 'block';
             } 
         else {
                 throw new Error(data.message || 'Failed to start report generation.');
@@ -510,7 +511,6 @@ reportForm.addEventListener('submit', async (e) => {
         result.style.display = 'block';
     } 
     finally {
-        spinner.style.display = 'none';
         submitReportBtn.disabled = false;
     }
 });
@@ -533,6 +533,7 @@ const pollTaskStatus = async (taskId) => {
         if (statusData.status === 'success') {
             result.innerHTML = `Report generated successfully. <a href="${statusData.pdf_url}" target="_blank">View Report</a>`;
             result.style.display = 'block';
+            spinner.style.display = 'none';
         }
         else if (statusData.status === 'error') {
             result.textContent = statusData.message || 'An unexpected error occurred.';
