@@ -32,102 +32,75 @@ def test(param):
 @shared_task(bind=True)
 def generate_report_task(self, report_id, csv_file_paths, serialized_form_data):
     
-    try:
-        report = get_object_or_404(Report, id=report_id)
-        app_logger.debug(f"Report retrieved: {report}")
+    def update_progress(message):
+        self.update_state(state="PROGRESS", meta={"message":message})
+    
+        try:
+            update_progress("Taking your data to analyse...")
+            report = get_object_or_404(Report, id=report_id)
+            app_logger.debug(f"Report retrieved: {report}")
 
-    # Deserealizing inspectiontime passed as an ISO format string
-        inspectiontime_str = serialized_form_data['inspection_time']
-        if isinstance(inspectiontime_str, str):
-            inspectiontime = datetime.fromisoformat(inspectiontime_str)
-        else:
-            inspectiontime = inspectiontime_str
-                
-        # Extract all necessary parameters from the report instance
-        datafiles = csv_file_paths  
-        surveyor = report.surveyor
-        company = report.company
-        address = report.property_address
-        occupied = report.occupied
-        monitor_time = timedelta(seconds=serialized_form_data['monitor_time'])
-        occupied_during_all_monitoring = report.occupied_during_all_monitoring
-        occupant_number = report.number_of_occupants
-        Problem_rooms = serialized_form_data['Problem_rooms']  # List
-        Monitor_areas = serialized_form_data['Monitor_areas']  # List
-        moulds = serialized_form_data['moulds']# List
-        Image_property = serialized_form_data['Image_property']
-        room_pictures = [pic.path for pic in serialized_form_data['room_pictures']] # Assuming related field
-        Image_indoor1 = serialized_form_data['Image_indoor1']
-        Image_indoor2 = serialized_form_data['Image_indoor2']
-        Image_indoor3 = serialized_form_data['Image_indoor3'] 
-        Image_indoor4 = serialized_form_data['Image_indoor4'] 
-        Image_logo = serialized_form_data['Image_logo'] 
-        comment = serialized_form_data['comment']
+        # Deserealizing inspectiontime passed as an ISO format string
+            update_progress("Checking the data...")
+            inspectiontime_str = serialized_form_data['inspection_time']
+            if isinstance(inspectiontime_str, str):
+                inspectiontime = datetime.fromisoformat(inspectiontime_str)
+            else:
+                inspectiontime = inspectiontime_str
+                    
+            # Extract all necessary parameters from the report instance
+            datafiles = csv_file_paths  
+            surveyor = report.surveyor
+            company = report.company
+            address = report.property_address
+            occupied = report.occupied
+            monitor_time = timedelta(seconds=serialized_form_data['monitor_time'])
+            occupied_during_all_monitoring = report.occupied_during_all_monitoring
+            occupant_number = report.number_of_occupants
+            Problem_rooms = serialized_form_data['Problem_rooms']  # List
+            Monitor_areas = serialized_form_data['Monitor_areas']  # List
+            moulds = serialized_form_data['moulds']# List
+            Image_property = serialized_form_data['Image_property']
+            room_pictures = [pic.path for pic in serialized_form_data['room_pictures']] # Assuming related field
+            Image_indoor1 = serialized_form_data['Image_indoor1']
+            Image_indoor2 = serialized_form_data['Image_indoor2']
+            Image_indoor3 = serialized_form_data['Image_indoor3'] 
+            Image_indoor4 = serialized_form_data['Image_indoor4'] 
+            Image_logo = serialized_form_data['Image_logo'] 
+            comment = serialized_form_data['comment']
 
-        # Call the RPTGen function with all required parameters
-        
-        
-        filename = RPTGen(
-            datafiles=datafiles,
-            surveyor=surveyor,
-            inspectiontime=inspectiontime,
-            company=company,
-            Address=address,
-            occupied=occupied,
-            monitor_time=monitor_time,
-            occupied_during_all_monitoring=occupied_during_all_monitoring,
-            occupant_number=occupant_number,
-            Problem_rooms=Problem_rooms,
-            Monitor_areas=Monitor_areas,
-            moulds=moulds,
-            Image_property=Image_property,
-            room_pictures=room_pictures,
-            Image_indoor1=Image_indoor1,
-            Image_indoor2=Image_indoor2,
-            Image_indoor3=Image_indoor3,
-            Image_indoor4=Image_indoor4,
-            Image_logo=Image_logo,
-            comment=comment,
-            popup=True
-        )
-        
-        return {'status': 'success', 'pdf_url': filename}
-    except Report.DoesNotExist:
-        app_logger.error(f'Report with id {report_id} does not exist.')
-        return {'status': 'error', 'message': 'Report does not exist.'}
-    except Exception as e:
-        app_logger.exception(f'Error generating report: {e}')
-        return {'status': 'error', 'message': str(e)}
+            # Call the RPTGen function with all required parameters
+            update_progress("Analysing...")
+            
+            filename = RPTGen(
+                datafiles=datafiles,
+                surveyor=surveyor,
+                inspectiontime=inspectiontime,
+                company=company,
+                Address=address,
+                occupied=occupied,
+                monitor_time=monitor_time,
+                occupied_during_all_monitoring=occupied_during_all_monitoring,
+                occupant_number=occupant_number,
+                Problem_rooms=Problem_rooms,
+                Monitor_areas=Monitor_areas,
+                moulds=moulds,
+                Image_property=Image_property,
+                room_pictures=room_pictures,
+                Image_indoor1=Image_indoor1,
+                Image_indoor2=Image_indoor2,
+                Image_indoor3=Image_indoor3,
+                Image_indoor4=Image_indoor4,
+                Image_logo=Image_logo,
+                comment=comment,
+                popup=True
+            )
+            update_progress("Finalizing the report...")
+            return {'status': 'success', 'pdf_url': filename}
+        except Report.DoesNotExist:
+            app_logger.error(f'Report with id {report_id} does not exist.')
+            return {'status': 'error', 'message': 'Report does not exist.'}
+        except Exception as e:
+            app_logger.exception(f'Error generating report: {e}')
+            return {'status': 'error', 'message': str(e)}
 
-# @shared_task(bind=True)
-# def generate_report_task(self, report_id):
-#     try:
-#         self.update_state(state='STARTED', meta={'status':'Initializing report generation'})
-#         # Fetch the report instance
-#         report_instance = Report.objects.select_related('user').get(id=report_id)
-#         user = report_instance.user
-#         app_logger.debug(f'Report instance saved: {report_instance}')
-
-#         self.update_state(state="PROGRESS", meta={'status':'Processing data from sensors'})
-#         time.sleep(2) 
-
-#         self.update_state(state='PROGRESS', meta={'status':'Analysing...'})
-#         time.sleep(3)
-
-#         self.update_state(state='PROPGRESS', meta={'status':'Writing report'})
-#         time.sleep(3)
-
-#         report_instance.status='Completed'
-#         report_instance.save()
-
-#         return 'Report generation completed successfully.'
-
-#     except Report.DoesNotExist:
-#         app_logger.error(f"Report with ID {report_id} does not exist.")
-#         self.update_state(state='FAILURE', meta={'status': 'Report does not exist.'})
-#         raise
-
-#     except Exception as e:
-#         app_logger.error(f"Error in report generation task: {e}")
-#         self.update_state(state='FAILURE', meta={'status': str(e)})
-#         raise e 
