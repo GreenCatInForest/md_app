@@ -7,6 +7,7 @@
 
 module.exports = {
     content: [
+        './tailwind_app/static_src/**/*.{html,js,jsx,ts,tsx}',
         '../templates/**/*.html',
         '../../templates/**/*.html',
         '../../**/templates/**/*.html',

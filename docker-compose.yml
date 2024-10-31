@@ -11,6 +11,7 @@ x-app: &default-app
   environment:
     - PYTHONPATH=/code  # Ensures Python can locate modules
     - MPLCONFIGDIR=/code/.config/matplotlib  # Address Matplotlib warnings
+    - CHOKIDAR_USEPOLLING=true
   env_file:
       - .env
 
@@ -104,6 +105,7 @@ services:
     tty: true
     depends_on:
       - web
+    
 
   flower:
     <<: *default-app
