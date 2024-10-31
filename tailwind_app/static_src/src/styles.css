@@ -1075,3 +1075,8 @@ overflow: hidden; /* Hide any overflow content */
 .image-preview {
   max-width: 100%;
 }
+
+
+.result-container {
+  @apply fixed top-0 flex flex-col justify-center items-center w-1/2 h-[50%] bg-blue-500;
+}
