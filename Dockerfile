@@ -6,7 +6,6 @@ ENV PYTHONUNBUFFERED=1
  # Install system dependencies
 ENV MPLCONFIGDIR=/code/.config/matplotlib
 
-
 # Set work directory
 WORKDIR /code
 
