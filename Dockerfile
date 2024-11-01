@@ -25,7 +25,8 @@ RUN apt-get update && \
 # Install Node.js for Tailwind CSS
 ARG NODE_MAJOR=20
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - && \
-    apt-get install -y nodejs && \
+    apt-get install -y nodejs && \ 
+    npm install -g tailwindcss && \
     rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man && \
     apt-get clean
 
