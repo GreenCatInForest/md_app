@@ -1075,3 +1075,7 @@ overflow: hidden; /* Hide any overflow content */
 .image-preview {
   max-width: 100%;
 }
+
+.report-result {
+  @apply bg-blue-300;
+}

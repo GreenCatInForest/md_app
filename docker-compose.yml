@@ -96,8 +96,10 @@ services:
     container_name: maple-tailwind
     command: "python manage.py tailwind start"
     volumes:
-      - ./tailwind_app/static_src:/app/static_src
-      - /app/static_src/node_module
+      - ./tailwind_app/static_src:/tailwind_app/static_src
+      - ./tailwind_app/static/css/dist:/code/tailwind_app/static/css/dist
+      - /tailwind_app/static_src/node_modules
+
     ports:
       - "3000:3000"  # Example port, adjust as needed
     tty: true
