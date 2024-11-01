@@ -291,13 +291,11 @@
 <div style="text-align:center;">
     <button id="start-button">Start Long-Running Task</button>
 </div> -->
-
+<div class="report-result">
 <div class="spinner" id="spinner">Loading...</div>
 
-<div id="result">
-
+<div id="result"></div>
 </div>
-
 <!-- Include necessary scripts -->
 <script src="{% static 'js/datepicker.js' %}" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js" defer></script>
@@ -473,7 +471,7 @@ const successMessage = document.querySelector('#successMessage');
 const spinner = document.querySelector('.spinner');
 const submitReportBtn = document.querySelector('#submit-report-form-btn');
 const result = document.querySelector('#result');
-spinner.style.display = 'none';
+spinner.style.display = 'block';
 
 reportForm.addEventListener('submit', async (e) => { 
    e.preventDefault();
