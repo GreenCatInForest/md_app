@@ -26,7 +26,7 @@ RUN apt-get update && \
 ARG NODE_MAJOR=20
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - && \
     apt-get install -y nodejs && \ 
-    npm install -g tailwindcss && \
+    npm install -g tailwindcss postcss autoprefixer && \
     rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man && \
     apt-get clean
 
