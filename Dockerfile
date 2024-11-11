@@ -1,11 +1,11 @@
+# Use an official Python runtime as a parent image
 FROM python:3.12-slim
 LABEL maintainer="cambridgelogic.com"
 
+# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED=1 
- # Install system dependencies
+ENV PYTHONUNBUFFERED=1
 ENV MPLCONFIGDIR=/code/.config/matplotlib
-
 
 # Set work directory
 WORKDIR /code
@@ -20,28 +20,36 @@ RUN apt-get update && \
     curl \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
-
+    
 
 # Install Node.js for Tailwind CSS
 ARG NODE_MAJOR=20
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - && \
-    apt-get install -y nodejs && \ 
+    apt-get install -y nodejs && \
     npm install -g tailwindcss postcss autoprefixer && \
     rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man && \
     apt-get clean
 
-# Copy and install Python dependencies
-COPY requirements.txt /code/
+# **Copy the application code first**
+COPY . /code/
+
+
+# Set working directory for Node.js dependencies
+WORKDIR /code/tailwind_app/static_src
+
+# Install Node.js dependencies
+RUN npm install
+
+# Return to the base directory
+WORKDIR /code
+
+# Install Python dependencies
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy wait-for-it.sh and make it executable
 COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
 RUN chmod +x /usr/local/bin/wait-for-it.sh
-
-# Copy the rest of the application code
-COPY . /code/
-
 
 # Define build arguments
 ARG SECRET_KEY
@@ -65,15 +73,8 @@ ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 ENV DB_HOST=${DB_HOST}
 ENV DB_PORT=${DB_PORT}
 
-# Install Tailwind CSS dependencies and build CSS
-RUN SECRET_KEY=${SECRET_KEY} python manage.py tailwind install --no-input && \
-    SECRET_KEY=${SECRET_KEY} python manage.py tailwind build --no-input && \
-    SECRET_KEY=${SECRET_KEY} python manage.py collectstatic --no-input
-
 # Expose port
 EXPOSE 1091
-
-
 
 # Define the default command to run the application
 CMD ["gunicorn", "md_app.wsgi:application", "--bind", "0.0.0.0:1091"]

@@ -1077,5 +1077,5 @@ overflow: hidden; /* Hide any overflow content */
 }
 
 .report-result {
-  @apply bg-blue-600;
+  @apply bg-blue-800 ;
 }
