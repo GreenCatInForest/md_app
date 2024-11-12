@@ -210,13 +210,25 @@ class RoomForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        room_ambient_logger = normalize_logger_serial(cleaned_data.get('room_ambient_logger'))
-        room_surface_logger = normalize_logger_serial(cleaned_data.get('room_surface_logger'))
+        # Normalize and validate logger serial numbers
+        room_ambient_logger = cleaned_data.get('room_ambient_logger')
+        room_surface_logger = cleaned_data.get('room_surface_logger')
+        
+        # Normalize both serial numbers using your utility function
+        normalized_ambient_logger = normalize_logger_serial(room_ambient_logger)
+        normalized_surface_logger = normalize_logger_serial(room_surface_logger)
+        
+        # Add validation for the normalized serial numbers
+        if normalized_ambient_logger and (len(normalized_ambient_logger) < 6 or len(normalized_ambient_logger) > 7):
+            self.add_error('room_ambient_logger', 'Ambient sensor serial number must be 6-7 characters long')
+        if normalized_surface_logger and (len(normalized_surface_logger) < 6 or len(normalized_surface_logger) > 7):
+            self.add_error('room_surface_logger', 'Surface sensor serial number must be 6-7 characters long')
+        
+        # Update cleaned_data with normalized serial numbers
+        cleaned_data['room_ambient_logger'] = normalized_ambient_logger
+        cleaned_data['room_surface_logger'] = normalized_surface_logger
 
         return cleaned_data
-
-
-    
 
 RoomFormSet = modelformset_factory(
     Room,

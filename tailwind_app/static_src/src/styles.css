@@ -572,84 +572,6 @@ grid-template-rows: repeat auto minmax(5rem, auto) 1fr;
   transition: backdrop-filter 0.3s ease, background-color 0.3s ease; /* Smooth transition for blur effect */
 }
 
-#loading-spinner {
-  display: none; /* Hidden by default */
-  justify-content: center;
-  align-items: center;
-  position: absolute; /* Position it absolutely over the form */
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.8); /* Light background to give emphasis */
-  z-index: 1000; /* Make sure it covers the form */
-}
-
-.center {
-  position: absolute;
-  top: 60%;
-  left: 70%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-}
-
-.drop {
-  height: 75px;
-  width: 75px;
-  border-radius: 58% 43% 33% 64% / 50% 38% 53% 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(173, 216, 230, 0.8), rgba(173, 216, 230, 0.2), transparent);
-  box-shadow: inset -5px -5px 15px rgba(255, 255, 255, 0.5), inset 5px 5px 15px rgba(0, 0, 0, 0.1), 2px 5px 10px rgba(0, 0, 0, 0.2);
-  position: relative; /* Position relative to enable absolute positioning for pseudo-elements */
-  transition: all 0.3s ease; /* Smooth transition for all properties */
-}
-
-.drop::before {
-  content: "";
-  position: absolute;
-  border-radius: 38% 55% 46% 48%;
-  background: rgba(255, 255, 255, 0.7);
-  width: 22px;
-  transform: rotate(-30deg);
-  height: 7px;
-  top: 10px;
-  left: 8px;
-  transition: all 0.3s ease; /* Smooth transition for highlight changes */
-}
-
-.drop::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
-  width: 5px;
-  height: 5px;
-  top: 35px;
-  left: 10px;
-  transition: all 0.3s ease; /* Smooth transition for reflection changes */
-}
-
-.drop:hover {
-  width: 80px; /* Slightly increase width */
-  height: 70px; /* Slightly decrease height */
-  border-radius: 58% 43% 33% 64% / 50% 50% 40% 60%; /* Change to mimic flattening */
-  box-shadow: inset -3px -3px 12px rgba(255, 255, 255, 0.5), inset 3px 3px 12px rgba(0, 0, 0, 0.1), 2px 4px 8px rgba(0, 0, 0, 0.2); /* Adjust shadow for hover */
-}
-
-.drop:hover::before {
-  width: 23px; /* Slightly reduced size for hover effect */
-  height: 15px; /* Slightly reduced height */
-  background: rgba(255, 255, 255, 0.4);
-  top: 10px; /* Adjusted position */
-  left: 25px; /* Adjusted position */
-}
-
-
-.drop:hover::after {
-  width: 4px; /* Adjust size of reflection */
-  height: 4px; /* Adjust size of reflection */
-  top: 45px; /* Adjust position */
-  left: 22px; /* Adjust position */
-}
 
 .log-in-container {
   @apply flex flex-col sm:flex-row gap-20 justify-evenly items-center min-h-[100vh] relative;
@@ -1074,4 +996,84 @@ overflow: hidden; /* Hide any overflow content */
 
 .image-preview {
   max-width: 100%;
+}
+
+.report-result {
+  @apply bg-blue-800 fixed top-[50%] left-[50%] mx-auto text-center z-[100] px-6 py-3 shadow-lg shadow-blue-400;
+    transform: translate(-50%, -50%);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    background-color: rgba(255, 255, 255, 0.1);
+    background-blend-mode: multiply;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1), 0 1px 16px rgba(96, 165, 250, 0.5);    
+}
+
+#blur-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(3px); 
+  background-color: rgba(0, 0, 0, .85); 
+  display: none; 
+  z-index: 99; 
+}
+
+.spinner {
+  @apply flex-row justify-center items-center gap-4;
+}
+
+.spinner-dot {
+  @apply animate-pulse h-4 w-4 bg-blue-400 border-[1px] border-blue-500 rounded-full relative; 
+}
+
+.spinner-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.spinner-dot:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.spinner-dot:nth-child(3) {
+  animation-delay: 1s;
+}
+
+.spinner-dot {
+  @apply animate-pulse h-4 w-4 bg-blue-400 border-[1px] border-blue-500 rounded-full relative; 
+}
+
+.spinner-dot.before {
+  @apply animate-ping h-6 w-6 absolute bg-white top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2;
+}
+
+/* Style for each dot */
+.dot {
+  opacity: 0;
+  animation: dot-blink 1.5s infinite;
+}
+
+/* Delay each dot to create a sequential appearance */
+.dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.dot:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.dot:nth-child(3) {
+  animation-delay: 1s;
+}
+
+/* Animation to fade dots in and out */
+@keyframes dot-blink {
+  0%, 20% {
+      opacity: 0;
+  }
+  40% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0;
+  }
 }

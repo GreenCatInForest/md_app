@@ -70,6 +70,7 @@ services:
       && gunicorn md_app.wsgi:application --bind 0.0.0.0:1091 --workers 4 --timeout 1200"
     volumes:
       - .:/code  # Override or add specific volumes if needed
+      - shared_tmp:/tmp
     env_file:
       - .env
     ports:
@@ -83,6 +84,7 @@ services:
     command: celery -A md_app.celery worker --loglevel=info
     volumes:
       - .:/code
+      - shared_tmp:/tmp
     depends_on:
       - db
       - redis
@@ -92,12 +94,11 @@ services:
   tailwind:
     <<: *default-app  # Reuse the default-app configuration
     container_name: maple-tailwind
-    command: "python manage.py tailwind start"
+    working_dir: /code/tailwind_app/static_src
+    command: "npm run dev"
     volumes:
-      - ./tailwind_app/static_src:/app/static_src
-      - /app/static_src/node_module
-    ports:
-      - "3000:3000"  # Example port, adjust as needed
+        - ./tailwind_app/static_src/tailwind.config.js:/code/tailwind_app/static_src/tailwind.config.js
+        - /code/tailwind_app/static_src/node_modules
     tty: true
     depends_on:
       - web
@@ -121,3 +122,4 @@ volumes:
   pg_data:
   pg_admin:
   redis_data:
+  shared_tmp:

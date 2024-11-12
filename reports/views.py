@@ -2,16 +2,19 @@ import logging
 import os
 import tempfile
 import re
+import json
 
 import pandas as pd
 from io import StringIO
 from celery.result import AsyncResult
+from datetime import datetime, time, timedelta
 
 from django.shortcuts import render, HttpResponse, get_object_or_404
 from django.http import FileResponse, Http404, JsonResponse
 from django.utils import timezone
-from datetime import datetime, time, timedelta
 from django.utils._os import safe_join
+from django.urls import reverse
+from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from datetime import datetime, timezone as dt_timezone
@@ -26,37 +29,8 @@ from .utils.normalize_logger_serial import normalize_logger_serial
 from .utils.resize_and_save_image import resize_and_save_image
 from .utils.room_data import RoomData
 
-from .tasks import long_running_task
+from .tasks import  generate_report_task
 
-
-def task_status(request, task_id):
-    result = AsyncResult(task_id)
-    if result.state == 'PENDING':
-        response = {
-            'state': result.state,
-            'status': 'Pending...'
-        }
-    elif result.state != 'FAILURE':
-        response = {
-            'state': result.state,
-            'status': result.info if result.info else 'Processing...'
-        }
-        if result.state == 'SUCCESS':
-            response['result'] = result.result
-    else:
-        # Something went wrong in the background job
-        response = {
-            'state': result.state,
-            'status': str(result.info),  # this is the exception raised
-        }
-    return JsonResponse(response)
-
-
-def start_task(request):
-    if request.method == 'POST':
-        task = long_running_task.delay()
-        return JsonResponse({'task_id': task.id})
-    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -104,6 +78,12 @@ def save_uploaded_file(uploaded_file):
         return temp_file.name
     return ''
 
+def serve_report(request, filename):
+    file_path = os.path.join('reports_save', filename)
+    if os.path.exists(file_path):
+        return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+    else:
+        raise Http404("File not found")
 
 @login_required
 def report_view(request):
@@ -114,6 +94,7 @@ def report_view(request):
 
         if form.is_valid() and room_formset.is_valid():
             app_logger.debug("Form and formset are valid.")
+
             app_logger.debug(f"Number of rooms being processed: {len(room_formset.cleaned_data)}")
 
             # Save the Report object first
@@ -204,6 +185,8 @@ def report_view(request):
                             room_form.add_error('room_picture', 'Failed to process room picture.')
                 else:
                         room_instance.save()
+
+
 
             # Fetch logger data from form
             external_logger_serial = normalize_logger_serial(form.cleaned_data['external_logger'])
@@ -378,6 +361,41 @@ def report_view(request):
 
             app_logger.debug("Form data prepared. Calling RPTGen...")
             app_logger.debug(f"Form data being sent to RPTGen: {form_data}")
+            # After saving all necessary data, trigger the Celery task
+
+            image_property = report_instance.external_picture.path if report_instance.external_picture else ''
+            image_logo = report_instance.company_logo.path if report_instance.company_logo else ''
+
+            # Serializing
+
+            serialized_form_data = {
+            'surveyor': form.cleaned_data['surveyor'],
+            'company': form.cleaned_data['company'],
+            'address': form.cleaned_data['property_address'],
+            'occupied': form.cleaned_data['occupied'],
+            'inspection_time': form_data['inspectiontime'].isoformat(),  # Converts datetime to ISO 8601 string format
+            'monitor_time': form_data['monitor_time'].total_seconds(),
+            'comment': form.cleaned_data['notes'],
+            'surveyor': form.cleaned_data['surveyor'],
+            'occupied_during_all_monitoring': form.cleaned_data['occupied_during_all_monitoring'],
+            'occupant_number': form.cleaned_data['number_of_occupants'],
+            'Problem_rooms': [room.get('room_name', 'Unknown Room') for room in room_formset.cleaned_data],
+            'Monitor_areas': [room.get('room_monitor_area', 'Unknown Area') for room in room_formset.cleaned_data],
+            'moulds': [room.get('room_mould_visible', 'No Data') for room in room_formset.cleaned_data],
+            'Image_property': image_property,
+            'Image_logo': image_logo,
+            'comment': form.cleaned_data['notes'],
+            'datafiles': csv_file_paths,  # Pass the path to the CSV file
+            'room_pictures': room_pictures,
+            'Image_indoor1': image_indoor1,
+            'Image_indoor2': image_indoor2,
+            'Image_indoor3': image_indoor3,
+            'Image_indoor4': image_indoor4,
+        }
+            
+            form_data_json = json.dumps(serialized_form_data)
+            task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data)
+            return JsonResponse({'status':'pending', 'task_id': task.id})
 
             # Generate the report
             try:
@@ -402,6 +420,25 @@ def report_view(request):
         room_formset = RoomFormSet(queryset=Room.objects.none(), prefix='rooms')
         form = ReportForm()
         return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+    
+@login_required
+def check_task_status(request, task_id):
+    task_result = AsyncResult(task_id)
+    
+    if task_result.state == 'SUCCESS':
+        result = task_result.result
+        if result.get('status') == 'success':
+            pdf_filename = os.path.basename(result['pdf_url'])
+            pdf_url = request.build_absolute_uri(f'/reports/reports_save/{pdf_filename}')
+            return JsonResponse({'status': 'success', 'pdf_url': pdf_url})
+        else:
+            return JsonResponse({'status': 'error', 'message': result.get('message', 'Unknown error')})
+    elif task_result.state == 'FAILURE':
+        return JsonResponse({'status': 'error', 'message': str(task_result.result)})
+    elif task_result.state in ['PENDING', 'STARTED']:
+        return JsonResponse({'status': 'pending'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Unexpected task status.'})
 
 @login_required
 def historical_reports_view(request):
