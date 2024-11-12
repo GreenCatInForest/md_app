@@ -798,3 +798,82 @@ overflow: hidden; /* Hide any overflow content */
 .form-fields .input-wrapper:focus-within > svg {
   @apply fill-secondary scale-110;
 } */
+
+#loading-spinner {
+  display: none; /* Hidden by default */
+  justify-content: center;
+  align-items: center;
+  position: absolute; /* Position it absolutely over the form */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8); /* Light background to give emphasis */
+  z-index: 1000; /* Make sure it covers the form */
+}
+
+.center {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.drop {
+  height: 75px;
+  width: 75px;
+  border-radius: 58% 43% 33% 64% / 50% 38% 53% 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(173, 216, 230, 0.8), rgba(173, 216, 230, 0.2), transparent);
+  box-shadow: inset -5px -5px 15px rgba(255, 255, 255, 0.5), inset 5px 5px 15px rgba(0, 0, 0, 0.1), 2px 5px 10px rgba(0, 0, 0, 0.2);
+  position: relative; /* Position relative to enable absolute positioning for pseudo-elements */
+  transition: all 0.3s ease; /* Smooth transition for all properties */
+}
+
+.drop::before {
+  content: "";
+  position: absolute;
+  border-radius: 38% 55% 46% 48%;
+  background: rgba(255, 255, 255, 0.7);
+  width: 22px;
+  transform: rotate(-30deg);
+  height: 7px;
+  top: 10px;
+  left: 8px;
+  transition: all 0.3s ease; /* Smooth transition for highlight changes */
+}
+
+.drop::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  width: 5px;
+  height: 5px;
+  top: 35px;
+  left: 10px;
+  transition: all 0.3s ease; /* Smooth transition for reflection changes */
+}
+
+.drop:hover {
+  width: 80px; /* Slightly increase width */
+  height: 70px; /* Slightly decrease height */
+  border-radius: 58% 43% 33% 64% / 50% 50% 40% 60%; /* Change to mimic flattening */
+  box-shadow: inset -3px -3px 12px rgba(255, 255, 255, 0.5), inset 3px 3px 12px rgba(0, 0, 0, 0.1), 2px 4px 8px rgba(0, 0, 0, 0.2); /* Adjust shadow for hover */
+}
+
+.drop:hover::before {
+  width: 23px; /* Slightly reduced size for hover effect */
+  height: 15px; /* Slightly reduced height */
+  background: rgba(255, 255, 255, 0.4);
+  top: 10px; /* Adjusted position */
+  left: 25px; /* Adjusted position */
+}
+
+
+.drop:hover::after {
+  width: 4px; /* Adjust size of reflection */
+  height: 4px; /* Adjust size of reflection */
+  top: 45px; /* Adjust position */
+  left: 22px; /* Adjust position */
+}
