@@ -1021,3 +1021,59 @@ overflow: hidden; /* Hide any overflow content */
   display: none; 
   z-index: 99; 
 }
+
+.spinner {
+  @apply flex-row justify-center items-center gap-4;
+}
+
+.spinner-dot {
+  @apply animate-pulse h-4 w-4 bg-blue-400 border-[1px] border-blue-500 rounded-full relative; 
+}
+
+.spinner-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.spinner-dot:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.spinner-dot:nth-child(3) {
+  animation-delay: 1s;
+}
+
+.spinner-dot {
+  @apply animate-pulse h-4 w-4 bg-blue-400 border-[1px] border-blue-500 rounded-full relative; 
+}
+
+.spinner-dot.before {
+  @apply animate-ping h-6 w-6 absolute bg-white top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2;
+}
+
+/* Style for each dot */
+.dot {
+  opacity: 0;
+  animation: dot-blink 1.5s infinite;
+}
+
+/* Delay each dot to create a sequential appearance */
+.dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.dot:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.dot:nth-child(3) {
+  animation-delay: 1s;
+}
+
+/* Animation to fade dots in and out */
+@keyframes dot-blink {
+  0%, 20% {
+      opacity: 0;
+  }
+  40% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0;
+  }
+}
