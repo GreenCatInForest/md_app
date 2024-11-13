@@ -40,6 +40,10 @@ WORKDIR /code/tailwind_app/static_src
 # Install Node.js dependencies
 RUN npm install
 
+RUN SECRET_KEY=${SECRET_KEY} python3 manage.py tailwind install --no-input && \
+    SECRET_KEY=${SECRET_KEY} python3 manage.py tailwind build --no-input && \
+    SECRET_KEY=${SECRET_KEY} python3 manage.py collectstatic --no-input
+
 # Return to the base directory
 WORKDIR /code
 
@@ -72,6 +76,7 @@ ENV POSTGRES_USER=${POSTGRES_USER}
 ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 ENV DB_HOST=${DB_HOST}
 ENV DB_PORT=${DB_PORT}
+
 
 
 # Expose port
