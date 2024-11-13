@@ -73,10 +73,6 @@ ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 ENV DB_HOST=${DB_HOST}
 ENV DB_PORT=${DB_PORT}
 
-RUN SECRET_KEY=${SECRET_KEY} python manage.py tailwind install --no-input && \
-    SECRET_KEY=${SECRET_KEY} python manage.py tailwind build --no-input && \
-    SECRET_KEY=${SECRET_KEY} python manage.py collectstatic --no-input
-
 
 # Expose port
 EXPOSE 1091

@@ -95,7 +95,7 @@ services:
     <<: *default-app  # Reuse the default-app configuration
     container_name: maple-tailwind
     working_dir: /code/tailwind_app/static_src
-    command: "npm run build"
+    command: "npm run dev"
     volumes:
         - ./tailwind_app/static_src/tailwind.config.js:/code/tailwind_app/static_src/tailwind.config.js
         - /code/tailwind_app/static_src/node_modules
