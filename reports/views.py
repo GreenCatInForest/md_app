@@ -9,7 +9,7 @@ from io import StringIO
 from celery.result import AsyncResult
 from datetime import datetime, time, timedelta
 
-from django.shortcuts import render, HttpResponse, get_object_or_404
+from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.http import FileResponse, Http404, JsonResponse
 from django.utils import timezone
 from django.utils._os import safe_join
@@ -208,6 +208,8 @@ def report_view(request):
 
             if adjusted_start_date > adjusted_end_date:
                 form.add_error(None, 'After adjustment, the start date is after the end date.')
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'errors': form.errors}, status=400)
                 return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
             
             # Convert dates to UTC datetime
@@ -225,9 +227,13 @@ def report_view(request):
 
             if not LoggerModel.objects.filter(serial_number=external_logger_serial).exists():
                 form.add_error('external_logger', 'Sensor with the provided serial number does not exist.')
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'errors': form.errors}, status=400)
                 return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
             if external_logger_data is None:
                 form.add_error('external_logger', 'No data found for the external logger within the specified date range.')
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'errors': form.errors}, status=400)
                 return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
             else: 
                 form.errors.pop('external_logger', None)
@@ -394,8 +400,17 @@ def report_view(request):
         }
             
             form_data_json = json.dumps(serialized_form_data)
-            task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data)
-            return JsonResponse({'status':'pending', 'task_id': task.id})
+            if form_data_json: 
+                task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data)
+
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'status':'pending', 'task_id': task.id})
+                else:
+                    return redirect('report_status', task_id=task.id)
+
+
+
+                return JsonResponse({'status':'pending', 'task_id': task.id})
 
             # Generate the report
             try:
@@ -414,6 +429,15 @@ def report_view(request):
             app_logger.error("Form or formset validation failed.")
             app_logger.error(f"Form errors: {form.errors}")
             app_logger.error(f"RoomFormSet errors: {room_formset.errors}")
+
+
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                errors = {
+                    'form_errors': form.errors,
+                    'room_formset_errors': room_formset.errors,
+                }
+                return JsonResponse({'success': False, 'errors': errors}, status=400)
+            
             return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
 
     else:

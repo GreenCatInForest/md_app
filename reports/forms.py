@@ -149,8 +149,8 @@ class ReportForm(forms.ModelForm):
 class RoomForm(forms.ModelForm):
     class Meta:
         model = Room
-        fields = ['room_name', 'room_ambient_logger', 'room_surface_logger',
-                  'room_monitor_area', 'room_mould_visible', 'room_picture']
+        fields = ['room_name', 'room_monitor_area', 'room_mould_visible', 'room_ambient_logger', 'room_surface_logger',
+                    'room_picture']
         labels = {
             'room_ambient_logger': 'Ambient Sensor, Serial Number',
             'room_surface_logger': 'Surface Sensor, Serial Number',
@@ -161,6 +161,18 @@ class RoomForm(forms.ModelForm):
                 'placeholder': 'Enter room name',
                 'id':'room_name',
                 'required': True,
+            }),
+            'room_monitor_area': TextInput(attrs={
+                'class': 'report-constructor-form-field',
+                'placeholder': 'Monitor Area',
+                'id':'room_monitor_area',
+                'required': True,
+            }),
+             'room_mould_visible': CheckboxInput(attrs={
+                'class':"w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600",
+                'id':'room_mould_visible',
+                'type':'checkbox',
+                'required': False,
             }),
             'room_picture': FileInput(attrs={
                 'class': 'hidden',
@@ -177,18 +189,7 @@ class RoomForm(forms.ModelForm):
                 'placeholder': 'Surface Sensor',
                 'id':'room_surface_logger'
             }),
-            'room_monitor_area': TextInput(attrs={
-                'class': 'report-constructor-form-field',
-                'placeholder': 'Monitor Area',
-                'id':'room_monitor_area',
-                'required': True,
-            }),
-            'room_mould_visible': CheckboxInput(attrs={
-                'class':"w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600",
-                'id':'room_mould_visible',
-                'type':'checkbox',
-                'required': False,
-            }),
+           
             
         }
 
@@ -197,9 +198,10 @@ class RoomForm(forms.ModelForm):
 
         for field in self.fields:
             self.fields['room_name'].widget.attrs.update({'class': 'report-constructor-form-field '})
+            self.fields['room_monitor_area'].widget.attrs.update({'class': 'report-constructor-form-field '})
             self.fields['room_ambient_logger'].widget.attrs.update({'class': 'report-constructor-form-field '})
             self.fields['room_surface_logger'].widget.attrs.update({'class': 'report-constructor-form-field '})
-            self.fields['room_monitor_area'].widget.attrs.update({'class': 'report-constructor-form-field '})
+
             
 
         for field_name, field in self.fields.items():

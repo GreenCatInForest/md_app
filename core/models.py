@@ -217,11 +217,11 @@ class Report (models.Model):
 class Room(models.Model):
     report = models.ForeignKey(Report, related_name='rooms', on_delete=models.CASCADE)
     room_name = models.CharField(max_length=255)
-    room_picture = models.ImageField(upload_to=room_photo_upload_path, null=True, blank=True)
-    room_ambient_logger = models.CharField(max_length=7)
-    room_surface_logger = models.CharField(max_length=7)
     room_monitor_area = models.CharField(max_length=255, blank=True, null=True)
     room_mould_visible = models.BooleanField(default=False)
+    room_ambient_logger = models.CharField(max_length=7)
+    room_surface_logger = models.CharField(max_length=7)
+    room_picture = models.ImageField(upload_to=room_photo_upload_path, null=True, blank=True)
 
     def __str__(self):
         return f"Room {self.room_name} in Report {self.report_id}"

@@ -502,7 +502,9 @@ reportForm.addEventListener('submit', async (e) => {
    try {
         const response = await fetch("{% url 'report' %}", {
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrfToken },
+                headers: { 'X-CSRFToken': formData.get(csrfToken),
+                            'X-Requested-With': 'XMLHttpRequest'
+                 },
                 body: formData
             });
         const data = await response.json();
@@ -521,7 +523,9 @@ reportForm.addEventListener('submit', async (e) => {
     } 
     catch (error) {
         console.error('Error:', error);
-        result.textContent = error.message || 'An unexpected error occurred.';
+        spinner.style.display = 'none';
+            if (error.errors) 
+             result.textContent = error.message || 'An unexpected error occurred.';
         result.style.display = 'block';
     } 
     finally {
