@@ -90,6 +90,7 @@ def report_view(request):
     if request.method == 'POST':
         form = ReportForm(request.POST, request.FILES)
         room_formset = RoomFormSet(request.POST, request.FILES, prefix='rooms')
+        
         user = request.user 
 
         if form.is_valid() and room_formset.is_valid():

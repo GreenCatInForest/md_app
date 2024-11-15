@@ -162,19 +162,42 @@
                                         {% for field in form %}
                                             {% if field.name == 'id' %}
                                                 {{ field.as_hidden }}
-                                            {% elif field.name != 'room_picture' %}
-                                            <p>
-                                                <label for="{{ field.id_for_label }}" class="custom-label-class">
-                                                    {{ field.label }}
-                                                </label>{{ field }}</p>
-                                            {% endif %}
-                                            {% if field.errors %}
-                                            <div class="error">
-                                                {{ field.errors }}
-                                            </div>
                                             {% endif %}
                                         {% endfor %}
-                                        
+                                            <p>
+                                                <label for="{{ form.room_name.id_for_label }}">{{ form.room_name.label }}</label>
+                                                {{ form.room_name }}
+                                                {% if form.room_name.errors %}
+                                                <div class="error">{{ form.room_name.errors }}</div>
+                                                {% endif %}
+                                            </p>
+                                            <p>
+                                                <label for="{{ form.room_monitor_area.id_for_label }}">{{ form.room_monitor_area.label }}</label>
+                                                {{ form.room_monitor_area }}
+                                                {% if form.room_monitor_area.errors %}
+                                                <div class="error">{{ form.room_monitor_areae.errors }}</div>
+                                                {% endif %}
+                                            </p>
+                                            <p>
+                                                <label for="{{ form.room_mould_visible.id_for_label }}">{{ form.room_mould_visible.label }}</label>
+                                                {{ form.room_mould_visible }}
+                                            </p>
+                                            <p>
+                                                <label for="{{ field.room_ambient_logger.id_for_label  }}" class="custom-label-class">
+                                                    {{ form.room_ambient_logger.label }}
+                                                </label>{{ form.room_ambient_logger }}
+                                                {% if form.room_ambient_logger.errors %}
+                                                <div class="error">{{ form.room_ambient_logger.errors }}</div>
+                                                {% endif %}
+                                            </p>
+                                            <p>
+                                                <label for="{{ field.room_surface_logger.id_for_label  }}" class="custom-label-class">
+                                                    {{ form.room_surface_logger.label }}
+                                                </label>{{ form.room_surface_logger }}
+                                                {% if form.room_surface_logger.errors %}
+                                                <div class="error">{{ form.room_surface_logger.errors }}</div>
+                                                {% endif %}
+                                            </p>       
                                         <!-- Room Picture Upload with Preview -->
                                         <div class="form-group flex items-center justify-center flex-wrap w-full">
                                             <label class="drop-area relative overflow-hidden flex flex-col items-center justify-between w-full h-[18.5rem] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600" data-preview-id="room_picture_preview_{{ forloop.counter }}">
