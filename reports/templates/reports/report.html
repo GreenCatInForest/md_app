@@ -487,83 +487,132 @@ reportResult.style.display = 'none';
 reportForm.addEventListener('submit', async (e) => { 
    e.preventDefault();
    
-   spinner.style.display = 'inline-flex';
-   blurBackgroundForResult.style.display = 'flex';
-   reportResult.style.display = 'block';
+   spinner.style.display = 'none';
+   blurBackgroundForResult.style.display = 'none';
+   reportResult.style.display = 'none';
    submitReportBtn.disabled = true;
 
    // Clear previous messages
    statusContainer.innerHTML = '';
 
    const formData = new FormData(reportForm);
-   const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-   console.log('Submitting form with FormData:', Array.from(formData.entries()));
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-   try {
-        const response = await fetch("{% url 'report' %}", {
+        try {
+            const response = await fetch("{% url 'report' %}", {
                 method: 'POST',
-                headers: { 'X-CSRFToken': csrfToken },
+                headers: { 
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest' // Helps Django recognize AJAX
+                },
                 body: formData
             });
-        const data = await response.json();
-    
-        if (data.status === 'pending') {
-                const taskId = data.task_id;
-                pollTaskStatus(taskId);  // Start polling for task status
-                spinner.style.display = 'inline-flex';
-                blurBackgroundForResult.style.display = 'flex';
-                reportResult.style.display = 'block';
 
-            } 
-        else {
-                throw new Error(data.message || 'Failed to start report generation.');
+            const data = await response.json();
+
+            if (response.ok) {
+                if (data.status === 'pending') {
+                    // Task started successfully
+                    spinner.style.display = 'block';
+                    // Optionally, show other UI elements related to the spinner
+                    pollTaskStatus(data.task_id);
+                } else {
+                    // Handle unexpected success statuses
+                    throw new Error(data.message || 'Unexpected response from server.');
+                }
+            } else {
+                if (response.status === 400 && data.errors) {
+                    // Display validation errors
+                    displayValidationErrors(data.errors);
+                } else {
+                    // Handle other errors
+                    throw new Error(data.message || 'An unexpected error occurred.');
+                }
             }
-    } 
-    catch (error) {
-        console.error('Error:', error);
-        result.textContent = error.message || 'An unexpected error occurred.';
-        result.style.display = 'block';
-    } 
-    finally {
-        submitReportBtn.disabled = false;
-    }
-});
+        } catch (error) {
+            console.error('Error:', error);
+            reportResult.textContent = error.message || 'An unexpected error occurred.';
+            reportResult.style.display = 'block';
+        } finally {
+            submitReportBtn.disabled = false;
+        }
+    });
 
-const pollTaskStatus = async (taskId) => {
-    try {
-        const statusResponse = await fetch(`/reports/task-status/${taskId}`);
-        
-        console.log(statusResponse);
-        
-        // Check if the response is JSON by attempting to parse it
-        const contentType = statusResponse.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            throw new Error("Expected JSON, received something else");
+    // Function to display validation errors
+    function displayValidationErrors(errors) {
+        // Assuming you have an element with id 'errorContainer' to display errors
+        const resultContainer = document.getElementById('resultContainer');
+
+        // Display form errors
+        if (errors.form_errors) {
+            for (const [field, errorList] of Object.entries(errors.form_errors)) {
+                errorList.forEach(errorObj => {
+                    const errorMsg = document.createElement('div');
+                    errorMsg.classList.add('error-message'); // Style this class as desired
+                    errorMsg.textContent = `${field}: ${errorObj.message}`;
+                    statusContainer.appendChild(errorMsg);
+                });
+            }
         }
 
-        const statusData = await statusResponse.json();
-        console.log(statusData);
+        // Display formset errors
+        if (errors.formset_errors) {
+            errors.formset_errors.forEach((formErrors, index) => {
+                if (Object.keys(formErrors).length > 0) {
+                    for (const [field, errorList] of Object.entries(formErrors)) {
+                        errorList.forEach(errorObj => {
+                            const errorMsg = document.createElement('div');
+                            errorMsg.classList.add('error-message'); // Style this class as desired
+                            errorMsg.textContent = `Room ${index + 1}, ${field}: ${errorObj.message}`;
+                            statusContainer.appendChild(errorMsg);
+                        });
+                    }
+                }
+            });
+        }
 
-        if (statusData.status === 'success') {
-            result.innerHTML = `Report generated <span class="text-blue-400 font-semibold">successfully</span>. </br>
-            <a href="${statusData.pdf_url}" target="_blank" class="inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 hover:bg-blue-800 justify-center px-5">View Report</a>`;
-            result.style.display = 'block';
+        // Optionally, scroll to the error container
+        statusContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Function to poll task status
+    async function pollTaskStatus(taskId) {
+        try {
+            const response = await fetch(`/reports/task-status/${taskId}/`, {
+                headers: { 
+                    'X-Requested-With': 'XMLHttpRequest' 
+                }
+            });
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                // Hide spinner
+                spinner.style.display = 'none';
+
+                // Display the report link or success message
+                reportResult.innerHTML = `
+                    <p>Report generated successfully.</p>
+                    <a href="${data.pdf_url}" target="_blank">View Report</a>
+                `;
+                reportResult.style.display = 'block';
+            }
+            else if (data.status === 'error') {
+                // Hide spinner and show error
+                spinner.style.display = 'none';
+                reportResult.textContent = data.message || 'An error occurred while generating the report.';
+                reportResult.style.display = 'block';
+            }
+            else {
+                // Task is still running; poll again after a delay
+                setTimeout(() => pollTaskStatus(taskId), 2000);
+            }
+        } catch (error) {
+            console.error('Error polling task status:', error);
             spinner.style.display = 'none';
+            reportResult.textContent = 'An unexpected error occurred while checking task status.';
+            reportResult.style.display = 'block';
         }
-        else if (statusData.status === 'error') {
-            result.textContent = statusData.message || 'An unexpected error occurred.';
-            result.style.display = 'block';
-        }
-        else {
-            setTimeout(() => pollTaskStatus(taskId), 2000);
-
-        }
-    } catch (error) {
-        console.error('Error checking task status:', error);
-        result.textContent = 'An unexpected error occurred while checking task status.';
-        result.style.display = 'block';
     }
-};
 });
 </script>
 

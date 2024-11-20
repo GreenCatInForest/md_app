@@ -9,7 +9,7 @@ from io import StringIO
 from celery.result import AsyncResult
 from datetime import datetime, time, timedelta
 
-from django.shortcuts import render, HttpResponse, get_object_or_404
+from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.http import FileResponse, Http404, JsonResponse
 from django.utils import timezone
 from django.utils._os import safe_join
@@ -395,7 +395,13 @@ def report_view(request):
             
             form_data_json = json.dumps(serialized_form_data)
             task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data)
-            return JsonResponse({'status':'pending', 'task_id': task.id})
+
+            if (request.headers.get('x-requested-with') == 'XMLHttpRequest'):
+                return JsonResponse({'status':'pending', 'task_id': task.id})
+                
+            else:
+                return redirect('report_status', task_id=task.id)
+
 
             # Generate the report
             try:
@@ -409,16 +415,33 @@ def report_view(request):
             except Exception as e:
                 app_logger.error(f"Error generating report: {e}")
                 return HttpResponse('Error generating report.', status=500)
-
         else:
-            app_logger.error("Form or formset validation failed.")
-            app_logger.error(f"Form errors: {form.errors}")
-            app_logger.error(f"RoomFormSet errors: {room_formset.errors}")
-            return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                # Serialize form errors
+                form_errors = {field: errors.get_json_data(escape_html=True) for field, errors in form.errors.items()}
+                
+                # Serialize formset errors
+                formset_errors = []
+                for form in room_formset.forms:
+                    if form.errors:
+                        formset_errors.append({field: errors.get_json_data(escape_html=True) for field, errors in form.errors.items()})
+                    else:
+                        formset_errors.append({})
+                
+                errors = {
+                    'form_errors': form_errors,
+                    'formset_errors': formset_errors,
+                }
+
+                return JsonResponse({'status': 'error', 'errors': errors}, status=400)
+         else:
+                # For non-AJAX, render the form with errors as usual
+                return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
 
     else:
-        room_formset = RoomFormSet(queryset=Room.objects.none(), prefix='rooms')
+        # For GET requests, render the form
         form = ReportForm()
+        room_formset = RoomFormSet(queryset=Room.objects.none(), prefix='rooms')
         return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
     
 @login_required
