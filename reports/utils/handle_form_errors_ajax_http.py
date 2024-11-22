@@ -6,7 +6,7 @@ def is_ajax(request):
     return request.GET.get('ajax') == '1'
 
 
-def handle_form_errors(request, form, formset):
+def handle_form_errors_ajax_http(request, form, formset):
     if is_ajax(request):
         form_errors = {field: errors.get_json_data(escape_html=True) for field, errors in form.errors.items()}
 
