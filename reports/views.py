@@ -225,10 +225,40 @@ def report_view(request):
 
             if not LoggerModel.objects.filter(serial_number=external_logger_serial).exists():
                 form.add_error('external_logger', 'Sensor with the provided serial number does not exist.')
-                return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+                if (request.headers.get('x-requested-with') == 'XMLHttpRequest'):
+                    form_errors = {field: errors.get_json_data (escape_html = True) for field, errors in form.errors.items()}
+
+                    formset_errors = []
+                    for form in room_formset.forms: 
+                        if form.errors:
+                            formset_errors.append({field: errors.get_json_data (escape_html = True) for field, errors in form.errors.items()})
+                        else:
+                            formset_errors.append({})
+                    errors = {
+                        'form_errors': form_errors,
+                        'formset_errors': formset_errors,
+                    }
+                    return JsonResponse({'status':'error', 'errors':errors}, status=400)
+                else:
+                    return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
             if external_logger_data is None:
                 form.add_error('external_logger', 'No data found for the external logger within the specified date range.')
-                return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+                if (request.headers.get('x-requested-with') == 'XMLHttpRequest'):
+                    form_errors = {field: errors.get_json_data (escape_html = True) for field, errors in form.errors.items()}
+
+                    formset_errors = []
+                    for form in room_formset.forms: 
+                        if form.errors:
+                            formset_errors.append({field: errors.get_json_data (escape_html = True) for field, errors in form.errors.items()})
+                        else:
+                            formset_errors.append({})
+                    errors = {
+                        'form_errors': form_errors,
+                        'formset_errors': formset_errors,
+                    }
+                    return JsonResponse({'status':'error', 'errors':errors}, status=400)
+                else:
+                    return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
             else: 
                 form.errors.pop('external_logger', None)
 
@@ -439,10 +469,24 @@ def report_view(request):
                 return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
 
     else:
-        # For GET requests, render the form
         form = ReportForm()
         room_formset = RoomFormSet(queryset=Room.objects.none(), prefix='rooms')
-        return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
+        if (request.headers.get('x-requested-with') == 'XMLHttpRequest'):
+            form_errors = {field: errors.get_json_data (escape_html = True) for field, errors in form.errors.items()}
+
+            formset_errors = []
+            for form in room_formset.forms: 
+                if form.errors:
+                    formset_errors.append({field: errors.get_json_data (escape_html = True) for field, errors in form.errors.items()})
+                else:
+                    formset_errors.append({})
+            errors = {
+                'form_errors': form_errors,
+                'formset_errors': formset_errors,
+            }
+            return JsonResponse({'status':'error', 'errors':errors}, status=400)
+        else:
+            return render(request, 'reports/report.html', {'form': form, 'room_formset': room_formset})
     
 @login_required
 def check_task_status(request, task_id):
