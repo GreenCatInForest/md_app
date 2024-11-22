@@ -27,6 +27,7 @@ from core.models import Logger as LoggerModel, Logger_Data, Room, Report, Downlo
 from .utils import PCAdataTool
 from .utils.normalize_logger_serial import normalize_logger_serial  
 from .utils.resize_and_save_image import resize_and_save_image
+from .utils.handle_form_errors_ajax_http import handle_form_errors_ajax_http
 from .utils.room_data import RoomData
 
 from .tasks import  generate_report_task
