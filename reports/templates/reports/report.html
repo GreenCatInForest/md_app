@@ -503,7 +503,8 @@ reportForm.addEventListener('submit', async (e) => {
                 method: 'POST',
                 headers: { 
                     'X-CSRFToken': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest' // Helps Django recognize AJAX
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
                 },
                 body: formData
             });

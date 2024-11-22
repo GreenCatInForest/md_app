@@ -348,7 +348,6 @@ def report_view(request):
                     monitor_area=monitor_area
                 )
 
-
                 app_logger.debug(f"RoomData instance created: {room_data_instance.get_summary()}")
 
             
