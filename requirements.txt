@@ -32,5 +32,5 @@ django_celery_beat
 redis
 flower 
 
-
+stripe
 

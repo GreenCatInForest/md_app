@@ -1,3 +1,6 @@
-from django.shortcuts import render
+import stripe
+from django.shortcuts import render, redirect
+from django.conf import settings
+from decimal import Decimal
 
-# Create your views here.
+stripe.api_key = settings.STRIPE_PUBLIC_KEY 
