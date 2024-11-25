@@ -73,7 +73,7 @@ INSTALLED_APPS = [
     'loggers',
     'reports',
     'dbbackup',
-    
+    'payments',
 
 ]
 
