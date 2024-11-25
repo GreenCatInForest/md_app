@@ -124,8 +124,8 @@ class ReportForm(forms.ModelForm):
                 self.add_error('start_time', 'Start time cannot be in the future')
             elif end_time > start_time and (end_time - start_time).days < 3:
                 self.add_error('end_time', 'Monitoring period shall be more than 3 days')
-            elif end_time > start_time and (end_time - start_time).days > 31:
-                self.add_error('end_time', 'Monitoring period shall be less than 31 days')
+            elif end_time > start_time and (end_time - start_time).days > 61:
+                self.add_error('end_time', 'Monitoring period shall be less than 60 days')
             
         if start_time and not end_time:
             self.add_error('end_time', 'End time is required')
