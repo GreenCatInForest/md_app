@@ -513,7 +513,11 @@ reportForm.addEventListener('submit', async (e) => {
             if (response.ok) {
                 if (data.status === 'pending') {
                     // Task started successfully
-                    spinner.style.display = 'block';
+                    spinner.style.display = 'inline-flex';
+                    blurBackgroundForResult.style.display = 'flex';
+                    reportResult.style.display = 'block';
+                    submitReportBtn.disabled = true;
+                    statusContainer.textContent = '';
                     // Optionally, show other UI elements related to the spinner
                     pollTaskStatus(data.task_id);
                 } else {
@@ -522,6 +526,9 @@ reportForm.addEventListener('submit', async (e) => {
                 }
             } else {
                 if (response.status === 400 && data.errors) {
+                    
+                    spinner.style.display = 'none';
+                    blurBackgroundForResult.style.display = 'none';
                     // Display validation errors
                     displayValidationErrors(data.errors);
                 } else {
@@ -531,6 +538,8 @@ reportForm.addEventListener('submit', async (e) => {
             }
         } catch (error) {
             console.error('Error:', error);
+            spinner.style.display = 'none';
+            blurBackgroundForResult.style.display = 'none';
             reportResult.textContent = error.message || 'An unexpected error occurred.';
             reportResult.style.display = 'block';
         } finally {
@@ -590,10 +599,8 @@ reportForm.addEventListener('submit', async (e) => {
                 spinner.style.display = 'none';
 
                 // Display the report link or success message
-                reportResult.innerHTML = `
-                    <p>Report generated successfully.</p>
-                    <a href="${data.pdf_url}" target="_blank">View Report</a>
-                `;
+                reportResult.innerHTML = `Report generated <span class="text-blue-400 font-semibold">successfully</span>. </br>
+                <a href="${data.pdf_url}" target="_blank" class="inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 hover:bg-blue-800 justify-center px-5">View Report</a>`;
                 reportResult.style.display = 'block';
             }
             else if (data.status === 'error') {
