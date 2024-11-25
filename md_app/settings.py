@@ -1,3 +1,5 @@
+# Backup 25.11.24
+
 """
 Django settings for md_app project.
 
