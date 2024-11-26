@@ -10,6 +10,7 @@ from django.conf import settings
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.utils.html import format_html
 from decimal import Decimal
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -305,6 +306,33 @@ class Payment(models.Model):
     report = models.ForeignKey(Report, on_delete=models.CASCADE, null=True, blank=True, related_name='payments')
     logger_rental = models.ForeignKey(Logger_Rental, on_delete=models.CASCADE, null=True, blank=True, related_name='payments')
 
+    def get_payment_type(self):
+        if self.report:
+            return "Report"
+        elif self.logger_rental:
+            return "Logger Rent"
+        return "Unknown"
+
+    def get_report_number(self):
+        return self.report.id if self.report else None
+    
+    def get_report_date(self):
+        return self.report.report_timestamp if self.report else None
+    
+    def get_report_link(self):
+        if self.report:
+            return format_html(
+                '<a href="/admin/core/report/{}/change/">View Report</a>',
+                self.report.id
+            )
+        return "-"
+    get_report_link.short_description = "Report Link"
+    get_report_link.allow_tags = True
+    
+    get_payment_type.short_description = "Payment Type"
+    get_report_number.short_description = "Report Number"
+    get_report_date.short_description = "Report Date"
+
     def __str__(self):
         return f"Payment {self.id} - {self.status}"
     
@@ -313,3 +341,5 @@ class Payment(models.Model):
         items = [self.report, self.logger_rental]
         if sum(item is not None for item in items) != 1:
             raise ValidationError('Exactly one of report, logger_rental, or credit_package must be set.')
+        
+    
