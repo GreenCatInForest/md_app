@@ -15,6 +15,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
+
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -170,6 +171,43 @@ class Logger_Health (models.Model):
     class Meta:
         verbose_name_plural = 'logger health'
 
+class Logger_Rental (models.Model):
+    LOGGER_STATUS_CHOICES = [
+        ('RENTAL_REQUESTED', 'Rental Requested'),
+        ('IN_TRANSIT_TO_CLIENT', 'In Transit to Client'),
+        ('WITH_CLIENT', 'With Client'),
+        ('IN_TRANSIT_FROM_CLIENT', 'In Transit from Client'),
+        ('RETURNED', 'Returned'),
+    ]
+
+    LOGGER_TYPE_CHOICES = [
+        ('External', 'External'),
+        ('Surface', 'Surface'),
+        ('Ambient', 'Ambient'),
+    ]
+    status = models.CharField(max_length=30, choices=LOGGER_STATUS_CHOICES)
+    logger_type = models.CharField(max_length=10, choices=LOGGER_TYPE_CHOICES)
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name = 'logger_rentals')
+    logger = models.ForeignKey(Logger, on_delete=models.SET_NULL, null=True, blank=True)
+    rental_start_date = models.DateTimeField()
+    rental_end_date = models.DateTimeField()
+    shipping_tracking_number = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add = True)
+    last_updated = models.DateTimeField(auto_now = True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def rental_duration(self):
+        return (self.rental_end_date - self.rental_start_date).days
+
+    @property
+    def is_paid(self):
+        return self.payments.filter(status='succeeded').exists()
+    
+    def __str__(self):
+        return f"Logger Rental {self.id} - {self.user.email}"
+
 
 class Report (models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -187,6 +225,7 @@ class Report (models.Model):
     occupied_during_all_monitoring = models.BooleanField(default=False)
     number_of_occupants = models.IntegerField(default=0)
     report_file = models.FileField(upload_to='reports_save/', null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
 
       # Ensure the file path is correctly formatted using instance-specific information
     def save(self, *args, **kwargs):
@@ -194,9 +233,6 @@ class Report (models.Model):
             self.report_file = f'reports/{self.id}/{self.property_address}_{self.start_time.strftime("%Y%m%d%H%M%S")}.pdf'
         super().save(*args, **kwargs)
 
-
-    # def __str__(self):
-    #     return self.start_time.strftime("%Y%m%d-%H:%M:%S")
 
     def __str__(self):
         return f"Report {self.property_address} - {self.start_time.strftime('%Y-%m-%d')}"
@@ -210,9 +246,16 @@ class Report (models.Model):
     def clean(self):
         if self.end_time and self.start_time and self.end_time <= self.start_time:
             raise ValidationError(_('End time must be after start time.'))
+        
+    # Additional logic for payments
+    @property
+    def is_paid(self):
+        return self.payments.filter(status='succeeded').exists()
+    
+    def __str__(self):
+        return f"Report {self.id} - {self.user.email}"
 
    
-
 
 class Room(models.Model):
     report = models.ForeignKey(Report, related_name='rooms', on_delete=models.CASCADE)
@@ -243,3 +286,33 @@ class Downloads(models.Model):
         return None
     
 
+class Payment(models.Model):
+
+    PAYMENT_STATUS_CHOICES = [
+        ('succeeded', 'Succeeded'),
+        ('failed', 'Failed'),
+        ('pending', 'Pending'),
+        ('cancelled', 'Cancelled'),
+        ('refunded', 'Refunded'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(
+        max_length=20,
+        status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending'),
+    )
+    created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    report = models.ForeignKey(Report, on_delete=models.CASCADE, null=True, blank=True, related_name='payments')
+    logger_rental = models.ForeignKey(Logger_Rental, on_delete=models.CASCADE, null=True, blank=True, related_name='payments')
+
+    def __str__(self):
+        return f"Payment {self.id} - {self.status}"
+    
+    def clean(self):
+        # Ensure only one of the foreign keys is set
+        items = [self.report, self.logger_rental]
+        if sum(item is not None for item in items) != 1:
+            raise ValidationError('Exactly one of report, logger_rental, or credit_package must be set.')
