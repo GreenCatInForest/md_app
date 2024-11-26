@@ -225,7 +225,7 @@ class Report (models.Model):
     occupied_during_all_monitoring = models.BooleanField(default=False)
     number_of_occupants = models.IntegerField(default=0)
     report_file = models.FileField(upload_to='reports_save/', null=True, blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
       # Ensure the file path is correctly formatted using instance-specific information
     def save(self, *args, **kwargs):
@@ -298,10 +298,7 @@ class Payment(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(
-        max_length=20,
-        status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending'),
-    )
+    status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=False, auto_now=True)
 
