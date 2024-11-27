@@ -13,6 +13,7 @@ class DownloadsAdmin(admin.ModelAdmin):
 class ReportAdmin(admin.ModelAdmin):
     fields = ['user', 'start_time', 'end_time', 'report_timestamp', 'property_address',
               'external_logger', 'company', 'surveyor', 'report_file']
+    readonly_fields = ('report_timestamp',)
     list_display = ['user', 'company', 'surveyor', 'property_address', 'start_time', 'end_time', 'report_timestamp',
               'external_logger', 'report_file']
     search_fields = ['user', 'start_time', 'end_time', 'report_timestamp', 'property_address',
