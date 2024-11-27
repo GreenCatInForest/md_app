@@ -8,7 +8,7 @@ from django.contrib.auth.models import (
 )
 from django.conf import settings
 from django.db import models
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
 from decimal import Decimal
@@ -287,6 +287,29 @@ class Downloads(models.Model):
         return None
     
 
+class PriceSetting(models.Model):
+    SERVICE_TYPE_CHOICES = [
+        ('report', 'Report'),
+        ('rental', 'Rental'),
+        ('credit', 'Credit'),
+    ]
+
+    CURRENCY_CHOICES = [
+        ('GBP', 'British Pound'),
+        ('USD', 'US Dollar'),
+        ('EUR', 'Euro'),
+        ('AUD', 'Australian Dollar'),
+        ('JPY', 'Japanese Yen'),
+    ]
+
+    service_type = models.CharField(max_length=20, choices=SERVICE_TYPE_CHOICES, unique=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.00'))])
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='GBP')
+
+    def __str__(self):
+         return f"{self.get_service_type_display()} - {self.price} {self.currency}"
+    
+
 class Payment(models.Model):
 
     PAYMENT_STATUS_CHOICES = [
@@ -306,6 +329,23 @@ class Payment(models.Model):
     report = models.ForeignKey(Report, on_delete=models.CASCADE, null=True, blank=True, related_name='payments')
     logger_rental = models.ForeignKey(Logger_Rental, on_delete=models.CASCADE, null=True, blank=True, related_name='payments')
 
+    def set_price(self, *args, **kwargs):
+        # Automatically set the price based on the service type
+        if self.report:
+            self.amount = self.get_price_for_service('report')
+        elif self.logger_rental:
+            self.amount = self.get_price_for_service('rental')
+        else:
+            raise ValidationError("Payment must be linked to either a report or logger rental.")
+        super().save(*args, **kwargs)
+
+    def get_price_for_service(self, service_type):
+        try:
+            price_setting = PriceSetting.objects.get(service_type=service_type)
+            return price_setting.price
+        except ObjectDoesNotExist:
+            raise ValidationError(f"Price for service type '{service_type}' is not set in the database.")
+        
     def get_payment_type(self):
         if self.report:
             return "Report"

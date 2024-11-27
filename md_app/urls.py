@@ -29,6 +29,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('loggers.urls')),
     path('reports/', include('reports.urls')),
+    path('payments/', include('payments.urls')),
     path('users/', include('users.urls')),
     path("__reload__/", include("django_browser_reload.urls")),
     path('accounts/login/', views.user_login_register, name='login_register'),
