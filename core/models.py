@@ -302,12 +302,32 @@ class PriceSetting(models.Model):
         ('JPY', 'Japanese Yen'),
     ]
 
+    BILLING_TYPE_CHOICES = [
+        ('per_item', 'Per Item'),
+        ('per_time', 'Per Time (N Days)'),
+        ('credit_based', 'Credit-Based'),
+    ]
+
+    PURCHASE_TYPE_CHOICES = [
+        ('purchased', 'Purchased'),
+        ('promotional', 'Promotional'),
+    ]
+
     service_type = models.CharField(max_length=20, choices=SERVICE_TYPE_CHOICES, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.00'))])
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='GBP')
 
+    billing_type = models.CharField(max_length=20, choices=BILLING_TYPE_CHOICES, default='per_item')
+    interval_days = models.PositiveIntegerField(null=True, blank=True, help_text="Applicable only for 'per_time' billing.")
+    credit_type = models.CharField(max_length=20, choices=PURCHASE_TYPE_CHOICES, null=True, blank=True, help_text="Applicable only for 'credit-based' billing.")
+
     def __str__(self):
-         return f"{self.get_service_type_display()} - {self.price} {self.currency}"
+        description = f"{self.get_service_type_display()} - {self.price} {self.currency} ({self.get_billing_type_display()})"
+        if self.billing_type == 'per_time':
+            description += f" every {self.interval_days} days"
+        if self.billing_type == 'credit_based':
+            description += f" ({self.get_credit_type_display()})"
+        return description
     
 
 class Payment(models.Model):
@@ -342,7 +362,20 @@ class Payment(models.Model):
     def get_price_for_service(self, service_type):
         try:
             price_setting = PriceSetting.objects.get(service_type=service_type)
-            return price_setting.price
+            if price_setting.billing_type == 'per_item':
+                return {"price": price_setting.price, "currency": price_setting.currency}
+            elif price_setting.billing_type == 'per_time':
+                return {
+                    "price": price_setting.price,
+                    "currency": price_setting.currency,
+                    "interval_days": price_setting.interval_days,
+                }
+            elif price_setting.billing_type == 'credit_based':
+                return {
+                    "price": price_setting.price,
+                    "currency": price_setting.currency,
+                    "credit_type": price_setting.credit_type,
+                }
         except ObjectDoesNotExist:
             raise ValidationError(f"Price for service type '{service_type}' is not set in the database.")
         

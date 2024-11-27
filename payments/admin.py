@@ -13,7 +13,7 @@ class PaymentAdmin(admin.ModelAdmin):
 
 @admin.register(PriceSetting)
 class PriceSettingAdmin(admin.ModelAdmin):
-    list_display = ('service_type', 'price', 'currency')
-    list_editable = ('price','currency')
+    list_display = ('service_type', 'price', 'currency', 'billing_type', 'interval_days', 'credit_type')
+    list_editable = ('price', 'currency', 'billing_type', 'interval_days', 'credit_type')
     ordering = ('service_type',)
     search_fields = ('service_type','price', 'currency')
