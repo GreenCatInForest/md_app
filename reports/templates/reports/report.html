@@ -590,43 +590,118 @@ reportForm.addEventListener('submit', async (e) => {
 
     // Function to poll task status
     async function pollTaskStatus(taskId) {
-        try {
-            const response = await fetch(`/reports/task-status/${taskId}/`, {
-                headers: { 
-                    'X-Requested-With': 'XMLHttpRequest' 
+    try {
+        const response = await fetch(`/reports/task-status/${taskId}/`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            // Hide spinner
+            spinner.style.display = 'none';
+
+            // Clean Previous Results
+            reportResult.innerHTML = '';
+
+            // Create canvas
+            const canvas = document.createElement('canvas');
+            canvas.id = 'pdf-canvas';
+            reportResult.appendChild(canvas);
+
+            // Payment prompt message
+            const message = document.createElement('p');
+            message.textContent = 'Report generated ';
+            const successMessage = document.createElement('span');
+            successMessage.className = 'text-blue-400 font-semibold';
+            successMessage.textContent = 'successfully';
+
+            const requestPaymentMessage = document.createElement('p');
+            requestPaymentMessage.textContent = 'Please complete the payment to access your report.';
+            
+            message.appendChild(successMessage);
+            message.appendChild(document.createElement('br'));
+            message.appendChild(requestPaymentMessage);
+            reportResult.appendChild(message);
+
+            // Payment button
+            const payButton = document.createElement('button');
+            payButton.textContent = 'Pay Now';
+            payButton.className = 'inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-green-700 rounded-lg focus:ring-4 focus:ring-green-300 dark:focus:ring-green-900 hover:bg-green-800 justify-center px-5';
+            reportResult.appendChild(payButton);
+
+            // Set up Stripe Checkout
+            payButton.addEventListener('click', async () => {
+                const stripe = Stripe('your-publishable-key'); // Replace with your Stripe publishable key
+                const paymentSessionResponse = await fetch('/create-payment-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ reportId: taskId }),
+                });
+                const paymentSession = await paymentSessionResponse.json();
+
+                if (!paymentSession.id) {
+                    console.error('Payment session creation failed:', paymentSession);
+                    return;
+                }
+
+                const { error } = await stripe.redirectToCheckout({
+                    sessionId: paymentSession.id,
+                });
+
+                if (error) {
+                    console.error('Error with Stripe Checkout:', error.message);
                 }
             });
-            const data = await response.json();
 
-            if (data.status === 'success') {
-                // Hide spinner
-                spinner.style.display = 'none';
+            // Poll for payment completion
+            let retries = 0;
+            const maxRetries = 15; // Stop polling after 30 seconds
+            const checkPaymentStatus = async () => {
+                if (retries >= maxRetries) {
+                    console.error('Payment polling timed out.');
+                    return;
+                }
+                retries++;
+                const paymentStatusResponse = await fetch(`/payment-status/${taskId}/`);
+                const paymentStatus = await paymentStatusResponse.json();
 
-                // Display the report link or success message
+                if (paymentStatus.paid) {
+                    // Show the report once payment is completed
+                    reportResult.innerHTML = '';
+                    const reportLink = document.createElement('a');
+                    reportLink.href = data.pdf_url;
+                    reportLink.target = '_blank';
+                    reportLink.className = 'inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 hover:bg-blue-800 justify-center px-5';
+                    reportLink.textContent = 'View Report';
 
+                    reportResult.appendChild(reportLink);
+                    reportResult.style.display = 'block';
+                } else {
+                    setTimeout(checkPaymentStatus, 2000);
+                }
+            };
 
-                <canvas id="pdf-canvas"></canvas>
-                reportResult.innerHTML = `Report generated <span class="text-blue-400 font-semibold">successfully</span>. </br>
-                <a href="${data.pdf_url}" target="_blank" class="inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 hover:bg-blue-800 justify-center px-5">View Report</a>`;
-                reportResult.style.display = 'block';
-            }
-            else if (data.status === 'error') {
-                // Hide spinner and show error
-                spinner.style.display = 'none';
-                reportResult.textContent = data.message || 'An error occurred while generating the report.';
-                reportResult.style.display = 'block';
-            }
-            else {
-                // Task is still running; poll again after a delay
-                setTimeout(() => pollTaskStatus(taskId), 2000);
-            }
-        } catch (error) {
-            console.error('Error polling task status:', error);
+            checkPaymentStatus(); // Start payment status polling
+        } else if (data.status === 'error') {
+            // Hide spinner and show error
             spinner.style.display = 'none';
-            reportResult.textContent = 'An unexpected error occurred while checking task status.';
+            reportResult.textContent = data.message || 'An error occurred while generating the report.';
             reportResult.style.display = 'block';
+        } else {
+            // Task is still running; poll again after a delay
+            setTimeout(() => pollTaskStatus(taskId), 2000);
         }
+    } catch (error) {
+        console.error('Error polling task status:', error);
+        spinner.style.display = 'none';
+        reportResult.textContent = 'An unexpected error occurred while checking task status.';
+        reportResult.style.display = 'block';
     }
+}
 });
 </script>
 
