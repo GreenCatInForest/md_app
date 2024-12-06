@@ -483,6 +483,10 @@ const result = document.querySelector('#result');
 const reportResult = document.querySelector('.report-result');
 const blurBackgroundForResult = document.querySelector('#blur-background');
 
+let storedPaymentId = null;
+let storedPrice = null;
+let storedCurrency = null;
+
 
 spinner.style.display = 'none';
 blurBackgroundForResult.style.display = 'none';
@@ -517,6 +521,12 @@ reportForm.addEventListener('submit', async (e) => {
             if (response.ok) {
                 if (data.status === 'pending') {
                     // Task started successfully
+                    // Fetching the price
+
+                    storedPrice = data.price;
+                    storedCurrency = data.currency;
+
+                    // Styles for spinner
                     spinner.style.display = 'inline-flex';
                     blurBackgroundForResult.style.display = 'flex';
                     reportResult.style.display = 'block';
@@ -562,7 +572,7 @@ reportForm.addEventListener('submit', async (e) => {
                 errorList.forEach(errorObj => {
                     const errorMsg = document.createElement('div');
                     errorMsg.classList.add('error-message'); // Style this class as desired
-                    errorMsg.textContent = `${field}: ${errorObj.message}`;
+                    errorMsg.textContent = ${field}: ${errorObj.message};
                     statusContainer.appendChild(errorMsg);
                 });
             }
@@ -576,7 +586,7 @@ reportForm.addEventListener('submit', async (e) => {
                         errorList.forEach(errorObj => {
                             const errorMsg = document.createElement('div');
                             errorMsg.classList.add('error-message'); // Style this class as desired
-                            errorMsg.textContent = `Room ${index + 1}, ${field}: ${errorObj.message}`;
+                            errorMsg.textContent = Room ${index + 1}, ${field}: ${errorObj.message};
                             statusContainer.appendChild(errorMsg);
                         });
                     }
@@ -591,7 +601,7 @@ reportForm.addEventListener('submit', async (e) => {
     // Function to poll task status
     async function pollTaskStatus(taskId) {
     try {
-        const response = await fetch(`/reports/task-status/${taskId}/`, {
+        const response = await fetch(/reports/task-status/${taskId}/, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
             },
@@ -625,6 +635,12 @@ reportForm.addEventListener('submit', async (e) => {
             message.appendChild(requestPaymentMessage);
             reportResult.appendChild(message);
 
+            // Price info
+            const priceInfo = document.createElement('span')
+            priceInfo.textContent = 'Price: ' + storedPrice + ' ' + storedCurrency;
+            reportResult.appendChild(priceInfo);
+            reportResult.appendChild(priceInfo);
+
             // Payment button
             const payButton = document.createElement('button');
             payButton.textContent = 'Pay Now';
@@ -633,8 +649,8 @@ reportForm.addEventListener('submit', async (e) => {
 
             // Set up Stripe Checkout
             payButton.addEventListener('click', async () => {
-                const stripe = Stripe('your-publishable-key'); // Replace with your Stripe publishable key
-                const paymentSessionResponse = await fetch('/create-payment-session', {
+                const stripe = Stripe('your-publishable-key'); 
+                const paymentSessionResponse = await fetch('/checkout-session', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -666,7 +682,7 @@ reportForm.addEventListener('submit', async (e) => {
                     return;
                 }
                 retries++;
-                const paymentStatusResponse = await fetch(`/payment-status/${taskId}/`);
+                const paymentStatusResponse = await fetch(/payment-status/${taskId}/);
                 const paymentStatus = await paymentStatusResponse.json();
 
                 if (paymentStatus.paid) {

@@ -1,10 +1,12 @@
 import stripe
+import json
 from django.shortcuts import render, redirect
 from django.conf import settings
 from decimal import Decimal
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
-from core.models import Report
+from django.views.decorators.csrf import csrf_exempt
+from core.models import Report, Payment
 
 stripe.api_key = settings.STRIPE_PUBLISHABLE_KEY
 
@@ -14,3 +16,74 @@ def get_price(request, report_id):
         return JsonResponse({"price": float(report.price)}, status=200)  
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+
+def checkout_session(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        payment_id = data.get('payment_id')
+        user_email = request.user.email
+        print(user_email)
+
+        payment = get_object_or_404(Payment, id=payment_id)
+
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[{
+                    'price_data': {
+                        'currency':payment.currency.lower(),
+                        'unit_amount': int(payment.amount *100),
+                        'product_data': {
+                            'name': 'Report Generation',
+                        }
+                    },
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url=request.build_absolute_uri('/payment-success/'),
+                cancel_url=request.build_absolute_uri('/payment-cancel'),
+                # extracting customer email
+                metadata={
+                    'payment_id': str(payment.id),
+                }
+            )
+            return JsonResponse({'id':checkout_session.id})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt 
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.MRTA.get('HTTP_STRIPE_SIGNATURE', '')
+    endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except (ValueError, stripe.error.SignatureVerificationError) as e:
+        return HttpResponse(status=400)
+    
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        payment_id = session['metadata']['payment_id']
+
+        try:
+            payment = Payment.objects.get(id=payment_id)
+            payment.status = 'succeeded'
+            payment.save()
+            print('payment succeeded')
+        except Payment.DoesNotExist:
+            pass 
+
+    return HttpResponse(status=200)
+
+def payment_status(request, payment_id):
+    try:
+        payment = Payment.objects.get(id=payment_id)
+        return JsonResponse({'paid': payment.status == 'succeeded'})
+    except Payment.DoesNotExist:
+        return JsonResponse({'paid': False})

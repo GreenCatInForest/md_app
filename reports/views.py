@@ -23,12 +23,13 @@ from django.views import View
 from django.views.generic.list import ListView
 
 from .forms import ReportForm, RoomFormSet
-from core.models import Logger as LoggerModel, Logger_Data, Room, Report, Downloads
+from core.models import Logger as LoggerModel, Logger_Data, Room, Report, Downloads, Payment
 from .utils import PCAdataTool
 from .utils.normalize_logger_serial import normalize_logger_serial  
 from .utils.resize_and_save_image import resize_and_save_image
 from .utils.room_data import RoomData
 from .utils.handle_form_errors import handle_form_errors
+from payments.utils.get_service_price import get_service_price
 
 from .tasks import  generate_report_task
 
@@ -45,7 +46,6 @@ def fetch_logger_data(logger_serial, start_timestamp, end_timestamp):
     try:
         logger = LoggerModel.objects.get(serial_number=logger_serial)
         data = Logger_Data.objects.filter(logger=logger, timestamp__range=(start_timestamp, end_timestamp))
-
         if not data.exists():
             return None  # No data found for this logger within the range
         return pd.DataFrame(list(data.values()))
@@ -395,12 +395,22 @@ def report_view(request):
             'Image_indoor3': image_indoor3,
             'Image_indoor4': image_indoor4,
         }
+            # Create the Payment instance
+            payment = Payment(user=request.user, report=report_instance)
+            payment.set_price()
+            payment.save()
+            
             
             form_data_json = json.dumps(serialized_form_data)
             task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data)
-
+            app_logger.debug(f"Payment amount: {payment.amount}, currency: {payment.currency}")
+            
             if (request.headers.get('x-requested-with') == 'XMLHttpRequest'):
-                return JsonResponse({'status':'pending', 'task_id': task.id})
+                return JsonResponse({'status':'pending', 
+                                     'task_id': task.id, 
+                                     'payment_id': payment.id, 
+                                     'price': str(payment.amount),
+                                     'currency': payment.currency,})
                 
             else:
                 return redirect('report_status', task_id=task.id)
@@ -470,7 +480,9 @@ def check_task_status(request, task_id):
         if result.get('status') == 'success':
             pdf_filename = os.path.basename(result['pdf_url'])
             pdf_url = request.build_absolute_uri(f'/reports/reports_save/{pdf_filename}')
-            return JsonResponse({'status': 'success', 'pdf_url': pdf_url})
+            report_price, report_currency = get_service_price('report')
+            
+            return JsonResponse({'status': 'success', 'pdf_url': pdf_url, 'report_price':report_price, 'report_currency': report_currency})
         else:
             return JsonResponse({'status': 'error', 'message': result.get('message', 'Unknown error')})
     elif task_result.state == 'FAILURE':

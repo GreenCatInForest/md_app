@@ -300,6 +300,7 @@ class PriceSetting(models.Model):
         ('EUR', 'Euro'),
         ('AUD', 'Australian Dollar'),
         ('JPY', 'Japanese Yen'),
+        ('CREDITS', 'Credits'),
     ]
 
     BILLING_TYPE_CHOICES = [
@@ -315,7 +316,7 @@ class PriceSetting(models.Model):
 
     service_type = models.CharField(max_length=20, choices=SERVICE_TYPE_CHOICES, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.00'))])
-    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='GBP')
+    currency = models.CharField(max_length=7, choices=CURRENCY_CHOICES, default='GBP')
 
     billing_type = models.CharField(max_length=20, choices=BILLING_TYPE_CHOICES, default='per_item')
     interval_days = models.PositiveIntegerField(null=True, blank=True, help_text="Applicable only for 'per_time' billing.")
@@ -342,6 +343,7 @@ class Payment(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=7, choices=PriceSetting.CURRENCY_CHOICES, default='GBP')
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now=False, auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=False, auto_now=True)
@@ -352,30 +354,23 @@ class Payment(models.Model):
     def set_price(self, *args, **kwargs):
         # Automatically set the price based on the service type
         if self.report:
-            self.amount = self.get_price_for_service('report')
+            price_info = self.get_price_for_service('report')
         elif self.logger_rental:
-            self.amount = self.get_price_for_service('rental')
+            price_info = self.get_price_for_service('rental')
         else:
             raise ValidationError("Payment must be linked to either a report or logger rental.")
+        
+        self.amount = price_info['price']
+        self.currency = price_info['currency']
         super().save(*args, **kwargs)
 
     def get_price_for_service(self, service_type):
         try:
             price_setting = PriceSetting.objects.get(service_type=service_type)
-            if price_setting.billing_type == 'per_item':
-                return {"price": price_setting.price, "currency": price_setting.currency}
-            elif price_setting.billing_type == 'per_time':
-                return {
-                    "price": price_setting.price,
-                    "currency": price_setting.currency,
-                    "interval_days": price_setting.interval_days,
-                }
-            elif price_setting.billing_type == 'credit_based':
-                return {
-                    "price": price_setting.price,
-                    "currency": price_setting.currency,
-                    "credit_type": price_setting.credit_type,
-                }
+            return {
+                "price": price_setting.price,
+                "currency": price_setting.currency,
+        }
         except ObjectDoesNotExist:
             raise ValidationError(f"Price for service type '{service_type}' is not set in the database.")
         
