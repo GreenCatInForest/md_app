@@ -89,6 +89,9 @@ def generate_report_task(self, report_id, csv_file_paths, serialized_form_data):
             comment=comment,
             popup=True
         )
+
+        report.status = 'generated'
+        report.save()
         
         return {'status': 'success', 'pdf_url': filename}
     except Report.DoesNotExist:

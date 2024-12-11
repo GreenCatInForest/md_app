@@ -28,12 +28,21 @@
                         {% endfor %}
                     </td> -->
                     <td class="py-2 px-4 border-b text-gray-900">
-                        {% if report.report_file %}
+                        {% if report.report_file and report.status == 'paid'%}
                         <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>
                         <!-- <a href="{% url 'report_detail' report.id %}" class="text-blue-500 hover:underline">Download Report</a> -->
-                        {% else %}
+                        {% elif report.report_file and report.status == 'unpaid'%}
+                        <button>Pay Now</button>
+                        <p>Status: {{ report.get_status_display }}</p>
+                        <p>Price: {{ report.price }} {{ report.currency }}</p>
+                        {% elif report.report_file and report.status == 'None'%}
+                        <p>Report generated previously</p>
+                        {{ report.status }}
+                        <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>
+                        {% else%}
+                        {{ report.status }}
                         <p>No file available</p>
-                    {% endif %}
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

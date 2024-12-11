@@ -40,6 +40,10 @@ app_logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
+def get_stripe_key(request):
+    return JsonResponse({'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY})
+
+
 
 def fetch_logger_data(logger_serial, start_timestamp, end_timestamp):
     """Fetch logger data within the specified timestamp range and return as a DataFrame."""

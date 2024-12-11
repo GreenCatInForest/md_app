@@ -535,9 +535,17 @@ reportForm.addEventListener('submit', async (e) => {
                     statusContainer.textContent = '';
                     // Optionally, show other UI elements related to the spinner
                     pollTaskStatus(data.task_id);
-                } else {
+                    console.log(data.status);
+                } else if (data.status === 'generated') {
+                    console.log('generated not paid');
+                }
+                else {
                     // Handle unexpected success statuses
                     throw new Error(data.message || 'Unexpected response from server.');
+                    spinner.style.display = 'none';
+                    blurBackgroundForResult.style.display = 'none';
+                    reportResult.style.display = 'none';
+                    submitReportBtn.disabled = false;
                 }
             } else {
                 if (response.status === 400 && data.errors) {
@@ -549,6 +557,8 @@ reportForm.addEventListener('submit', async (e) => {
                 } else {
                     // Handle other errors
                     throw new Error(data.message || 'An unexpected error occurred.');
+                    spinner.style.display = 'none';
+                    blurBackgroundForResult.style.display = 'none';
                 }
             }
         } catch (error) {
@@ -573,7 +583,7 @@ reportForm.addEventListener('submit', async (e) => {
                 errorList.forEach(errorObj => {
                     const errorMsg = document.createElement('div');
                     errorMsg.classList.add('error-message'); // Style this class as desired
-                    errorMsg.textContent = ${field}: ${errorObj.message};
+                    errorMsg.textContent = `${field}: ${errorObj.message}`;
                     statusContainer.appendChild(errorMsg);
                 });
             }
@@ -587,7 +597,7 @@ reportForm.addEventListener('submit', async (e) => {
                         errorList.forEach(errorObj => {
                             const errorMsg = document.createElement('div');
                             errorMsg.classList.add('error-message'); // Style this class as desired
-                            errorMsg.textContent = Room ${index + 1}, ${field}: ${errorObj.message};
+                            errorMsg.textContent = Room `${index + 1}, ${field}: ${errorObj.message}`;
                             statusContainer.appendChild(errorMsg);
                         });
                     }
@@ -602,12 +612,13 @@ reportForm.addEventListener('submit', async (e) => {
     // Function to poll task status
     async function pollTaskStatus(taskId) {
     try {
-        const response = await fetch(/reports/task-status/${taskId}/, {
+        const response = await fetch(`/reports/task-status/${taskId}/`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
             },
         });
         const data = await response.json();
+        console.log(data);
 
         if (data.status === 'success') {
             // Hide spinner
@@ -640,18 +651,24 @@ reportForm.addEventListener('submit', async (e) => {
             const priceInfo = document.createElement('span')
             priceInfo.textContent = 'Price: ' + storedPrice + ' ' + storedCurrency;
             reportResult.appendChild(priceInfo);
-            reportResult.appendChild(priceInfo);
 
             // Payment button
             const payButton = document.createElement('button');
+            payButton.setAttribute('type', 'button'); 
+            payButton.setAttribute('id', 'pay-button'); 
             payButton.textContent = 'Pay Now';
             payButton.className = 'inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-green-700 rounded-lg focus:ring-4 focus:ring-green-300 dark:focus:ring-green-900 hover:bg-green-800 justify-center px-5';
             reportResult.appendChild(payButton);
 
+            const response = await fetch('/reports/get-stripe-key/');
+            const data = await response.json();
+            console.log("Stripe publishable key:", data.stripe_publishable_key);
+
+            const stripe = Stripe(data.stripe_publishable_key);
+
             // Set up Stripe Checkout
             payButton.addEventListener('click', async () => {
-                const stripe = Stripe('your-publishable-key'); 
-                const paymentSessionResponse = await fetch('/checkout-session', {
+                const paymentSessionResponse = await fetch('/payments/checkout-session', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -683,7 +700,7 @@ reportForm.addEventListener('submit', async (e) => {
                     return;
                 }
                 retries++;
-                const paymentStatusResponse = await fetch(/payment-status/${taskId}/);
+                const paymentStatusResponse = await fetch(`/payments/payment-status/${taskId}/`);
                 const paymentStatus = await paymentStatusResponse.json();
 
                 if (paymentStatus.paid) {

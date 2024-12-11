@@ -8,7 +8,8 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from core.models import Report, Payment
 
-stripe.api_key = settings.STRIPE_PUBLISHABLE_KEY
+def get_stripe_key(request):
+    return JsonResponse({'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY})
 
 def get_price(request, report_id):
     try:
@@ -18,6 +19,9 @@ def get_price(request, report_id):
         return JsonResponse({"error": str(e)}, status=400)
 
 def checkout_session(request):
+    print("Request method:", request.method)
+    print("Request path:", request.path)
+
     if request.method == 'POST':
         data = json.loads(request.body)
         payment_id = data.get('payment_id')
@@ -70,12 +74,19 @@ def stripe_webhook(request):
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         payment_id = session['metadata']['payment_id']
+        print(payment_id)
 
         try:
             payment = Payment.objects.get(id=payment_id)
             payment.status = 'succeeded'
             payment.save()
             print('payment succeeded')
+            
+
+            if payment.report:
+                payment.report.status = 'paid'
+                payment.report.save()
+                print('Report status updated to paid.')
         except Payment.DoesNotExist:
             pass 
 
