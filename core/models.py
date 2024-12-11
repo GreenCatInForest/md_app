@@ -211,6 +211,14 @@ class Logger_Rental (models.Model):
 
 
 class Report (models.Model):
+
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('generated', 'Generated'),
+        ('paid', 'Paid'),
+        ('unpaid', 'Unpaid'),
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -227,7 +235,7 @@ class Report (models.Model):
     number_of_occupants = models.IntegerField(default=0)
     report_file = models.FileField(upload_to='reports_save/', null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, null=True, blank=True)
       # Ensure the file path is correctly formatted using instance-specific information
     def save(self, *args, **kwargs):
         if not self.report_file:
@@ -248,7 +256,12 @@ class Report (models.Model):
         if self.end_time and self.start_time and self.end_time <= self.start_time:
             raise ValidationError(_('End time must be after start time.'))
         
-    # Additional logic for payments
+    # Additional logic for payments    
+    def mark_unpaid(self):
+        if self.status == 'generated':
+            self.status = 'unpaid'
+            self.save()  
+
     @property
     def is_paid(self):
         return self.payments.filter(status='succeeded').exists()
