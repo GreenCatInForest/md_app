@@ -17,6 +17,11 @@ def get_price(request, report_id):
         return JsonResponse({"price": float(report.price)}, status=200)  
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+def checkout_session(request):
+    if request.method == 'POST':
+        return JsonResponse({'id': 'test_session'})
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def checkout_session(request):
     print("Request method:", request.method)
@@ -27,8 +32,10 @@ def checkout_session(request):
         payment_id = data.get('payment_id')
         user_email = request.user.email
         print(user_email)
+        print("Checkout session started with POST")
 
         payment = get_object_or_404(Payment, id=payment_id)
+        print("Checkout session started with POST")
 
         try:
             checkout_session = stripe.checkout.Session.create(
@@ -98,3 +105,10 @@ def payment_status(request, payment_id):
         return JsonResponse({'paid': payment.status == 'succeeded'})
     except Payment.DoesNotExist:
         return JsonResponse({'paid': False})
+
+def payment_success(request):
+    return render(request, 'payments/payment_success.html')
+
+def payment_cancel(request):
+    return render(request, 'payments/payment_cancel.html')
+ 

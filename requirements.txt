@@ -33,4 +33,4 @@ redis
 flower 
 
 stripe
-
+django-extensions

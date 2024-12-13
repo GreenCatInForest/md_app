@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'reports',
     'dbbackup',
     'payments',
+    'django_extensions',
 
 ]
 
