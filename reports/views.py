@@ -410,11 +410,13 @@ def report_view(request):
             app_logger.debug(f"Payment amount: {payment.amount}, currency: {payment.currency}")
             
             if (request.headers.get('x-requested-with') == 'XMLHttpRequest'):
+                print(f"Task ID: {task.id}, Payment ID: {payment.id}, UUID: {payment.uuid}")
                 return JsonResponse({'status':'pending', 
                                      'task_id': task.id, 
-                                     'payment_id': payment.id, 
+                                     'payment_id': str(payment.uuid), 
                                      'price': str(payment.amount),
                                      'currency': payment.currency,})
+                
                 
             else:
                 return redirect('report_status', task_id=task.id)

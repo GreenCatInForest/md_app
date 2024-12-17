@@ -618,7 +618,7 @@ reportForm.addEventListener('submit', async (e) => {
             },
         });
         const data = await response.json();
-        console.log(data);
+        console.log("data" + data);
 
         if (data.status === 'success') {
             // Hide spinner
@@ -688,17 +688,22 @@ reportForm.addEventListener('submit', async (e) => {
 
             // Set up Stripe Checkout
             payButton.addEventListener('click', async () => {
+                console.log('payment btn clicked');
                 const paymentSessionResponse = await fetch('/payments/checkout-session', {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': csrftoken,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ reportId: taskId }),
+                    body: JSON.stringify({ uuid: paymentUuid }),
                     
                 });
+                console.log("UUID being sent:", paymentUuid);
                 console.log('reportId:', taskId);
+                console.log('payment_id', payment_id);
+                console.log('payment.uuid', payment.uuid);
                 const paymentSession = await paymentSessionResponse.json();
+                console.log(paymentSession, paymentSession.id);
 
                 if (!paymentSession.id) {
                     console.error('Payment session creation failed:', paymentSession);
@@ -737,8 +742,10 @@ reportForm.addEventListener('submit', async (e) => {
 
                     reportResult.appendChild(reportLink);
                     reportResult.style.display = 'block';
-                } else {
+                }                 
+                else {
                     setTimeout(checkPaymentStatus, 2000);
+                    console.log('Here is a payment status'+paymentStatus);
                 }
             };
 

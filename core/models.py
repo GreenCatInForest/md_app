@@ -1,4 +1,5 @@
 import os
+import uuid
 from django.contrib.auth.models import (
     AbstractBaseUser, 
     BaseUserManager, 
@@ -353,7 +354,7 @@ class Payment(models.Model):
         ('cancelled', 'Cancelled'),
         ('refunded', 'Refunded'),
     ]
-
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=7, choices=PriceSetting.CURRENCY_CHOICES, default='GBP')

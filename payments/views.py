@@ -1,3 +1,4 @@
+import logging
 import stripe
 import json
 from django.shortcuts import render, redirect
@@ -8,6 +9,10 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from core.models import Report, Payment
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+app_logger = logging.getLogger(__name__)
+
 def get_stripe_key(request):
     return JsonResponse({'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY})
 
@@ -17,11 +22,11 @@ def get_price(request, report_id):
         return JsonResponse({"price": float(report.price)}, status=200)  
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
-def checkout_session(request):
-    if request.method == 'POST':
-        return JsonResponse({'id': 'test_session'})
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=400)
+# def checkout_session(request):
+#     if request.method == 'POST':
+#         return JsonResponse({'id': 'test_session'})
+#     else:
+#         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def checkout_session(request):
     print("Request method:", request.method)
@@ -29,10 +34,14 @@ def checkout_session(request):
 
     if request.method == 'POST':
         data = json.loads(request.body)
-        payment_id = data.get('payment_id')
+        print("Received data:", data)
+        payment_id = data.get('uuid')
         user_email = request.user.email
         print(user_email)
-        print("Checkout session started with POST")
+        print(payment_id)
+
+        if not payment_id:
+                return JsonResponse({'error': 'Payment ID is required'}, status=400)
 
         payment = get_object_or_404(Payment, id=payment_id)
         print("Checkout session started with POST")
@@ -72,6 +81,7 @@ def stripe_webhook(request):
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
     try:
+        app_logger.debug(f"Received event: {event}")
         event = stripe.Webhook.construct_event(
             payload, sig_header, endpoint_secret
         )
@@ -88,27 +98,33 @@ def stripe_webhook(request):
             payment.status = 'succeeded'
             payment.save()
             print('payment succeeded')
+            app_logger.debug(f"Report {payment.report.id} marked as paid.")
             
 
             if payment.report:
                 payment.report.status = 'paid'
                 payment.report.save()
                 print('Report status updated to paid.')
-        except Payment.DoesNotExist:
-            pass 
+        except Exception as e:
+            app_logger.debug(f"Error processing webhook: {e}")
 
     return HttpResponse(status=200)
 
-def payment_status(request, payment_id):
+def payment_status(request, uuid):
+    print("Payment ID received:", uuid)
     try:
-        payment = Payment.objects.get(id=payment_id)
-        return JsonResponse({'paid': payment.status == 'succeeded'})
+        payment = get_object_or_404(Payment, uuid=uuid)
+        if payment.status == 'succeeded':
+            return JsonResponse({'paid': payment.status == 'succeeded'})
+        elif payment.status == 'pending':
+             return JsonResponse({'unpaid': payment.status == 'unpaid'})
+        else:
+            return JsonResponse({'unpaid': payment.status =='pending'})
     except Payment.DoesNotExist:
-        return JsonResponse({'paid': False})
+        return JsonResponse({'paid': False}, status=404)
 
 def payment_success(request):
     return render(request, 'payments/payment_success.html')
 
 def payment_cancel(request):
     return render(request, 'payments/payment_cancel.html')
- 
