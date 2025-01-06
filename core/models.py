@@ -236,7 +236,7 @@ class Report (models.Model):
     number_of_occupants = models.IntegerField(default=0)
     report_file = models.FileField(upload_to='reports_save/', null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, null=True, blank=True, default='unpaid')
       # Ensure the file path is correctly formatted using instance-specific information
     def save(self, *args, **kwargs):
         if not self.report_file:

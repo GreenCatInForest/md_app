@@ -85,7 +85,7 @@ def save_uploaded_file(uploaded_file):
 
 def serve_report(request, filename):
     file_path = os.path.join('reports_save', filename)
-    if os.path.exists(file_path):
+    if os.path.exists(file_path): 
         return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
     else:
         raise Http404("File not found")
@@ -118,6 +118,7 @@ def report_view(request):
                 preview_company_logo = request.FILES['company_logo']
                 
             report_instance.save()
+            app_logger.debug(f"report_instance.status:{report_instance.status}")
 
             # Resize external_picture and company_logo after saving
             # Resize and save external_picture as JPEG with 70% quality
