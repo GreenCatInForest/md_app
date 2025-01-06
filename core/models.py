@@ -267,6 +267,14 @@ class Report (models.Model):
     def is_paid(self):
         return self.payments.filter(status='succeeded').exists()
     
+    @property
+    def update_payment_status(self):
+        if self.is_paid:
+            self.status = 'paid'
+        else:
+            self.status = 'unpaid'
+        self.save()
+    
     def __str__(self):
         return f"Report {self.id} - {self.user.email}"
 
@@ -364,6 +372,21 @@ class Payment(models.Model):
 
     report = models.ForeignKey(Report, on_delete=models.CASCADE, null=True, blank=True, related_name='payments')
     logger_rental = models.ForeignKey(Logger_Rental, on_delete=models.CASCADE, null=True, blank=True, related_name='payments')
+
+    def update_report_status(self):
+        if self.report:
+            if self.status == 'succeeded':
+                self.report.status = 'paid'
+            elif self.status in ['failed', 'refunded', 'cancelled']:
+                self.report.status = 'unpaid'
+            else:
+                self.report.status = 'pending'
+            self.report.save()
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.update_report_status()
+
 
     def set_price(self, *args, **kwargs):
         # Automatically set the price based on the service type

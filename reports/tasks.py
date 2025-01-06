@@ -91,6 +91,7 @@ def generate_report_task(self, report_id, csv_file_paths, serialized_form_data):
         )
 
         report.status = 'generated'
+        report.payment_status = "unpaid"
         report.save()
         
         return {'status': 'success', 'pdf_url': filename}

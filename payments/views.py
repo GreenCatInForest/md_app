@@ -22,6 +22,7 @@ def get_price(request, report_id):
         return JsonResponse({"price": float(report.price)}, status=200)  
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+    
 # def checkout_session(request):
 #     if request.method == 'POST':
 #         return JsonResponse({'id': 'test_session'})
@@ -31,10 +32,11 @@ def get_price(request, report_id):
 def checkout_session(request):
     print("Request method:", request.method)
     print("Request path:", request.path)
+    print("Request Body", request.body)
 
     if request.method == 'POST':
         data = json.loads(request.body)
-        print("Received data:", data)
+        app_logger.debug("Received data:", data)
         payment_id = data.get('uuid')
         user_email = request.user.email
         print(user_email)
@@ -115,12 +117,16 @@ def payment_status(request, uuid):
     try:
         payment = get_object_or_404(Payment, uuid=uuid)
         if payment.status == 'succeeded':
+            app_logger.debug(f"succeeded")
             return JsonResponse({'paid': payment.status == 'succeeded'})
         elif payment.status == 'pending':
+             app_logger.debug(f"unpaid unpaid")
              return JsonResponse({'unpaid': payment.status == 'unpaid'})
         else:
+            app_logger.debug(f"unpaid pending")
             return JsonResponse({'unpaid': payment.status =='pending'})
     except Payment.DoesNotExist:
+        app_logger.debug(f"payment does not exist")
         return JsonResponse({'paid': False}, status=404)
 
 def payment_success(request):

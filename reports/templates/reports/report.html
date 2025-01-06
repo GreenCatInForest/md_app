@@ -695,13 +695,16 @@ reportForm.addEventListener('submit', async (e) => {
                         'X-CSRFToken': csrftoken,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ uuid: paymentUuid }),
+                    body: JSON.stringify({ reportId: payment_uuid }),
                     
                 });
+                const data = await response.json();
+                const paymentUuid = data.payment_uuid;
                 console.log("UUID being sent:", paymentUuid);
                 console.log('reportId:', taskId);
                 console.log('payment_id', payment_id);
                 console.log('payment.uuid', payment.uuid);
+
                 const paymentSession = await paymentSessionResponse.json();
                 console.log(paymentSession, paymentSession.id);
 
@@ -764,7 +767,7 @@ reportForm.addEventListener('submit', async (e) => {
         spinner.style.display = 'none';
         reportResult.textContent = 'An unexpected error occurred while checking task status.';
         reportResult.style.display = 'block';
-    }
+    } 
 }
 });
 </script>

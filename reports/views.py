@@ -31,7 +31,7 @@ from .utils.room_data import RoomData
 from .utils.handle_form_errors import handle_form_errors
 from payments.utils.get_service_price import get_service_price
 
-from .tasks import  generate_report_task
+from .tasks import generate_report_task
 
 
 # Configure logging
@@ -401,23 +401,23 @@ def report_view(request):
         }
             # Create the Payment instance
             payment = Payment(user=request.user, report=report_instance)
+            payment.status = 'pending'
             payment.set_price()
             payment.save()
-            
+            app_logger.debug(f"Payment created. Payment status: {payment.status}. Payment uidd: {payment.uuid} Payment amount: {payment.amount}, currency: {payment.currency}")
             
             form_data_json = json.dumps(serialized_form_data)
             task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data)
-            app_logger.debug(f"Payment amount: {payment.amount}, currency: {payment.currency}")
             
             if (request.headers.get('x-requested-with') == 'XMLHttpRequest'):
-                print(f"Task ID: {task.id}, Payment ID: {payment.id}, UUID: {payment.uuid}")
-                return JsonResponse({'status':'pending', 
+                app_logger.debug(f"Task ID: {task.id}, Payment ID: {payment.id}, UUID: {payment.uuid}, status: {payment.status}")
+                return JsonResponse({
+                                     'status':payment.status, 
                                      'task_id': task.id, 
-                                     'payment_id': str(payment.uuid), 
+                                     'payment_uuid': str(payment.uuid), 
                                      'price': str(payment.amount),
                                      'currency': payment.currency,})
-                
-                
+                                
             else:
                 return redirect('report_status', task_id=task.id)
 
