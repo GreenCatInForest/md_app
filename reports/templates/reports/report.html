@@ -660,10 +660,10 @@ reportForm.addEventListener('submit', async (e) => {
             payButton.className = 'inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-green-700 rounded-lg focus:ring-4 focus:ring-green-300 dark:focus:ring-green-900 hover:bg-green-800 justify-center px-5';
             reportResult.appendChild(payButton);
 
-            const response = await fetch('/reports/get-stripe-key/');
-            const data = await response.json();
-            console.log("Stripe publishable key:", data.stripe_publishable_key);
-            console.log(data);
+            const getStripeKeyResponse = await fetch('/reports/get-stripe-key/');
+            const getStripeKeyResponseData = await getStripeKeyResponse.json();
+            console.log("Stripe publishable key:", getStripeKeyResponseData.stripe_publishable_key);
+            console.log("Key fetched:", JSON.stringify(getStripeKeyResponseData, null, 2));
 
             const stripe = Stripe(data.stripe_publishable_key);
 
