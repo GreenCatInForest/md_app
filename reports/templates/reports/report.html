@@ -520,7 +520,7 @@ reportForm.addEventListener('submit', async (e) => {
             const data = await response.json();
 
             if (response.ok) {
-                console.log(data.status, data);
+                console.log(data.status, "Server response data:", data);
                 if (data.status === 'pending' || data.status === 'unpaid' ) {
                     // Task started successfully
                     // Fetching the price
@@ -540,8 +540,8 @@ reportForm.addEventListener('submit', async (e) => {
                     submitReportBtn.disabled = true;
                     statusContainer.textContent = '';
                     // Optionally, show other UI elements related to the spinner
-                    pollTaskStatus(data.task_id);
-                    console.log(data.status);
+                    pollTaskStatus(data.task_id, storedUuid);
+                    console.log("passing to polltaskStatus", data.status, storedUuid);
                 } else if (data.status === 'generated') {
                     console.log('generated not paid');
                 }
@@ -616,7 +616,8 @@ reportForm.addEventListener('submit', async (e) => {
     }
 
     // Function to poll task status
-    async function pollTaskStatus(taskId) {
+    async function pollTaskStatus(taskId, storedUuid) {
+        console.log("Inside pollTaskStatus. Received storedUuid:", storedUuid);
     try { 
         const response = await fetch(`/reports/task-status/${taskId}/`, {
             headers: {
@@ -624,10 +625,9 @@ reportForm.addEventListener('submit', async (e) => {
             },
         });
         const data = await response.json();
-        console.log("data" + data);
 
         if (data.status === 'success') {
-            storedUuid = data.payment_uuid;
+            console.log("storedUuid:", storedUuid)
             // Hide spinner
             spinner.style.display = 'none';
 
@@ -697,7 +697,7 @@ reportForm.addEventListener('submit', async (e) => {
             payButton.addEventListener('click', async () => {
             console.log('payment btn clicked');
             console.log('storedUuid:', storedUuid);
-            const requestBody = JSON.stringify({ reportId: storedUuid });
+            const requestBody = JSON.stringify({ uuid: storedUuid });
             console.log('Request Body:', requestBody);
 
     const paymentSessionResponse = await fetch('/payments/checkout-session', {
@@ -706,7 +706,7 @@ reportForm.addEventListener('submit', async (e) => {
             'X-CSRFToken': csrftoken,
             'Content-Type': 'application/json',
         },
-        body: requestBody,
+        body: JSON.stringify({ uuid: storedUuid })
     });
 
     if (!paymentSessionResponse.ok) {
@@ -762,7 +762,7 @@ const checkPaymentStatus = async () => {
         reportResult.style.display = 'block';
     } else {
         setTimeout(checkPaymentStatus, 2000);
-        console.log('Here is a payment status' + paymentStatus);
+        console.log('Here is a payment status', JSON.stringify(paymentStatus));
     }
 };
 
@@ -774,7 +774,7 @@ checkPaymentStatus(); // Start payment status polling
             reportResult.style.display = 'block';
         } else {
             // Task is still running; poll again after a delay
-            setTimeout(() => pollTaskStatus(taskId), 2000);
+            setTimeout(() => pollTaskStatus(taskId, storedUuid), 2000);
         }
     } catch (error) {
         console.error('Error polling task status:', error);

@@ -29,7 +29,7 @@ def test(param):
 
 
 @shared_task(bind=True)
-def generate_report_task(self, report_id, csv_file_paths, serialized_form_data):
+def generate_report_task(self, report_id, csv_file_paths, serialized_form_data, payment_uuid):
     
     try:
         report = get_object_or_404(Report, id=report_id)
@@ -94,7 +94,7 @@ def generate_report_task(self, report_id, csv_file_paths, serialized_form_data):
         report.payment_status = "unpaid"
         report.save()
         
-        return {'status': 'success', 'pdf_url': filename}
+        return {'status': 'success', 'pdf_url': filename, 'payment_uuid':payment_uuid}
     except Report.DoesNotExist:
         app_logger.error(f'Report with id {report_id} does not exist.')
         return {'status': 'error', 'message': 'Report does not exist.'}

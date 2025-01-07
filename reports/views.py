@@ -406,7 +406,7 @@ def report_view(request):
             app_logger.debug(f"Payment created. Payment status: {payment.status}. Payment uidd: {payment.uuid} Payment amount: {payment.amount}, currency: {payment.currency}")
             
             form_data_json = json.dumps(serialized_form_data)
-            task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data)
+            task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data, payment_uuid=str(payment.uuid))
             
             if (request.headers.get('x-requested-with') == 'XMLHttpRequest'):
                 app_logger.debug(f"Sending to Client: Task ID: {task.id}, Payment ID: {payment.id}, UUID: {payment.uuid}, status: {payment.status}")
@@ -478,12 +478,7 @@ def report_view(request):
     
 @login_required
 def check_task_status(request, task_id):
-    """
-    Poll the Celery task to see if the report is done generating.
-    DOES NOT try to fetch a Payment with UUID='report'.
-    Instead, if you want the Payment's actual UUID, you might retrieve it from
-    your Celery result or store it in a DB relation to the report.
-    """
+ 
     task_result = AsyncResult(task_id)
 
     if task_result.state == 'SUCCESS':
@@ -491,6 +486,7 @@ def check_task_status(request, task_id):
         if result.get('status') == 'success':
             pdf_filename = os.path.basename(result['pdf_url'])
             pdf_url = request.build_absolute_uri(f'/reports/reports_save/{pdf_filename}')
+            payment_uuid = result.get('payment_uuid')
             # Just get the base price for a "report," ignoring Payment for now
             report_price, report_currency = get_service_price('report')
 
@@ -498,7 +494,6 @@ def check_task_status(request, task_id):
             # not the string 'report'. Remove or replace:
             # payment_uuid = get_payment_uuid('report')  # <-- NOT VALID
             # Instead, you can just pass back None or do your own logic:
-            payment_uuid = "test uuid"
             app_logger.debug(f"passed in json payment uuid:{payment_uuid}")
 
             return JsonResponse({
@@ -506,7 +501,8 @@ def check_task_status(request, task_id):
                 'pdf_url': pdf_url,
                 'report_price': report_price,
                 'report_currency': report_currency,
-                'uuid': payment_uuid
+                'uuid': payment_uuid,
+                "payment_uuid": payment_uuid,
             })
         else:
             return JsonResponse({'status': 'error', 'message': result.get('message', 'Unknown error')})

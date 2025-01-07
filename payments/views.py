@@ -35,6 +35,8 @@ def checkout_session(request):
     print("Request path:", request.path)
     print("Request Body", request.body)
 
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+
     if request.method == 'POST':
         data = json.loads(request.body)
         app_logger.debug("Received data:", data)
@@ -46,7 +48,7 @@ def checkout_session(request):
         if not payment_id:
                 return JsonResponse({'error': 'Payment ID is required'}, status=400)
 
-        payment = get_object_or_404(Payment, id=payment_id)
+        payment = get_object_or_404(Payment, uuid=payment_id)
         print("Checkout session started with POST")
 
         try:
