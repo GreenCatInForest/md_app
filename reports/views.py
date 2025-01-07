@@ -29,7 +29,7 @@ from .utils.normalize_logger_serial import normalize_logger_serial
 from .utils.resize_and_save_image import resize_and_save_image
 from .utils.room_data import RoomData
 from .utils.handle_form_errors import handle_form_errors
-from payments.utils.get_service_price import get_service_price
+from payments.utils.get_service_price import get_service_price, get_payment_uuid
 
 from .tasks import generate_report_task
 
@@ -42,8 +42,6 @@ User = get_user_model()
 
 def get_stripe_key(request):
     return JsonResponse({'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY})
-
-
 
 def fetch_logger_data(logger_serial, start_timestamp, end_timestamp):
     """Fetch logger data within the specified timestamp range and return as a DataFrame."""
@@ -411,7 +409,7 @@ def report_view(request):
             task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data)
             
             if (request.headers.get('x-requested-with') == 'XMLHttpRequest'):
-                app_logger.debug(f"Task ID: {task.id}, Payment ID: {payment.id}, UUID: {payment.uuid}, status: {payment.status}")
+                app_logger.debug(f"Sending to Client: Task ID: {task.id}, Payment ID: {payment.id}, UUID: {payment.uuid}, status: {payment.status}")
                 return JsonResponse({
                                      'status':payment.status, 
                                      'task_id': task.id, 
@@ -480,20 +478,42 @@ def report_view(request):
     
 @login_required
 def check_task_status(request, task_id):
+    """
+    Poll the Celery task to see if the report is done generating.
+    DOES NOT try to fetch a Payment with UUID='report'.
+    Instead, if you want the Payment's actual UUID, you might retrieve it from
+    your Celery result or store it in a DB relation to the report.
+    """
     task_result = AsyncResult(task_id)
-    
+
     if task_result.state == 'SUCCESS':
         result = task_result.result
         if result.get('status') == 'success':
             pdf_filename = os.path.basename(result['pdf_url'])
             pdf_url = request.build_absolute_uri(f'/reports/reports_save/{pdf_filename}')
+            # Just get the base price for a "report," ignoring Payment for now
             report_price, report_currency = get_service_price('report')
-            
-            return JsonResponse({'status': 'success', 'pdf_url': pdf_url, 'report_price':report_price, 'report_currency': report_currency})
+
+            # If you want a Payment’s UUID, you must have the Payment object’s real UUID,
+            # not the string 'report'. Remove or replace:
+            # payment_uuid = get_payment_uuid('report')  # <-- NOT VALID
+            # Instead, you can just pass back None or do your own logic:
+            payment_uuid = "test uuid"
+            app_logger.debug(f"passed in json payment uuid:{payment_uuid}")
+
+            return JsonResponse({
+                'status': 'success',
+                'pdf_url': pdf_url,
+                'report_price': report_price,
+                'report_currency': report_currency,
+                'uuid': payment_uuid
+            })
         else:
             return JsonResponse({'status': 'error', 'message': result.get('message', 'Unknown error')})
+
     elif task_result.state == 'FAILURE':
         return JsonResponse({'status': 'error', 'message': str(task_result.result)})
+
     elif task_result.state in ['PENDING', 'STARTED']:
         return JsonResponse({'status': 'pending'})
     else:

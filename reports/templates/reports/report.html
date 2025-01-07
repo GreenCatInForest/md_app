@@ -484,7 +484,7 @@ const result = document.querySelector('#result');
 const reportResult = document.querySelector('.report-result');
 const blurBackgroundForResult = document.querySelector('#blur-background');
 
-let storedPaymentId = null;
+let storedUuid = null;
 let storedPrice = null;
 let storedCurrency = null;
 
@@ -520,12 +520,18 @@ reportForm.addEventListener('submit', async (e) => {
             const data = await response.json();
 
             if (response.ok) {
-                if (data.status === 'pending') {
+                console.log(data.status, data);
+                if (data.status === 'pending' || data.status === 'unpaid' ) {
                     // Task started successfully
                     // Fetching the price
 
                     storedPrice = data.price;
                     storedCurrency = data.currency;
+                    storedUuid = data.payment_uuid;
+
+                    console.log("UUID from server:", storedUuid);
+                    console.log("Task Id from server:", data.task_id);
+
 
                     // Styles for spinner
                     spinner.style.display = 'inline-flex';
@@ -611,7 +617,7 @@ reportForm.addEventListener('submit', async (e) => {
 
     // Function to poll task status
     async function pollTaskStatus(taskId) {
-    try {
+    try { 
         const response = await fetch(`/reports/task-status/${taskId}/`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -621,6 +627,7 @@ reportForm.addEventListener('submit', async (e) => {
         console.log("data" + data);
 
         if (data.status === 'success') {
+            storedUuid = data.payment_uuid;
             // Hide spinner
             spinner.style.display = 'none';
 
@@ -665,7 +672,7 @@ reportForm.addEventListener('submit', async (e) => {
             console.log("Stripe publishable key:", getStripeKeyResponseData.stripe_publishable_key);
             console.log("Key fetched:", JSON.stringify(getStripeKeyResponseData, null, 2));
 
-            const stripe = Stripe(data.stripe_publishable_key);
+            const stripe = Stripe(getStripeKeyResponseData.stripe_publishable_key);
 
             // Get csrftoken 
 
@@ -688,71 +695,78 @@ reportForm.addEventListener('submit', async (e) => {
 
             // Set up Stripe Checkout
             payButton.addEventListener('click', async () => {
-                console.log('payment btn clicked');
-                const paymentSessionResponse = await fetch('/payments/checkout-session', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': csrftoken,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ reportId: payment_uuid }),
-                    
-                });
-                const data = await response.json();
-                const paymentUuid = data.payment_uuid;
-                console.log("UUID being sent:", paymentUuid);
-                console.log('reportId:', taskId);
-                console.log('payment_id', payment_id);
-                console.log('payment.uuid', payment.uuid);
+            console.log('payment btn clicked');
+            console.log('storedUuid:', storedUuid);
+            const requestBody = JSON.stringify({ reportId: storedUuid });
+            console.log('Request Body:', requestBody);
 
-                const paymentSession = await paymentSessionResponse.json();
-                console.log(paymentSession, paymentSession.id);
+    const paymentSessionResponse = await fetch('/payments/checkout-session', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json',
+        },
+        body: requestBody,
+    });
 
-                if (!paymentSession.id) {
-                    console.error('Payment session creation failed:', paymentSession);
-                    return;
-                }
+    if (!paymentSessionResponse.ok) {
+        throw new Error('Failed to create payment session');
+    }
 
-                const { error } = await stripe.redirectToCheckout({
-                    sessionId: paymentSession.id,
-                });
+    const paymentSessionData = await paymentSessionResponse.json();
 
-                if (error) {
-                    console.error('Error with Stripe Checkout:', error.message);
-                }
-            });
+    console.log("paymentSessionData:", paymentSessionData);
 
-            // Poll for payment completion
-            let retries = 0;
-            const maxRetries = 15; // Stop polling after 30 seconds
-            const checkPaymentStatus = async () => {
-                if (retries >= maxRetries) {
-                    console.error('Payment polling timed out.');
-                    return;
-                }
-                retries++;
-                const paymentStatusResponse = await fetch(`/payments/payment-status/${taskId}/`);
-                const paymentStatus = await paymentStatusResponse.json();
+    const paymentUuid = paymentSessionData.payment_uuid;
+    const paymentSessionId = paymentSessionData.id;
+    console.log("UUID being sent:", paymentUuid);
+    console.log("Session ID:", paymentSessionId);
 
-                if (paymentStatus.paid) {
-                    // Show the report once payment is completed
-                    reportResult.innerHTML = '';
-                    const reportLink = document.createElement('a');
-                    reportLink.href = data.pdf_url;
-                    reportLink.target = '_blank';
-                    reportLink.className = 'inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 hover:bg-blue-800 justify-center px-5';
-                    reportLink.textContent = 'View Report';
+    if (!paymentSessionId) {
+        console.error('Payment session creation failed:', paymentSessionData);
+        return;
+    }
 
-                    reportResult.appendChild(reportLink);
-                    reportResult.style.display = 'block';
-                }                 
-                else {
-                    setTimeout(checkPaymentStatus, 2000);
-                    console.log('Here is a payment status'+paymentStatus);
-                }
-            };
+    // Redirect the user to Stripe’s Checkout page
+    const { error } = await stripe.redirectToCheckout({ sessionId: paymentSessionId });
 
-            checkPaymentStatus(); // Start payment status polling
+    if (error) {
+        console.error(error.message);
+    }
+});
+
+let retries = 0;
+const maxRetries = 15; // Stop polling after 30 seconds
+
+const checkPaymentStatus = async () => {
+    if (retries >= maxRetries) {
+        console.error('Payment polling timed out.');
+        return;
+    }
+    retries++;
+    console.log("fetch(`/payments/payment-status/${storedUuid}/`:", storedUuid);
+    const paymentStatusResponse = await fetch(`/payments/payment-status/${storedUuid}/`);
+    const paymentStatus = await paymentStatusResponse.json();
+    console.log(paymentStatus);
+
+    if (paymentStatus.paid) {
+        // Payment completed; show the report link
+        reportResult.innerHTML = '';
+        const reportLink = document.createElement('a');
+        reportLink.href = paymentStatus.pdf_url;   // URL to the PDF or final resource
+        reportLink.target = '_blank';
+        reportLink.className = 'inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 hover:bg-blue-800 justify-center px-5';
+        reportLink.textContent = 'View Report';
+
+        reportResult.appendChild(reportLink);
+        reportResult.style.display = 'block';
+    } else {
+        setTimeout(checkPaymentStatus, 2000);
+        console.log('Here is a payment status' + paymentStatus);
+    }
+};
+
+checkPaymentStatus(); // Start payment status polling
         } else if (data.status === 'error') {
             // Hide spinner and show error
             spinner.style.display = 'none';

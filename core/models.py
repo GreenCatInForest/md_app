@@ -385,6 +385,7 @@ class Payment(models.Model):
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+        print(f"[DEBUG] Payment saved with uuid: {self.uuid}")
         self.update_report_status()
 
 

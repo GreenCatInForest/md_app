@@ -23,12 +23,13 @@ def get_price(request, report_id):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
     
+# @csrf_exempt     
 # def checkout_session(request):
 #     if request.method == 'POST':
 #         return JsonResponse({'id': 'test_session'})
 #     else:
 #         return JsonResponse({'error': 'Invalid request method'}, status=400)
-
+@csrf_exempt 
 def checkout_session(request):
     print("Request method:", request.method)
     print("Request path:", request.path)
@@ -66,7 +67,7 @@ def checkout_session(request):
                 cancel_url=request.build_absolute_uri('/payment-cancel'),
                 # extracting customer email
                 metadata={
-                    'payment_id': str(payment.id),
+                    'payment_id': str(payment.uuid),
                 }
             )
             return JsonResponse({'id':checkout_session.id})
