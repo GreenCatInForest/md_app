@@ -21,29 +21,38 @@
                     <td class="py-2 px-4 border-b text-gray-900">{{ report.report_timestamp|date:"Y-m-d" }}</td>
                     <td class="py-2 px-4 border-b text-gray-900">{{ report.property_address }}</td>
                     <td class="py-2 px-4 border-b text-gray-900">{{ report.start_time}}</td>
+                    <td class="py-2 px-4 border-b text-gray-900">
+                        <p>Report Status: {{ report.status }}</p>
+                        {% for payment in report.payments.all%}
+                            <p>Payment ID: {{ payment.id }} Payment Status: {{payment.status}}</p>
+                        {% empty%}
+                            <p>Here is no information about payment status</p>
+                        {% endfor %}
+                    </td>
                     <!-- <td class="py-2 px-4 border-b text-gray-900">
                         {% for room in report.rooms.all %}
                             {{ room.room_name }}{% if not forloop.last %}
                             {% endif %}
                         {% endfor %}
                     </td> -->
-                    <td class="py-2 px-4 border-b text-gray-900">
+                    <!-- <td class="py-2 px-4 border-b text-gray-900">
                         {% if report.report_file and report.status == 'paid'%}
                         <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>
-                        <!-- <a href="{% url 'report_detail' report.id %}" class="text-blue-500 hover:underline">Download Report</a> -->
-                        {% elif report.report_file and report.status == 'unpaid'%}
+                         <a href="{% url 'report_detail' report.id %}" class="text-blue-500 hover:underline">Download Report</a>  
+                         -->
+                         <!--{% elif report.report_file and report.status == 'unpaid'%}
                         <button>Pay Now</button>
                         <p>Status: {{ report.get_status_display }}</p>
                         <p>Price: {{ report.price }} {{ report.currency }}</p>
                         {% elif report.report_file and report.status == 'None'%}
                         <p>Report generated previously</p>
                         {{ report.status }}
-                        <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>
+                        <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>                        
                         {% else%}
                         {{ report.status }}
                         <p>No file available</p>
                         {% endif %}
-                    </td>
+                    </td> -->
                 </tr>
                 {% empty %}
                 <tr>

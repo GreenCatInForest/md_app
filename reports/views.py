@@ -517,7 +517,11 @@ def check_task_status(request, task_id):
 
 @login_required
 def historical_reports_view(request):
-    reports = Report.objects.filter(report_file__isnull=False, user=request.user).order_by('-id')
+    reports = (Report.objects
+               .filter(report_file__isnull=False, user=request.user)
+               .order_by('-id')
+               .prefetch_related('payments'))
+    
     return render(request, 'reports/historical_reports.html', {'reports': reports})
 
 @login_required

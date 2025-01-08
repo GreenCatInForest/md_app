@@ -2,6 +2,7 @@ import logging
 import stripe
 import json
 from django.shortcuts import render, redirect
+from django.db.models import Prefetch
 from django.conf import settings
 from decimal import Decimal
 from django.http import JsonResponse, HttpResponse
