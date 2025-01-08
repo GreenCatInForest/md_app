@@ -116,7 +116,7 @@ def report_view(request):
                 preview_company_logo = request.FILES['company_logo']
                 
             report_instance.save()
-            app_logger.debug(f"report_instance.status:{report_instance.status}")
+            app_logger.debug(f"STATUS REPORT after creating report_instance.status:{report_instance.status}")
 
             # Resize external_picture and company_logo after saving
             # Resize and save external_picture as JPEG with 70% quality
