@@ -25,7 +25,10 @@
                         <p>Report Status: {{ report.status }}</p>
                         {% for payment in report.payments.all%}
                             <p>Payment ID: {{ payment.id }} Payment Status: {{payment.status}}</p>
-                        {% empty%}
+                            {% if report.report_file%}
+                            <p>report.report_file: {{report.report_file}}</p>
+                            {% endif%}
+                            {% empty%}
                             <p>Here is no information about payment status</p>
                         {% endfor %}
                     </td>

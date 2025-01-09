@@ -377,17 +377,14 @@ class Payment(models.Model):
         if self.report:
             if self.status == 'succeeded':
                 self.report.status = 'paid'
-            elif self.status in ['failed', 'refunded', 'cancelled']:
-                self.report.status = 'unpaid'
             else:
-                self.report.status = 'pending'
+                self.report.status = 'unpaid'
             self.report.save()
     
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         print(f"[DEBUG] Payment saved with uuid: {self.uuid}")
         self.update_report_status()
-
 
     def set_price(self, *args, **kwargs):
         # Automatically set the price based on the service type

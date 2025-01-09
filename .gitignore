@@ -168,4 +168,4 @@ node_modules/
 
 train.py
 
-README.md
+*.md

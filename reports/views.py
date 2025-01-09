@@ -400,7 +400,7 @@ def report_view(request):
         }
             # Create the Payment instance
             payment = Payment(user=request.user, report=report_instance)
-            payment.status = 'pending'
+            payment.status = 'unpaid'
             payment.set_price()
             payment.save()
             app_logger.debug(f"Payment created. Payment status: {payment.status}. Payment uidd: {payment.uuid} Payment amount: {payment.amount}, currency: {payment.currency}")
