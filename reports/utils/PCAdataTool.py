@@ -17,11 +17,13 @@ import re
 from enum import IntEnum
 import subprocess
 
-output_dir = '/code/imgs/'
+output_dir = '/code/imgs/' 
+# Referres to root/imgs
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
 output_report_dir = '/code/reports_save/'
+# Referres to root/reports_save
 if not os.path.exists(output_report_dir):
     os.makedirs(output_report_dir)
 
