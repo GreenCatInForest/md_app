@@ -21,17 +21,18 @@ def resize_and_save_image(image_path, max_size=1500, quality=70, target_format=N
             save_format = target_format.upper() if target_format else original_format
 
             new_file_path = os.path.splitext(image_path)[0] + f'.{save_format.lower()}'
+            logger.debug(f"IMAGE RESIZING AND PATH: Image new file path {new_file_path}")
 
             if save_format == 'JPEG':
                 img = img.convert('RGB')
                 img.save(new_file_path, 'JPEG', quality=quality)
-                logger.debug(f"Image saved as JPEG with {quality}% quality at {new_file_path}")
+                logger.debug(f"IMAGE RESIZING: Image saved as JPEG with {quality}% quality at {new_file_path}")
 
             elif save_format == 'PNG':
                 if img.mode != 'RGBA':
                     img = img.convert("RGBA")
                 img.save(new_file_path, 'PNG', optimize=True)
-                logger.debug(f"Image saved as PNG at {new_file_path}")
+                logger.debug(f"IMAGE RESIZING:Image saved as PNG at {new_file_path}")
 
             else:
                 logger.error(f"Unsupported target format: {save_format}")
@@ -40,7 +41,7 @@ def resize_and_save_image(image_path, max_size=1500, quality=70, target_format=N
             if original_format != save_format:
                 os.remove(image_path)
                 logger.debug(f"Original image {image_path} removed after conversion to {save_format}.")
-
+            logger.debug(f"IMAGE RESIZING AND PATH: Image path {new_file_path}")
             return new_file_path
 
     except Exception as e:

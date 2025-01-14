@@ -106,6 +106,7 @@ def report_view(request):
 
             external_picture_file = request.FILES.get('external_picture')
             company_logo_file = request.FILES.get('company_logo')
+            app_logger.debug(f"Type of external_picture_file: {type(external_picture_file)}")
 
             if external_picture_file:
                 report_instance.external_picture = external_picture_file
@@ -114,10 +115,13 @@ def report_view(request):
             if company_logo_file:
                 report_instance.company_logo = company_logo_file
                 preview_company_logo = request.FILES['company_logo']
+
                 
             report_instance.save()
             app_logger.debug(f"STATUS REPORT after creating report_instance.status:{report_instance.status}")
-
+            app_logger.debug(f"Path of external_picture: {report_instance.external_picture.path}")
+            app_logger.debug(f"Path of external_picture: {report_instance.company_logo.path}")
+            
             # Resize external_picture and company_logo after saving
             # Resize and save external_picture as JPEG with 70% quality
             if external_picture_file:
@@ -173,6 +177,8 @@ def report_view(request):
                 if room_picture_file:
                         room_instance.room_picture = room_picture_file
                         room_instance.save()
+                        app_logger.debug(f"STATUS REPORT after creating room_instance.status:{room_instance.status}")
+                        app_logger.debug(f"Path of external_picture: {room_instance.room_picture.path}")
 
                         # Resize and save room_picture as JPEG with 70% quality
                         resized_room_path = resize_and_save_image(
