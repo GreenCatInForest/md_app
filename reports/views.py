@@ -106,7 +106,6 @@ def report_view(request):
 
             external_picture_file = request.FILES.get('external_picture')
             company_logo_file = request.FILES.get('company_logo')
-            app_logger.debug(f"Type of external_picture_file: {type(external_picture_file)}")
 
             if external_picture_file:
                 report_instance.external_picture = external_picture_file
@@ -115,13 +114,15 @@ def report_view(request):
             if company_logo_file:
                 report_instance.company_logo = company_logo_file
                 preview_company_logo = request.FILES['company_logo']
-
                 
             report_instance.save()
+            if report_instance.external_picture:
+                app_logger.debug(f"VIEWS IMAGE PATH Path of external_picture: {report_instance.external_picture.path}")
+            else:
+                app_logger.debug("VIEWS IMAGE PATH No file associated with external_picture.")
             app_logger.debug(f"STATUS REPORT after creating report_instance.status:{report_instance.status}")
-            app_logger.debug(f"Path of external_picture: {report_instance.external_picture.path}")
-            app_logger.debug(f"Path of external_picture: {report_instance.company_logo.path}")
-            
+            # app_logger.debug(f"VIEWS IMAGE PATH Path of external_picture: {report_instance.external_picture.path}")
+            # app_logger.debug(f"VIEWS IMAGE PATH Path of company_logo: {report_instance.company_logo.path}")
             # Resize external_picture and company_logo after saving
             # Resize and save external_picture as JPEG with 70% quality
             if external_picture_file:
@@ -174,11 +175,12 @@ def report_view(request):
 
                 # Handle room_picture
                 room_picture_file = room_form.cleaned_data.get('room_picture')
+                app_logger.debug(f'ROOM IMAGE PATH DEBUGGING: type of room_picture_file: {type(room_picture_file)}')
                 if room_picture_file:
+                        app_logger.debug(f'ROOM IMAGE PATH DEBUGGING: type of room_picture_file after the check: {type(room_picture_file)}')
                         room_instance.room_picture = room_picture_file
                         room_instance.save()
-                        app_logger.debug(f"STATUS REPORT after creating room_instance.status:{room_instance.status}")
-                        app_logger.debug(f"Path of external_picture: {room_instance.room_picture.path}")
+                        
 
                         # Resize and save room_picture as JPEG with 70% quality
                         resized_room_path = resize_and_save_image(
@@ -188,12 +190,15 @@ def report_view(request):
                             target_format='JPEG'
                         )
                         if resized_room_path:
+                            app_logger.debug(f'ROOM IMAGE PATH DEBUGGING:{resized_room_path},{type(resized_room_path)}')
                             room_instance.room_picture.name = os.path.relpath(resized_room_path, settings.MEDIA_ROOT)
                             room_instance.save()
                             room_pictures.append(room_instance.room_picture.path)
+
                         else:
                             room_form.add_error('room_picture', 'Failed to process room picture.')
                 else:
+                        app_logger.debug(f'ROOM IMAGE PATH DEBUGGING: room_picture_file is None or invalid.')
                         room_instance.save()
 
 
