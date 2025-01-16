@@ -13,6 +13,7 @@ from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.http import FileResponse, Http404, JsonResponse
 from django.utils import timezone
 from django.utils._os import safe_join
+from django.utils.text import slugify
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
@@ -88,6 +89,11 @@ def serve_report(request, filename):
         return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
     else:
         raise Http404("File not found")
+    
+def sanitize_file_name(file_name):
+    name, ext = os.path.splitext(file_name)
+    sanitized_name = slugify(name) + ext
+    return sanitized_name
 
 @login_required
 def report_view(request):
@@ -109,11 +115,15 @@ def report_view(request):
             company_logo_file = request.FILES.get('company_logo')
 
             if external_picture_file:
+                sanitized_name = sanitize_file_name(external_picture_file.name)
+                external_picture_file.name = sanitized_name
                 report_instance.external_picture = external_picture_file
                 external_picture_preview = request.FILES['external_picture']
 
             if company_logo_file:
                 report_instance.company_logo = company_logo_file
+                sanitized_name = sanitize_file_name(company_logo_file.name)
+                company_logo_file.name = sanitized_name
                 preview_company_logo = request.FILES['company_logo']
                 
             report_instance.save()
@@ -178,12 +188,15 @@ def report_view(request):
                 room_picture_file = room_form.cleaned_data.get('room_picture')
                 app_logger.debug(f'ROOM IMAGE PATH DEBUGGING: type of room_picture_file: {type(room_picture_file)}')
                 if room_picture_file:
-                        app_logger.debug(f'ROOM IMAGE PATH DEBUGGING: type of room_picture_file after the check: {type(room_picture_file)}')
+                        # app_logger.debug(f'ROOM IMAGE PATH DEBUGGING: type of room_picture_file after the check: {type(room_picture_file)}')
+                        sanitized_name = sanitize_file_name(room_picture_file.name)
+                        room_picture_file.name = sanitized_name
                         room_instance.room_picture = room_picture_file
+                        app_logger.debug(f"Sanitized room picture name: {sanitized_name}")
                         room_instance.save()
 
-                        room_instance.refresh_from_db()
-                        app_logger.debug(f'After save: type of room_instance.room_picture: {type(room_instance.room_picture)}')
+                        # room_instance.refresh_from_db()
+                        # app_logger.debug(f'After save: type of room_instance.room_picture: {type(room_instance.room_picture)}')
                         if isinstance(room_instance.room_picture, File):
                             app_logger.debug("room_picture is a File object.")
                             # Access file attributes
@@ -422,6 +435,16 @@ def report_view(request):
             'Image_indoor3': image_indoor3,
             'Image_indoor4': image_indoor4,
         }
+            app_logger.debug(
+                  f"IMAGE DEBUGGING: sending image paths to Celery: "
+                  f"external {serialized_form_data['Image_property']} - {type(serialized_form_data['Image_property'])}, "
+                  f"company logo: {serialized_form_data['Image_logo']} - {type(serialized_form_data['Image_logo'])}")
+            
+            for i, pic in enumerate(room_pictures):
+                exists = os.path.exists(pic)
+                file_size = os.path.getsize(pic) if exists else "File not found"
+                app_logger.debug(f"IMAGE DEBUGGING: sending Room paths to Celery: {i + 1}: {pic}, Exists: {exists}, Size: {file_size}")
+
             # Create the Payment instance
             payment = Payment(user=request.user, report=report_instance)
             payment.status = 'unpaid'
