@@ -21,6 +21,7 @@ from datetime import datetime, timezone as dt_timezone
 from django.conf import settings
 from django.views import View
 from django.views.generic.list import ListView
+from django.core.files.base import File
 
 from .forms import ReportForm, RoomFormSet
 from core.models import Logger as LoggerModel, Logger_Data, Room, Report, Downloads, Payment
@@ -180,8 +181,19 @@ def report_view(request):
                         app_logger.debug(f'ROOM IMAGE PATH DEBUGGING: type of room_picture_file after the check: {type(room_picture_file)}')
                         room_instance.room_picture = room_picture_file
                         room_instance.save()
-                        
 
+                        room_instance.refresh_from_db()
+                        app_logger.debug(f'After save: type of room_instance.room_picture: {type(room_instance.room_picture)}')
+                        if isinstance(room_instance.room_picture, File):
+                            app_logger.debug("room_picture is a File object.")
+                            # Access file attributes
+                            app_logger.debug(f'File path: {room_instance.room_picture.path}')
+                            app_logger.debug(f'File URL: {room_instance.room_picture.url}')
+                        else:
+                            app_logger.debug("room_picture is not a File object. It might be a path string.")
+                            # If it's a string, it's likely the file path
+                            app_logger.debug(f'File path: {room_instance.room_picture}')
+                        
                         # Resize and save room_picture as JPEG with 70% quality
                         resized_room_path = resize_and_save_image(
                             room_instance.room_picture.path, 
@@ -194,6 +206,7 @@ def report_view(request):
                             room_instance.room_picture.name = os.path.relpath(resized_room_path, settings.MEDIA_ROOT)
                             room_instance.save()
                             room_pictures.append(room_instance.room_picture.path)
+                            print(type(room_pictures))
 
                         else:
                             room_form.add_error('room_picture', 'Failed to process room picture.')

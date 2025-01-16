@@ -41,7 +41,7 @@ def resize_and_save_image(image_path, max_size=1500, quality=70, target_format=N
             if original_format != save_format:
                 os.remove(image_path)
                 logger.debug(f"Original image {image_path} removed after conversion to {save_format}.")
-            logger.debug(f"IMAGE RESIZING AND PATH: Image path {new_file_path}")
+            logger.debug(f"IMAGE RESIZING AND PATH UTILS: Image path {new_file_path}, Image Type: {type(new_file_path)}")
             return new_file_path
 
     except Exception as e:

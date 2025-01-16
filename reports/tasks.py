@@ -55,7 +55,7 @@ def generate_report_task(self, report_id, csv_file_paths, serialized_form_data, 
         Monitor_areas = serialized_form_data['Monitor_areas']  # List
         moulds = serialized_form_data['moulds']# List
         Image_property = serialized_form_data['Image_property']
-        room_pictures = [pic.path for pic in serialized_form_data['room_pictures']] # Assuming related field
+        room_pictures = [os.path.join(settings.MEDIA_ROOT, pic) for pic in serialized_form_data['room_pictures']]
         Image_indoor1 = serialized_form_data['Image_indoor1']
         Image_indoor2 = serialized_form_data['Image_indoor2']
         Image_indoor3 = serialized_form_data['Image_indoor3'] 
