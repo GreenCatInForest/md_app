@@ -127,6 +127,10 @@ def report_view(request):
                 preview_company_logo = request.FILES['company_logo']
                 
             report_instance.save()
+            if report_instance.report_file:
+                app_logger.debug(f"VIEWS report_file path after saving report_instance: {report_instance.report_file.path}")
+            else:
+                app_logger.debug("VIEWS report_file path after saving report_instance No file associated ")
             if report_instance.external_picture:
                 app_logger.debug(f"VIEWS IMAGE PATH Path of external_picture: {report_instance.external_picture.path}")
             else:
@@ -455,6 +459,7 @@ def report_view(request):
             form_data_json = json.dumps(serialized_form_data)
             task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data, payment_uuid=str(payment.uuid))
             
+            
             if (request.headers.get('x-requested-with') == 'XMLHttpRequest'):
                 app_logger.debug(f"Sending to Client: Task ID: {task.id}, Payment ID: {payment.id}, UUID: {payment.uuid}, status: {payment.status}")
                 return JsonResponse({
@@ -531,8 +536,16 @@ def check_task_status(request, task_id):
     if task_result.state == 'SUCCESS':
         result = task_result.result
         if result.get('status') == 'success':
-            pdf_filename = os.path.basename(result['pdf_url'])
-            pdf_url = request.build_absolute_uri(f'/reports/reports_save/{pdf_filename}')
+            pdf_url = result.get('pdf_url')
+            report_in_db = get_object_or_404(Report, celery_task_id=task_id)
+            pdf_report_file_from_task_url = report_in_db.report_file
+            app_logger.debug(f'DEBUGGING REPORT PATH IN check_task_status report_file in database is {pdf_report_file_from_task_url}')
+            app_logger.debug(f'DEBUGGING REPORT PATH IN check_task_status function result is {result}')
+            
+            # pdf_filename = os.path.basename(result['pdf_url'])
+            # app_logger.debug(f'DEBUGGING REPORT PATH IN check_task_status function. pdf_filename is {pdf_filename}')
+            # # pdf_url = request.build_absolute_uri(f'/reports/reports_save/{pdf_filename}')
+            # app_logger.debug(f'DEBUGGING REPORT PATH IN check_task_status function. pdf_url is /reports/reports_save/{pdf_filename}')
             payment_uuid = result.get('payment_uuid')
             # Just get the base price for a "report," ignoring Payment for now
             report_price, report_currency = get_service_price('report')
@@ -545,7 +558,7 @@ def check_task_status(request, task_id):
 
             return JsonResponse({
                 'status': 'success',
-                'pdf_url': pdf_url,
+                'report_file': pdf_url,
                 'report_price': report_price,
                 'report_currency': report_currency,
                 'uuid': payment_uuid,
@@ -580,8 +593,8 @@ def report_detail_view(request, report_id):
 def download_report(request, report_id):
     try:
         report = Report.objects.get(id=report_id)
-        file_path = safe_join(report.report_file.name)
-        print(file_path)
+        file_path = safe_join(settings.MEDIA_ROOT, report.report_file.name)
+        app_logger.debug(f'DEBUGGING REPORT PATH IN download_report function result is{file_path}')
         if not report.report_file:
             raise Http404("No file found.")
         

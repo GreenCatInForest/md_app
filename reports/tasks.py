@@ -91,8 +91,11 @@ def generate_report_task(self, report_id, csv_file_paths, serialized_form_data, 
         )
 
         report.status = 'generated'
+        report.report_file = filename
         report.save()
+        app_logger.debug(f"Report content after generation:{report}")
         app_logger.debug(f"STATUS REPORT after Report generated:{report.status}")
+        app_logger.debug(f"REPORT FILE PATH after Report generated:{report.report_file}")
         return {'status': 'success', 'pdf_url': filename, 'payment_uuid':payment_uuid}
     except Report.DoesNotExist:
         app_logger.error(f'Report with id {report_id} does not exist.')

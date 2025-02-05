@@ -17,12 +17,44 @@ import re
 from enum import IntEnum
 import subprocess
 
+from django.conf import settings
+from django.utils.text import slugify
+from django.conf import settings
+
+
 output_dir = '/code/imgs/' 
 # Referres to root/imgs
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-output_report_dir = '/code/reports_save/'
+
+
+def get_dynamic_output_dir(instance):
+    """
+    Generates the dynamic output directory for a report.
+    """
+    # Construct the path based on instance attributes
+    output_report_dir = os.path.join(
+        settings.MEDIA_ROOT,  # Base media directory
+        'reports_save',       # Subdirectory for reports
+        str(instance.id),     # Unique report ID
+    )
+
+    # Ensure the directory exists
+    if not os.path.exists(output_report_dir):
+        os.makedirs(output_report_dir)
+
+    return output_report_dir
+
+def get_dynamic_output_file(instance):
+    """
+    Generates the full path for the report file, including the filename.
+    """
+    output_report_dir = get_dynamic_output_dir(instance)
+    filename = f"{slugify(instance.property_address)}_{instance.start_time.strftime('%Y%m%d%H%M%S')}.pdf"
+    return os.path.join(output_report_dir, filename)
+
+output_report_dir = os.path.join(settings.MEDIA_ROOT, 'reports_save')
 # Referres to root/reports_save
 if not os.path.exists(output_report_dir):
     os.makedirs(output_report_dir)
@@ -1878,6 +1910,7 @@ def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
         # Clean up temporary files
         os.remove(cover_pdf_file_name)
         os.remove(pdf_name)
+        print(f"DEBUGGING REPORT PATH IN PCADataTool, filename is: {filename}")
         return filename
 
     except Exception as e:

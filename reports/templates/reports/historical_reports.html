@@ -25,9 +25,12 @@
                         <p>Report Status: {{ report.status }}</p>
                         {% for payment in report.payments.all%}
                             <p>Payment ID: {{ payment.id }} Payment Status: {{payment.status}}</p>
-                            {% if report.report_file%}
-                            <p>report.report_file: {{report.report_file}}</p>
-                            {% endif%}
+                            {% if report.report_file and report.report_file.url %}
+                                <p>Report File: <a href="{{ report.report_file.url }}" target="_blank">{{ report.report_file.name }}</a></p>
+                                <a href="{% url 'download_report' report.id %}">Download Report</a>
+                            {% else %}
+                                <p>No report available.</p>
+                            {% endif %}
                             {% empty%}
                             <p>Here is no information about payment status</p>
                         {% endfor %}

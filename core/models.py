@@ -1,5 +1,6 @@
 import os
 import uuid
+import shutil
 from django.contrib.auth.models import (
     AbstractBaseUser, 
     BaseUserManager, 
@@ -10,6 +11,7 @@ from django.contrib.auth.models import (
 from django.conf import settings
 from django.db import models
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.files import File
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
 from django.utils.text import slugify
@@ -95,13 +97,27 @@ def room_photo_upload_path(instance, filename):
         report = instance.report if instance.report else 'temp'
         sanitized_report = slugify(report)
     # Generate the upload path
-        return os.path.join('img', 'rooms_img', str( sanitized_report), filename)
+        return os.path.join('img', 'rooms_img', str(sanitized_report), filename)
 
 def report_property_photo_upload_path(instance, filename):
     property_address = instance.property_address if instance.property_address else 'temp'
     sanitized_property_address = slugify(property_address)
     # Generate the upload path
     return os.path.join('img', 'properties_img', str(sanitized_property_address), filename)
+
+def report_upload_file(instance, filename):
+    if instance.id is None:
+        # Handle the case where instance.id is not set yet
+        return os.path.join(
+            'reports_save',
+            'temp',  # Store temporarily if ID is None
+            f"{slugify(instance.property_address)}_{instance.start_time.strftime('%Y%m%d%H%M%S')}.pdf"
+        )
+    return os.path.join(
+        'reports_save',
+        str(instance.id),  # Ensure ID is used
+        f"{slugify(instance.property_address)}_{instance.start_time.strftime('%Y%m%d%H%M%S')}.pdf"
+    )
 class Logger (models.Model):
     serial_number = models.CharField(max_length=255, unique=True)
     registered_date = models.DateTimeField(auto_now=True)
@@ -237,15 +253,28 @@ class Report (models.Model):
     occupied = models.BooleanField(default=False)
     occupied_during_all_monitoring = models.BooleanField(default=False)
     number_of_occupants = models.IntegerField(default=0)
-    report_file = models.FileField(upload_to='reports_save/', null=True, blank=True)
+    report_file = models.FileField(upload_to=report_upload_file, null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, null=True, blank=True, default='unpaid')
       # Ensure the file path is correctly formatted using instance-specific information
     def save(self, *args, **kwargs):
-        if not self.report_file:
-            self.report_file = f'reports/{self.id}/{self.property_address}_{self.start_time.strftime("%Y%m%d%H%M%S")}.pdf'
-        super().save(*args, **kwargs)
+        """Ensure instance ID exists before assigning report_file."""
+        is_new = self.id is None  # Check if the instance is new
+        super().save(*args, **kwargs)  # First save to generate an ID
 
+        if is_new and not self.report_file:
+            # Now the instance has an ID, update the file path
+            new_file_path = report_upload_file(self, "")
+            full_new_path = os.path.join(settings.MEDIA_ROOT, new_file_path)
+
+            # Move the file if necessary
+            if self.report_file and os.path.exists(self.report_file.path):
+                os.makedirs(os.path.dirname(full_new_path), exist_ok=True)
+                shutil.move(self.report_file.path, full_new_path)
+
+                # Update the database record with the correct file path
+                self.report_file.name = new_file_path
+                super().save(update_fields=['report_file'])
 
     def __str__(self):
         return f"Report {self.property_address} - {self.start_time.strftime('%Y-%m-%d')}"
