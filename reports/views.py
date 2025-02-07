@@ -537,7 +537,8 @@ def check_task_status(request, task_id):
         result = task_result.result
         if result.get('status') == 'success':
             pdf_url = result.get('pdf_url')
-            report_in_db = get_object_or_404(Report, celery_task_id=task_id)
+            report_id_from_task = result.get('id')
+            report_in_db = get_object_or_404(Report, id=report_id_from_task)
             pdf_report_file_from_task_url = report_in_db.report_file
             app_logger.debug(f'DEBUGGING REPORT PATH IN check_task_status report_file in database is {pdf_report_file_from_task_url}')
             app_logger.debug(f'DEBUGGING REPORT PATH IN check_task_status function result is {result}')
