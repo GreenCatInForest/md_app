@@ -106,18 +106,7 @@ def report_property_photo_upload_path(instance, filename):
     return os.path.join('img', 'properties_img', str(sanitized_property_address), filename)
 
 def report_upload_file(instance, filename):
-    if instance.id is None:
-        # Handle the case where instance.id is not set yet
-        return os.path.join(
-            'reports_save',
-            'temp',  # Store temporarily if ID is None
-            f"{slugify(instance.property_address)}_{instance.start_time.strftime('%Y%m%d%H%M%S')}.pdf"
-        )
-    return os.path.join(
-        'reports_save',
-        str(instance.id),  # Ensure ID is used
-        f"{slugify(instance.property_address)}_{instance.start_time.strftime('%Y%m%d%H%M%S')}.pdf"
-    )
+    return os.path.join('reports_save', str(instance.id), filename)
 class Logger (models.Model):
     serial_number = models.CharField(max_length=255, unique=True)
     registered_date = models.DateTimeField(auto_now=True)
@@ -262,19 +251,13 @@ class Report (models.Model):
         is_new = self.id is None  # Check if the instance is new
         super().save(*args, **kwargs)  # First save to generate an ID
 
-        if is_new and not self.report_file:
-            # Now the instance has an ID, update the file path
-            new_file_path = report_upload_file(self, "")
-            full_new_path = os.path.join(settings.MEDIA_ROOT, new_file_path)
+        if self.status == "generated" and not self.report_file:
+            from reports.utils.PCAdataTool import get_dynamic_output_file
+            new_file_path = get_dynamic_output_file(self)
+            self.report_file.name = new_file_path
+            super().save(update_fields=['report_file'])
 
-            # Move the file if necessary
-            if self.report_file and os.path.exists(self.report_file.path):
-                os.makedirs(os.path.dirname(full_new_path), exist_ok=True)
-                shutil.move(self.report_file.path, full_new_path)
-
-                # Update the database record with the correct file path
-                self.report_file.name = new_file_path
-                super().save(update_fields=['report_file'])
+            
 
     def __str__(self):
         return f"Report {self.property_address} - {self.start_time.strftime('%Y-%m-%d')}"

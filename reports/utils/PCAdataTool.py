@@ -50,9 +50,12 @@ def get_dynamic_output_file(instance):
     """
     Generates the full path for the report file, including the filename.
     """
-    output_report_dir = get_dynamic_output_dir(instance)
+    relative_dir = os.path.join('reports_save', str(instance.id))
+    absolute_dir = os.path.join(settings.MEDIA_ROOT, relative_dir)
+    if not os.path.exists(absolute_dir):
+        os.makedirs(absolute_dir)
     filename = f"{slugify(instance.property_address)}_{instance.start_time.strftime('%Y%m%d%H%M%S')}.pdf"
-    return os.path.join(output_report_dir, filename)
+    return os.path.join(relative_dir, filename)
 
 output_report_dir = os.path.join(settings.MEDIA_ROOT, 'reports_save')
 # Referres to root/reports_save

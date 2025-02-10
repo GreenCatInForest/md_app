@@ -550,7 +550,7 @@ def check_task_status(request, task_id):
             payment_uuid = result.get('payment_uuid')
             # Just get the base price for a "report," ignoring Payment for now
             report_price, report_currency = get_service_price('report')
-
+            
             # If you want a Payment’s UUID, you must have the Payment object’s real UUID,
             # not the string 'report'. Remove or replace:
             # payment_uuid = get_payment_uuid('report')  # <-- NOT VALID
