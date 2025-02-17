@@ -26,7 +26,7 @@
                         {% for payment in report.payments.all%}
                             <p>Payment ID: {{ payment.id }} Payment Status: {{payment.status}}</p>
                             {% if report.report_file and report.report_file.url %}
-                                <p>Report File: <a href="{{ report.report_file.name }}" target="_blank">{{ report.report_file.name }}</a></p>
+                                <p>Report File: <a href="{{ report.report_file.url }}" target="_blank">{{ report.report_file.name }}</a></p>
                                 <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>
                             {% else %}
                                 <p>No report available.</p>
@@ -34,6 +34,29 @@
                             {% empty%}
                             <p>Here is no information about payment status</p>
                         {% endfor %}
+                    </td>
+                    <td class="py-2 px-4 border-b text-gray-900">
+                        <p>Report Status: {{ report.status }}</p>
+                    
+                        {% if report.payments.exists %}
+                            {% for payment in report.payments.all %}
+                                <p>Payment Status: {{ payment.status }}</p>
+                    
+                                {% if report.report_file and payment.status == 'succeeded' %}
+                                    <a href="{{ report.report_file.url }}" class="text-blue-500 hover:underline">Download Report</a>
+                                {% elif report.report_file and payment.status == 'pending' %}
+                                    <form action="" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="uuid" value="{{ payment.uuid }}">
+                                        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Pay Now</button>
+                                    </form>
+                                {% else %}
+                                    <p>No report available.</p>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p>No payment information available.</p>
+                        {% endif %}
                     </td>
                     <!-- <td class="py-2 px-4 border-b text-gray-900">
                         {% for room in report.rooms.all %}
