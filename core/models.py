@@ -1,4 +1,6 @@
 import os
+import uuid
+import shutil
 from django.contrib.auth.models import (
     AbstractBaseUser, 
     BaseUserManager, 
@@ -10,6 +12,8 @@ from django.conf import settings
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.utils.html import format_html
+from django.utils.text import slugify
 from decimal import Decimal
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -76,26 +80,27 @@ class PasswordReset(models.Model):
     
 def company_logo_upload_path(instance, filename):
     company_name = instance.company if instance.company else 'temp'
-    return os.path.join('img', 'companies_img', str(company_name), filename)
-
-
+    sanitized_company_name = slugify(company_name)
+    return os.path.join('img', 'companies_img', str(sanitized_company_name), filename)
    
 def property_photo_upload_path(instance, filename):
-    # Get the company ID
         property_address = instance.address if instance.address else 'temp'
+        sanitized_property_address = slugify(property_address)
     # Generate the upload path
-        return os.path.join('img', 'properties_img', str(property_address), filename)
+        return os.path.join('img', 'properties_img', str(sanitized_property_address), filename)
 
 def room_photo_upload_path(instance, filename):
-    # Get the company ID
         report = instance.report if instance.report else 'temp'
+        sanitized_report = slugify(report)
     # Generate the upload path
-        return os.path.join('img', 'rooms_img', str(report), filename)
+        return os.path.join('img', 'rooms_img', str(sanitized_report), filename)
 
 def report_property_photo_upload_path(instance, filename):
     property_address = instance.property_address if instance.property_address else 'temp'
+    sanitized_property_address = slugify(property_address)
     # Generate the upload path
-    return os.path.join('img', 'properties_img', str(property_address), filename)
+    return os.path.join('img', 'properties_img', str(sanitized_property_address), filename)
+
 class Logger (models.Model):
     serial_number = models.CharField(max_length=255, unique=True)
     registered_date = models.DateTimeField(auto_now=True)
