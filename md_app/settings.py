@@ -217,9 +217,12 @@ USE_TZ = True
 
 
 # STATIC and MEDIA configuration
-STATIC_ROOT = '/code/staticfiles'
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+        BASE_DIR / "tailwind_app/static_dist",
+    ]
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

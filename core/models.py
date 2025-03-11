@@ -106,6 +106,8 @@ def report_property_photo_upload_path(instance, filename):
     return os.path.join('img', 'properties_img', str(sanitized_property_address), filename)
 
 def report_upload_file(instance, filename):
+    if instance.id is None:
+        return os.path.join('reports_save', 'temp', filename) 
     return os.path.join('reports_save', str(instance.id), filename)
 class Logger (models.Model):
     serial_number = models.CharField(max_length=255, unique=True)
@@ -254,8 +256,26 @@ class Report (models.Model):
         if self.status == "generated" and not self.report_file:
             from reports.utils.PCAdataTool import get_dynamic_output_file
             new_file_path = get_dynamic_output_file(self)
-            self.report_file.name = new_file_path
-            super().save(update_fields=['report_file'])
+
+            if new_file_path:  # ✅ Ensure new_file_path is not None
+                absolute_path = os.path.join(settings.MEDIA_ROOT, new_file_path)
+
+                # ✅ Ensure the directory exists
+                os.makedirs(os.path.dirname(absolute_path), exist_ok=True)
+
+                # ✅ Create an empty file if it doesn't exist
+                if not os.path.exists(absolute_path):
+                    with open(absolute_path, 'w') as f:
+                        f.write('')  # Write an empty file
+
+                # ✅ Assign the file properly
+                with open(absolute_path, 'rb') as f:
+                    self.report_file.save(new_file_path, File(f), save=False)
+
+                super().save(update_fields=['report_file'])  # Save only this field
+
+        else:
+            print("🚨 Warning: `get_dynamic_output_file()` returned None!")
 
             
 
