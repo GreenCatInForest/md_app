@@ -181,7 +181,7 @@ def report_view(request):
                         if resized_room_path:
                             room_instance.room_picture.name = os.path.relpath(resized_room_path, settings.MEDIA_ROOT)
                             room_instance.save()
-                            room_pictures.append(str(room_instance.room_picture) if room_instance.room_picture else None)
+                            room_pictures.append(room_instance.room_picture.path)
                         else:
                             room_form.add_error('room_picture', 'Failed to process room picture.')
                 else:
@@ -328,10 +328,10 @@ def report_view(request):
             # Collect images (ensure only available images are passed)
             image_property = save_uploaded_file(form.cleaned_data.get('external_picture'))
             image_logo = save_uploaded_file(form.cleaned_data.get('company_logo'))
-            image_indoor1 = room_pictures[0] if len(room_pictures) > 0 else ''
-            image_indoor2 = room_pictures[1] if len(room_pictures) > 1 else ''
-            image_indoor3 = room_pictures[2] if len(room_pictures) > 2 else ''
-            image_indoor4 = room_pictures[3] if len(room_pictures) > 3 else ''
+            image_indoor1 = room_pictures[0] if len(room_pictures) > 0 else None
+            image_indoor2 = room_pictures[1] if len(room_pictures) > 1 else None
+            image_indoor3 = room_pictures[2] if len(room_pictures) > 2 else None
+            image_indoor4 = room_pictures[3] if len(room_pictures) > 3 else None
 
             app_logger.debug(f"Images collected: Image_property={image_property}, image_logo={image_logo}")
             app_logger.debug(f"Images collected: Image_indoor1={image_indoor1}, Image_indoor2={image_indoor2}, Image_indoor3={image_indoor3}, Image_indoor4={image_indoor4}")
@@ -356,10 +356,10 @@ def report_view(request):
                 'comment': form.cleaned_data['notes'],
                 'datafiles': csv_file_paths,  # Pass the path to the CSV file
                 'room_pictures': room_pictures,
-                'Image_indoor1': image_indoor1,
-                'Image_indoor2': image_indoor2,
-                'Image_indoor3': image_indoor3,
-                'Image_indoor4': image_indoor4,
+                'Image_indoor1': image_indoor1 or '',
+                'Image_indoor2': image_indoor2 or '',
+                'Image_indoor3': image_indoor3 or '',
+                'Image_indoor4': image_indoor4 or '',
             }
 
             app_logger.debug("Form data prepared. Calling RPTGen...")
