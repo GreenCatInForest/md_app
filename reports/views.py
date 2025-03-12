@@ -181,7 +181,7 @@ def report_view(request):
                         if resized_room_path:
                             room_instance.room_picture.name = os.path.relpath(resized_room_path, settings.MEDIA_ROOT)
                             room_instance.save()
-                            room_pictures.append(room_instance.room_picture.path)
+                            room_pictures.append(str(room_instance.room_picture) if room_instance.room_picture else None)
                         else:
                             room_form.add_error('room_picture', 'Failed to process room picture.')
                 else:
