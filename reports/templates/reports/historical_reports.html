@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Historical Reports{% endblock %}
+{% load static %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
@@ -25,9 +26,17 @@
                         <p>Report Status: {{ report.status }}</p>
                         {% for payment in report.payments.all%}
                             <p>Payment ID: {{ payment.id }} Payment Status: {{payment.status}}</p>
-                            {% if report.report_file and report.report_file.url %}
-                                <p>Report File: <a href="{{ report.report_file.url }}" target="_blank">{{ report.report_file.name }}</a></p>
+                            {% if report.report_file and report.status == 'paid'%}
                                 <a href="{% url 'download_report' report.id %}" class="text-blue-500 bg-red-500 hover:underline">Download Report</a>
+                            {% elif report.report_file and report.status == 'unpaid' or report.status == 'generated'%}
+                                <button type ='button' id='pay-button-historical-reports' class = 'inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-green-700 rounded-lg focus:ring-4 focus:ring-green-300 dark:focus:ring-green-900 hover:bg-green-800 justify-center px-5';
+                                >Pay Now</button>
+                                <p>Status: {{ report.get_status_display }}</p>
+                                <p>Price: {{ report.price }} {{ report.currency }}</p>
+                            {% elif report.report_file and report.status == 'None'%}
+                                <p>Report generated previously</p>
+                                {{ report.status }}
+                                <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>  
                             {% else %}
                                 <p>No report available.</p>
                             {% endif %}
@@ -35,53 +44,6 @@
                             <p>Here is no information about payment status</p>
                         {% endfor %}
                     </td>
-                    <td class="py-2 px-4 border-b text-gray-900">
-                        <p>Report Status: {{ report.status }}</p>
-                    
-                        {% if report.payments.exists %}
-                            {% for payment in report.payments.all %}
-                                <p>Payment Status: {{ payment.status }}</p>
-                    
-                                {% if report.report_file and payment.status == 'succeeded' %}
-                                    <a href="{{ report.report_file.url }}" class="text-blue-500 hover:underline">Download Report</a>
-                                {% elif report.report_file and payment.status == 'pending' %}
-                                    <form action="" method="POST">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="uuid" value="{{ payment.uuid }}">
-                                        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Pay Now</button>
-                                    </form>
-                                {% else %}
-                                    <p>No report available.</p>
-                                {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            <p>No payment information available.</p>
-                        {% endif %}
-                    </td>
-                    <!-- <td class="py-2 px-4 border-b text-gray-900">
-                        {% for room in report.rooms.all %}
-                            {{ room.room_name }}{% if not forloop.last %}
-                            {% endif %}
-                        {% endfor %}
-                    </td> -->
-                    <!-- <td class="py-2 px-4 border-b text-gray-900">
-                        {% if report.report_file and report.status == 'paid'%}
-                        <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>
-                         <a href="{% url 'report_detail' report.id %}" class="text-blue-500 hover:underline">Download Report</a>  
-                         -->
-                         <!--{% elif report.report_file and report.status == 'unpaid'%}
-                        <button>Pay Now</button>
-                        <p>Status: {{ report.get_status_display }}</p>
-                        <p>Price: {{ report.price }} {{ report.currency }}</p>
-                        {% elif report.report_file and report.status == 'None'%}
-                        <p>Report generated previously</p>
-                        {{ report.status }}
-                        <a href="{% url 'download_report' report.id %}" class="text-blue-500 hover:underline">Download Report</a>                        
-                        {% else%}
-                        {{ report.status }}
-                        <p>No file available</p>
-                        {% endif %}
-                    </td> -->
                 </tr>
                 {% empty %}
                 <tr>
@@ -92,6 +54,8 @@
         </table>
     </div>
 </div>
+
+
 
 
 <style>
@@ -127,6 +91,23 @@
             white-space: nowrap;
             content: attr(data-label);
         }
+
+        #pay-button-historical-reports {
+            background-color: blue;
+            color: white;
+        }
     }
+
 </style>
+
+
+<script>
+
+const payButtonHR = document.querySelector('#pay-button-historical-reports');
+payButtonHR.addEventListener('click', function () {
+            console.log('btn clicked');
+            });
+
+
+</script>
 {% endblock %}
