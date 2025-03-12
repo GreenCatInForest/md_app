@@ -1,5 +1,3 @@
-
-
 import logging
 import os
 import tempfile
@@ -15,6 +13,7 @@ from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.http import FileResponse, Http404, JsonResponse
 from django.utils import timezone
 from django.utils._os import safe_join
+from django.utils.text import slugify
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
@@ -23,16 +22,17 @@ from datetime import datetime, timezone as dt_timezone
 from django.conf import settings
 from django.views import View
 from django.views.generic.list import ListView
+from django.core.files.base import File
 
 from .forms import ReportForm, RoomFormSet
-from core.models import Logger as LoggerModel, Logger_Data, Room, Report, Downloads
+from core.models import Logger as LoggerModel, Logger_Data, Room, Report, Downloads, Payment
 from .utils import PCAdataTool
 from .utils.normalize_logger_serial import normalize_logger_serial  
 from .utils.resize_and_save_image import resize_and_save_image
 from .utils.room_data import RoomData
 from .utils.handle_form_errors import handle_form_errors
 
-from .tasks import  generate_report_task
+from .tasks import generate_report_task
 
 
 # Configure logging
@@ -47,7 +47,6 @@ def fetch_logger_data(logger_serial, start_timestamp, end_timestamp):
     try:
         logger = LoggerModel.objects.get(serial_number=logger_serial)
         data = Logger_Data.objects.filter(logger=logger, timestamp__range=(start_timestamp, end_timestamp))
-
         if not data.exists():
             return None  # No data found for this logger within the range
         return pd.DataFrame(list(data.values()))
@@ -83,10 +82,15 @@ def save_uploaded_file(uploaded_file):
 
 def serve_report(request, filename):
     file_path = os.path.join('reports_save', filename)
-    if os.path.exists(file_path):
+    if os.path.exists(file_path): 
         return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
     else:
         raise Http404("File not found")
+    
+def sanitize_file_name(file_name):
+    name, ext = os.path.splitext(file_name)
+    sanitized_name = slugify(name) + ext
+    return sanitized_name
 
 @login_required
 def report_view(request):
@@ -108,15 +112,29 @@ def report_view(request):
             company_logo_file = request.FILES.get('company_logo')
 
             if external_picture_file:
+                sanitized_name = sanitize_file_name(external_picture_file.name)
+                external_picture_file.name = sanitized_name
                 report_instance.external_picture = external_picture_file
                 external_picture_preview = request.FILES['external_picture']
 
             if company_logo_file:
                 report_instance.company_logo = company_logo_file
+                sanitized_name = sanitize_file_name(company_logo_file.name)
+                company_logo_file.name = sanitized_name
                 preview_company_logo = request.FILES['company_logo']
                 
             report_instance.save()
-
+            if report_instance.report_file:
+                app_logger.debug(f"VIEWS report_file path after saving report_instance: {report_instance.report_file.path}")
+            else:
+                app_logger.debug("VIEWS report_file path after saving report_instance No file associated ")
+            if report_instance.external_picture:
+                app_logger.debug(f"VIEWS IMAGE PATH Path of external_picture: {report_instance.external_picture.path}")
+            else:
+                app_logger.debug("VIEWS IMAGE PATH No file associated with external_picture.")
+            app_logger.debug(f"STATUS REPORT after creating report_instance.status:{report_instance.status}")
+            # app_logger.debug(f"VIEWS IMAGE PATH Path of external_picture: {report_instance.external_picture.path}")
+            # app_logger.debug(f"VIEWS IMAGE PATH Path of company_logo: {report_instance.company_logo.path}")
             # Resize external_picture and company_logo after saving
             # Resize and save external_picture as JPEG with 70% quality
             if external_picture_file:
@@ -169,10 +187,27 @@ def report_view(request):
 
                 # Handle room_picture
                 room_picture_file = room_form.cleaned_data.get('room_picture')
+                app_logger.debug(f'ROOM IMAGE PATH DEBUGGING: type of room_picture_file: {type(room_picture_file)}')
                 if room_picture_file:
+                        # app_logger.debug(f'ROOM IMAGE PATH DEBUGGING: type of room_picture_file after the check: {type(room_picture_file)}')
+                        sanitized_name = sanitize_file_name(room_picture_file.name)
+                        room_picture_file.name = sanitized_name
                         room_instance.room_picture = room_picture_file
+                        app_logger.debug(f"Sanitized room picture name: {sanitized_name}")
                         room_instance.save()
 
+                        # room_instance.refresh_from_db()
+                        # app_logger.debug(f'After save: type of room_instance.room_picture: {type(room_instance.room_picture)}')
+                        if isinstance(room_instance.room_picture, File):
+                            app_logger.debug("room_picture is a File object.")
+                            # Access file attributes
+                            app_logger.debug(f'File path: {room_instance.room_picture.path}')
+                            app_logger.debug(f'File URL: {room_instance.room_picture.url}')
+                        else:
+                            app_logger.debug("room_picture is not a File object. It might be a path string.")
+                            # If it's a string, it's likely the file path
+                            app_logger.debug(f'File path: {room_instance.room_picture}')
+                        
                         # Resize and save room_picture as JPEG with 70% quality
                         resized_room_path = resize_and_save_image(
                             room_instance.room_picture.path, 
@@ -181,12 +216,16 @@ def report_view(request):
                             target_format='JPEG'
                         )
                         if resized_room_path:
+                            app_logger.debug(f'ROOM IMAGE PATH DEBUGGING:{resized_room_path},{type(resized_room_path)}')
                             room_instance.room_picture.name = os.path.relpath(resized_room_path, settings.MEDIA_ROOT)
                             room_instance.save()
                             room_pictures.append(room_instance.room_picture.path)
+                            print(type(room_pictures))
+
                         else:
                             room_form.add_error('room_picture', 'Failed to process room picture.')
                 else:
+                        app_logger.debug(f'ROOM IMAGE PATH DEBUGGING: room_picture_file is None or invalid.')
                         room_instance.save()
 
 
@@ -397,7 +436,18 @@ def report_view(request):
             'Image_indoor3': image_indoor3,
             'Image_indoor4': image_indoor4,
         }
+            app_logger.debug(
+                  f"IMAGE DEBUGGING: sending image paths to Celery: "
+                  f"external {serialized_form_data['Image_property']} - {type(serialized_form_data['Image_property'])}, "
+                  f"company logo: {serialized_form_data['Image_logo']} - {type(serialized_form_data['Image_logo'])}")
             
+            for i, pic in enumerate(room_pictures):
+                exists = os.path.exists(pic)
+                file_size = os.path.getsize(pic) if exists else "File not found"
+                app_logger.debug(f"IMAGE DEBUGGING: sending Room paths to Celery: {i + 1}: {pic}, Exists: {exists}, Size: {file_size}")
+
+            # Create the Payment instance
+       
             form_data_json = json.dumps(serialized_form_data)
             task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data)
 
@@ -465,18 +515,29 @@ def report_view(request):
     
 @login_required
 def check_task_status(request, task_id):
+ 
     task_result = AsyncResult(task_id)
-    
+
     if task_result.state == 'SUCCESS':
         result = task_result.result
         if result.get('status') == 'success':
-            pdf_filename = os.path.basename(result['pdf_url'])
-            pdf_url = request.build_absolute_uri(f'/reports/reports_save/{pdf_filename}')
-            return JsonResponse({'status': 'success', 'pdf_url': pdf_url})
+            pdf_url = result.get('pdf_url')
+            report_id_from_task = result.get('id')
+            report_in_db = get_object_or_404(Report, id=report_id_from_task)
+            pdf_report_file_from_task_url = report_in_db.report_file
+            app_logger.debug(f'DEBUGGING REPORT PATH IN check_task_status report_file in database is {pdf_report_file_from_task_url}')
+            app_logger.debug(f'DEBUGGING REPORT PATH IN check_task_status function result is {result}')
+
+            return JsonResponse({
+                'status': 'success',
+                'report_file': pdf_url,
+            })
         else:
             return JsonResponse({'status': 'error', 'message': result.get('message', 'Unknown error')})
+
     elif task_result.state == 'FAILURE':
         return JsonResponse({'status': 'error', 'message': str(task_result.result)})
+
     elif task_result.state in ['PENDING', 'STARTED']:
         return JsonResponse({'status': 'pending'})
     else:
@@ -525,7 +586,3 @@ def manual_download(request, download_id):
         return response
     except FileNotFoundError:
         raise Http404("File does not exist")
-
-
-
-
