@@ -13,6 +13,7 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from django.shortcuts import get_object_or_404
 from .utils.PCAdataTool import RPTGen
+from reports.utils.PCAdataTool import get_dynamic_output_file
 from .utils.normalize_logger_serial import normalize_logger_serial  
 from .utils.resize_and_save_image import resize_and_save_image
 from .utils.room_data import RoomData
@@ -87,11 +88,13 @@ def generate_report_task(self, report_id, csv_file_paths, serialized_form_data, 
             Image_indoor4=Image_indoor4,
             Image_logo=Image_logo,
             comment=comment,
-            popup=True
+            popup=True,
+            instance=report
         )
 
         report.status = 'generated'
-        report.report_file = filename
+        new_path = get_dynamic_output_file(report)  
+        report.report_file.name = new_path
         report.save()
         app_logger.debug(f"Report content after generation:{report}")
         app_logger.debug(f"STATUS REPORT after Report generated:{report.status}")

@@ -71,6 +71,7 @@ services:
     volumes:
       - .:/code  # Override or add specific volumes if needed
       - shared_tmp:/tmp
+      - ./media:/code/media
     env_file:
       - .env
     ports:
