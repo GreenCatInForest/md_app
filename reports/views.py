@@ -1,3 +1,5 @@
+
+
 import logging
 import os
 import tempfile
@@ -328,10 +330,10 @@ def report_view(request):
             # Collect images (ensure only available images are passed)
             image_property = save_uploaded_file(form.cleaned_data.get('external_picture'))
             image_logo = save_uploaded_file(form.cleaned_data.get('company_logo'))
-            image_indoor1 = room_pictures[0] if len(room_pictures) > 0 else None
-            image_indoor2 = room_pictures[1] if len(room_pictures) > 1 else None
-            image_indoor3 = room_pictures[2] if len(room_pictures) > 2 else None
-            image_indoor4 = room_pictures[3] if len(room_pictures) > 3 else None
+            image_indoor1 = room_pictures[0] if len(room_pictures) > 0 else ''
+            image_indoor2 = room_pictures[1] if len(room_pictures) > 1 else ''
+            image_indoor3 = room_pictures[2] if len(room_pictures) > 2 else ''
+            image_indoor4 = room_pictures[3] if len(room_pictures) > 3 else ''
 
             app_logger.debug(f"Images collected: Image_property={image_property}, image_logo={image_logo}")
             app_logger.debug(f"Images collected: Image_indoor1={image_indoor1}, Image_indoor2={image_indoor2}, Image_indoor3={image_indoor3}, Image_indoor4={image_indoor4}")
@@ -356,10 +358,10 @@ def report_view(request):
                 'comment': form.cleaned_data['notes'],
                 'datafiles': csv_file_paths,  # Pass the path to the CSV file
                 'room_pictures': room_pictures,
-                'Image_indoor1': image_indoor1 or '',
-                'Image_indoor2': image_indoor2 or '',
-                'Image_indoor3': image_indoor3 or '',
-                'Image_indoor4': image_indoor4 or '',
+                'Image_indoor1': image_indoor1,
+                'Image_indoor2': image_indoor2,
+                'Image_indoor3': image_indoor3,
+                'Image_indoor4': image_indoor4,
             }
 
             app_logger.debug("Form data prepared. Calling RPTGen...")
