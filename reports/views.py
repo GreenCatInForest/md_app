@@ -23,6 +23,7 @@ from datetime import datetime, timezone as dt_timezone
 from django.conf import settings
 from django.views import View
 from django.views.generic.list import ListView
+from django.core.files import File
 
 from .forms import ReportForm, RoomFormSet
 from core.models import Logger as LoggerModel, Logger_Data, Room, Report, Downloads
@@ -169,9 +170,20 @@ def report_view(request):
 
                 # Handle room_picture
                 room_picture_file = room_form.cleaned_data.get('room_picture')
+                app_logger.debug(f'ROOM IMAGE PATH DEBUGGING: type of room_picture_file: {type(room_picture_file)}')
                 if room_picture_file:
                         room_instance.room_picture = room_picture_file
                         room_instance.save()
+
+                        if isinstance(room_instance.room_picture, File):
+                            app_logger.debug("room_picture is a File object.")
+                            # Access file attributes
+                            app_logger.debug(f'File path: {room_instance.room_picture.path}')
+                            app_logger.debug(f'File URL: {room_instance.room_picture.url}')
+                        else:
+                            app_logger.debug("room_picture is not a File object. It might be a path string.")
+                            # If it's a string, it's likely the file path
+                            app_logger.debug(f'File path: {room_instance.room_picture}')
 
                         # Resize and save room_picture as JPEG with 70% quality
                         resized_room_path = resize_and_save_image(
@@ -181,12 +193,15 @@ def report_view(request):
                             target_format='JPEG'
                         )
                         if resized_room_path:
+                            app_logger.debug(f'ROOM IMAGE PATH DEBUGGING:{resized_room_path},{type(resized_room_path)}')
                             room_instance.room_picture.name = os.path.relpath(resized_room_path, settings.MEDIA_ROOT)
                             room_instance.save()
                             room_pictures.append(room_instance.room_picture.path)
+                            print(type(room_pictures))
                         else:
                             room_form.add_error('room_picture', 'Failed to process room picture.')
                 else:
+                        app_logger.debug(f'ROOM IMAGE PATH DEBUGGING: room_picture_file is None or invalid.')
                         room_instance.save()
 
 
@@ -397,7 +412,17 @@ def report_view(request):
             'Image_indoor3': image_indoor3,
             'Image_indoor4': image_indoor4,
         }
+            app_logger.debug(
+                  f"IMAGE DEBUGGING: sending image paths to Celery: "
+                  f"external {serialized_form_data['Image_property']} - {type(serialized_form_data['Image_property'])}, "
+                  f"company logo: {serialized_form_data['Image_logo']} - {type(serialized_form_data['Image_logo'])}")
             
+            for i, pic in enumerate(room_pictures):
+                exists = os.path.exists(pic)
+                file_size = os.path.getsize(pic) if exists else "File not found"
+                app_logger.debug(f"IMAGE DEBUGGING: sending Room paths to Celery: {i + 1}: {pic}, Exists: {exists}, Size: {file_size}")
+
+                
             form_data_json = json.dumps(serialized_form_data)
             task = generate_report_task.delay(report_instance.id, csv_file_paths, serialized_form_data)
 
