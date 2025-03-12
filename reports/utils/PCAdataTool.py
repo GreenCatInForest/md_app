@@ -979,7 +979,7 @@ class RoomData:
 
 def RPTGen(instance, datafiles, surveyor, inspectiontime, company, Address,
            occupied, monitor_time, occupied_during_all_monitoring, occupant_number, Problem_rooms, Monitor_areas, moulds, Image_property, room_pictures,
-           Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4,Image_logo, comment, popup=True):
+           Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4,Image_logo, comment, popup=True ):
     # global DATA
     import logging
     # Configure logging
@@ -995,9 +995,6 @@ def RPTGen(instance, datafiles, surveyor, inspectiontime, company, Address,
     
     output_report_dir = get_dynamic_output_dir(instance)
     output_file_name = os.path.join(output_report_dir, "PCA_BMI_Report")
-
-    print(f"✅ Output directory set: {output_report_dir}")
-    print(f"✅ Output file base name: {output_file_name}")
 
     table_of_content = []
 
