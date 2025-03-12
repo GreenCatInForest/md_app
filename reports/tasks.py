@@ -55,7 +55,7 @@ def generate_report_task(self, report_id, csv_file_paths, serialized_form_data):
         Monitor_areas = serialized_form_data['Monitor_areas']  # List
         moulds = serialized_form_data['moulds']# List
         Image_property = serialized_form_data['Image_property']
-        room_pictures = [pic.path for pic in serialized_form_data['room_pictures']] # Assuming related field
+        room_pictures = [os.path.join(settings.MEDIA_ROOT, pic) for pic in serialized_form_data['room_pictures']]
         Image_indoor1 = serialized_form_data['Image_indoor1']
         Image_indoor2 = serialized_form_data['Image_indoor2']
         Image_indoor3 = serialized_form_data['Image_indoor3'] 
@@ -89,8 +89,14 @@ def generate_report_task(self, report_id, csv_file_paths, serialized_form_data):
             comment=comment,
             popup=True
         )
-        
-        return {'status': 'success', 'pdf_url': filename}
+
+        report.status = 'generated'
+        report.report_file = filename
+        report.save()
+        app_logger.debug(f"Report content after generation:{report}")
+        app_logger.debug(f"STATUS REPORT after Report generated:{report.status}")
+        app_logger.debug(f"REPORT FILE PATH after Report generated:{report.report_file}")
+        return {'status': 'success', 'pdf_url': filename, 'id':report.id}
     except Report.DoesNotExist:
         app_logger.error(f'Report with id {report_id} does not exist.')
         return {'status': 'error', 'message': 'Report does not exist.'}
