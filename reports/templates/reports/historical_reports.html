@@ -29,7 +29,7 @@
                         <!-- <p>Report Status: {{ report.status }}</p> -->
                         {% for payment in report.payments.all%}
                             <p>Payment ID: {{ payment.id }} Payment Status: {{payment.status}}</p>
-                            {% if report.report_file and report.status == 'paid'%}
+                            {% if report.report_file and report.status == 'paid'%}    
                                 <a href="{% url 'download_report' report.id %}" class="text-white bg-blue-500 hover:underline">Download Report</a>
                             {% elif report.report_file and report.status == 'unpaid' or report.status == 'generated'%}
                                 <div class="flex flex-col justify-center items-center gap-4 flex-wrap">
