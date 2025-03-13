@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_stripe_key, report_view, historical_reports_view, check_task_status, serve_report, download_report, report_detail_view, manuals_view, manual_download
+from .views import get_stripe_key, report_view, historical_reports_view, check_task_status, serve_report, download_report, report_detail_view, manuals_view, manual_download, delete_report
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -15,6 +15,7 @@ urlpatterns = [
     path('task-status/<str:task_id>/', check_task_status, name='check_task_status'),
     path('reports_save/<str:filename>/', serve_report, name='serve_report'),
     path('get-stripe-key/', get_stripe_key, name='get_stripe_key'),
+    path('delete-report/<int:report_id>/', delete_report, name='delete_report'),
 
 
 

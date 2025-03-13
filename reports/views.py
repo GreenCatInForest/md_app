@@ -3,7 +3,7 @@ import os
 import tempfile
 import re
 import json
-
+from django.views.decorators.csrf import csrf_exempt
 import pandas as pd
 from io import StringIO
 from celery.result import AsyncResult
@@ -607,6 +607,15 @@ def download_report(request, report_id):
         raise Http404("Report does not exist.")
     except ValueError:
         raise Http404("Invalid file path.")
+    
+@csrf_exempt    
+def delete_report(request, report_id):
+    if request.method == "DELETE":
+        report = get_object_or_404(Report, id=report_id)
+        report.delete()
+        return JsonResponse({"message": "Report deleted successfully"}, status=200)
+    
+    return JsonResponse({"error": "Invalid request"}, status=400)
     
 @login_required
 def manuals_view (request):

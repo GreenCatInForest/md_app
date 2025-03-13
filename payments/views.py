@@ -134,7 +134,7 @@ def payment_status(request, uuid):
         return JsonResponse({'paid': False}, status=404)
 
 def payment_success(request):
-    return render(request, 'payments/payment_success.html')
+    return render(request, 'reports/historical_reports.html')
 
 def payment_cancel(request):
     return render(request, 'payments/payment_cancel.html')

@@ -750,16 +750,17 @@ const checkPaymentStatus = async () => {
     console.log(paymentStatus);
 
     if (paymentStatus.paid) {
+        window.location.href = "/reports/historical-reports/";
         // Payment completed; show the report link
-        reportResult.innerHTML = '';
-        const reportLink = document.createElement('a');
-        reportLink.href = paymentStatus.pdf_url;   // URL to the PDF or final resource
-        reportLink.target = '_blank';
-        reportLink.className = 'inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 hover:bg-blue-800 justify-center px-5';
-        reportLink.textContent = 'View Report';
+        // reportResult.innerHTML = '';
+        // const reportLink = document.createElement('a');
+        // reportLink.href = paymentStatus.pdf_url;   // URL to the PDF or final resource
+        // reportLink.target = '_blank';
+        // reportLink.className = 'inline-flex items-center py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900 hover:bg-blue-800 justify-center px-5';
+        // reportLink.textContent = 'View Report';
 
-        reportResult.appendChild(reportLink);
-        reportResult.style.display = 'block';
+        // reportResult.appendChild(reportLink);
+        // reportResult.style.display = 'block';
     } else {
         setTimeout(checkPaymentStatus, 2000);
         console.log('Here is a payment status', JSON.stringify(paymentStatus));
