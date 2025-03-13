@@ -28,9 +28,9 @@
                         <!-- <p class="text-red-500">If this is red, Tailwind works.</p> -->
                         <!-- <p>Report Status: {{ report.status }}</p> -->
                         {% for payment in report.payments.all%}
-                            <!-- <p>Payment ID: {{ payment.id }} Payment Status: {{payment.status}}</p> -->
-                            {% if report.report_file %}
-                                <a href="{% url 'download_report' report.id %}" class="bg-blue-500 min-w-[110px] text-white px-4 py-2 rounded-md hover:bg-blue-700">Download Report</a>
+                            <p>Payment ID: {{ payment.id }} Payment Status: {{payment.status}}</p>
+                            {% if report.report_file and report.status == 'paid'%}
+                                <a href="{% url 'download_report' report.id %}" class="text-white bg-blue-500 hover:underline">Download Report</a>
                             {% elif report.report_file and report.status == 'unpaid' or report.status == 'generated'%}
                                 <div class="flex flex-col justify-center items-center gap-4 flex-wrap">
                                 <button type ='button' id='pay-button-historical-reports' class="bg-blue-500 min-w-[110px] text-white px-4 py-2 rounded-md hover:bg-blue-700";

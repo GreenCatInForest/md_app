@@ -66,7 +66,7 @@ def checkout_session(request):
                     'quantity': 1,
                 }],
                 mode='payment',
-                success_url=request.build_absolute_uri('/payment-success/'),
+                success_url=settings.DOMAIN + "/reports/historical-reports/",
                 cancel_url=request.build_absolute_uri('/payment-cancel'),
                 # extracting customer email
                 metadata={
