@@ -69,7 +69,7 @@ def get_dynamic_output_file(instance):
     absolute_dir = os.path.join(settings.MEDIA_ROOT, relative_dir)
     if not os.path.exists(absolute_dir):
         os.makedirs(absolute_dir)
-    filename = f"{slugify(instance.property_address)}_{instance.start_time.strftime('%Y%m%d%H%M%S')}.pdf"
+    filename = f"{slugify(instance.property_address)[:30]}_{instance.start_time.strftime('%Y%m%d%H%M%S')}.pdf"
     file_path = os.path.join(relative_dir, filename)
     print(f"✅ New File Path: {file_path}")
     print(f"📌 Expected File Path: {os.path.join(relative_dir, filename)}")  # ✅ Debugging line
