@@ -14,6 +14,7 @@ from decimal import Decimal
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.utils.text import slugify
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -77,8 +78,6 @@ class PasswordReset(models.Model):
 def company_logo_upload_path(instance, filename):
     company_name = instance.company if instance.company else 'temp'
     return os.path.join('img', 'companies_img', str(company_name), filename)
-
-
    
 def property_photo_upload_path(instance, filename):
     # Get the company ID
@@ -87,10 +86,10 @@ def property_photo_upload_path(instance, filename):
         return os.path.join('img', 'properties_img', str(property_address), filename)
 
 def room_photo_upload_path(instance, filename):
-    # Get the company ID
-        report = instance.report if instance.report else 'temp'
-    # Generate the upload path
-        return os.path.join('img', 'rooms_img', str(report), filename)
+    # Use slugify and truncate the report string representation
+    report_str = slugify(str(instance.report)) if instance.report else 'temp'
+    report_str = report_str[:30]
+    return os.path.join('img', 'rooms_img', report_str, filename)
 
 def report_property_photo_upload_path(instance, filename):
     property_address = instance.property_address if instance.property_address else 'temp'
@@ -186,7 +185,7 @@ class Report (models.Model):
     occupied = models.BooleanField(default=False)
     occupied_during_all_monitoring = models.BooleanField(default=False)
     number_of_occupants = models.IntegerField(default=0)
-    report_file = models.FileField(upload_to='reports_save/', null=True, blank=True, max_length=255)
+    report_file = models.FileField(upload_to='reports_save/', null=True, blank=True, max_length=455)
 
       # Ensure the file path is correctly formatted using instance-specific information
     def save(self, *args, **kwargs):
@@ -217,7 +216,7 @@ class Report (models.Model):
 class Room(models.Model):
     report = models.ForeignKey(Report, related_name='rooms', on_delete=models.CASCADE)
     room_name = models.CharField(max_length=255)
-    room_picture = models.ImageField(upload_to=room_photo_upload_path, null=True, blank=True)
+    room_picture = models.ImageField(upload_to=room_photo_upload_path, null=True, blank=True, max_length=455)
     room_ambient_logger = models.CharField(max_length=7)
     room_surface_logger = models.CharField(max_length=7)
     room_monitor_area = models.CharField(max_length=255, blank=True, null=True)
