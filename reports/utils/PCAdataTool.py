@@ -17,64 +17,13 @@ import re
 from enum import IntEnum
 import subprocess
 
-from django.conf import settings
-from django.utils.text import slugify
-from django.conf import settings
-
-
-output_dir = '/code/imgs/' 
-# Referres to root/imgs
+output_dir = '/code/imgs/'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-
-
-def get_dynamic_output_dir(instance):
-    """
-    Generates the dynamic output directory for a report.
-    """
-    # Construct the path based on instance attributes
-    output_report_dir = os.path.join(
-        settings.MEDIA_ROOT,  # Base media directory
-        'reports_save',       # Subdirectory for reports
-        str(instance.id),     # Unique report ID
-    )
-
-    # Ensure the directory exists
-    if not os.path.exists(output_report_dir):
-        os.makedirs(output_report_dir)
-
-    return output_report_dir
-
-def get_dynamic_output_file(instance):
-    """
-    Generates the full path for the report file, including the filename.
-    """
-
-    if instance is None:
-        print("🚨 `instance` is None!")
-        return None
-
-    if instance.id is None:
-        print(f"🚨 Report ID is None for {instance.property_address}!")
-        return None
-
-    if not instance.property_address:
-        print("🚨 `property_address` is empty!")
-        return None
-
-    print(f"✅ Generating file path for Report ID {instance.id}...")
-
-    relative_dir = os.path.join('reports_save', str(instance.id))
-    absolute_dir = os.path.join(settings.MEDIA_ROOT, relative_dir)
-    if not os.path.exists(absolute_dir):
-        os.makedirs(absolute_dir)
-    filename = f"{slugify(instance.property_address)[:50]}_{instance.start_time.strftime('%Y%m%d%H%M%S')}.pdf"
-    file_path = os.path.join(relative_dir, filename)
-    print(f"✅ New File Path: {file_path}")
-    print(f"📌 Expected File Path: {os.path.join(relative_dir, filename)}")  # ✅ Debugging line
-    return file_path
-
+output_report_dir = '/code/reports_save/'
+if not os.path.exists(output_report_dir):
+    os.makedirs(output_report_dir)
 
 # Generate and save the figure
 fig, ax = plt.subplots()
@@ -977,9 +926,9 @@ class RoomData:
             plt.savefig("imgs/Tab1.png")
 
 
-def RPTGen(instance, datafiles, surveyor, inspectiontime, company, Address,
+def RPTGen(datafiles, surveyor, inspectiontime, company, Address,
            occupied, monitor_time, occupied_during_all_monitoring, occupant_number, Problem_rooms, Monitor_areas, moulds, Image_property, room_pictures,
-           Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4,Image_logo, comment, popup=True ):
+           Image_indoor1, Image_indoor2, Image_indoor3, Image_indoor4,Image_logo, comment, popup=True):
     # global DATA
     import logging
     # Configure logging
@@ -992,8 +941,7 @@ def RPTGen(instance, datafiles, surveyor, inspectiontime, company, Address,
     for file_path in datafiles:
         with open(file_path, 'r') as file:
             app_logger.debug(f"Contents of {file_path}: {file.read()[:500]}")  # Log a snippet of the file
-    
-    output_report_dir = get_dynamic_output_dir(instance)
+
     output_file_name = os.path.join(output_report_dir, "PCA_BMI_Report")
 
     table_of_content = []
@@ -1906,55 +1854,39 @@ def RPTGen(instance, datafiles, surveyor, inspectiontime, company, Address,
     # pdf_name = datafile + '_t_' + dt_string + '.pdf'
     pdf_name = output_file_name + '_t_' + dt_string + '.pdf'
     pdf.output(pdf_name, 'F')
+    filename = None  # Initialize to ensure it's always defined
 
+    try:
+        print("file1:" + cover_pdf_file_name)
+        print("file2:" + pdf_name)
 
-    def merge_pdfs(cover_pdf_file_name, pdf_name, instance):
+        with open(cover_pdf_file_name, 'rb') as file1, open(pdf_name, 'rb') as file2:
+            reader1 = PdfReader(file1)
+            reader2 = PdfReader(file2)
+            merger = PdfMerger()
+            merger.append(reader1)
+            merger.append(reader2)
 
-        filename = None  # Initialize filename to ensure it's always defined
+            filename = output_file_name + dt_string + '.pdf'
+            with open(filename, 'wb') as output_file:
+                merger.write(output_file)
+                
+         
 
-        try:
-            print(f"📌 Merging PDFs: {cover_pdf_file_name} + {pdf_name}")
+        # Clean up temporary files
+        os.remove(cover_pdf_file_name)
+        os.remove(pdf_name)
+        return filename
 
-            # Generate output directory and file path
-            filename = get_dynamic_output_file(instance)  # Get dynamic file path
-            absolute_filename = os.path.join(settings.MEDIA_ROOT, filename)  # Full path
+    except Exception as e:
+        print("Error encountered during pdf merge and deletion: " + str(e))
+        filename = None  # Ensure filename is set to None if an error occurs
 
-            print(f"📌 Saving merged PDF to: {absolute_filename}")
-
-            # Open the PDFs and merge them
-            with open(cover_pdf_file_name, 'rb') as file1, open(pdf_name, 'rb') as file2:
-                reader1 = PdfReader(file1)
-                reader2 = PdfReader(file2)
-                merger = PdfMerger()
-                merger.append(reader1)
-                merger.append(reader2)
-
-                # Ensure the directory exists before saving
-                os.makedirs(os.path.dirname(absolute_filename), exist_ok=True)
-
-                # Save merged PDF
-                with open(absolute_filename, 'wb') as output_file:
-                    merger.write(output_file)
-
-            # Clean up temporary files
-            os.remove(cover_pdf_file_name)
-            os.remove(pdf_name)
-
-            print(f"✅ Successfully saved merged PDF: {absolute_filename}")
-            return filename  # Return relative path for database storage
-
-        except Exception as e:
-            print(f"❌ Error merging PDFs: {e}")
-            return None  # Ensure None is returned if an error occurs
-    
-    merged_pdf_path = merge_pdfs(cover_pdf_file_name, pdf_name, instance)
-
-    if merged_pdf_path:
-        print(f"✅ Merged PDF saved at: {merged_pdf_path}")
+    # Cross-platform way to open the file
+    if filename and os.path.exists(filename):
+        print(f"{filename} generation is completed.")
     else:
-        print("❌ Merging failed, check logs.")
-
-        
+        print('Failed to generate the report. Please check the logs for more details.')
 
 # RPTGen('SensorsData.xlsx','Surveyor Paula','06/20/2020 16:20:58 ','6 Gower street,WC1E,6BT','2/19/2018  4:00:00 PM', 2,\
 # '3/5/2018  3:00:00 PM',500, pd.to_timedelta('1 days 06:05:01.00003'),'Bedroom A','floor',1,'imgs/Property.jpg','imgs/mould.jpeg','imgs/mould.jpeg','imgs/mould.jpeg',\
