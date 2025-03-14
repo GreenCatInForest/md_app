@@ -177,16 +177,16 @@ class Report (models.Model):
     end_time = models.DateTimeField()
     report_timestamp = models.DateTimeField(auto_now=True)
     property_address = models.CharField(max_length=455)
-    external_picture = models.ImageField(upload_to=report_property_photo_upload_path, null=True, blank=True)
+    external_picture = models.ImageField(upload_to=report_property_photo_upload_path, null=True, blank=True, max_length=455)
     external_logger = models.CharField(max_length=7)
     company = models.CharField(max_length=255)
-    company_logo = models.ImageField(upload_to=company_logo_upload_path, null=True, blank=True)
+    company_logo = models.ImageField(upload_to=company_logo_upload_path, null=True, blank=True, max_length=455)
     surveyor = models.CharField(max_length=255)
     notes = models.TextField()
     occupied = models.BooleanField(default=False)
     occupied_during_all_monitoring = models.BooleanField(default=False)
     number_of_occupants = models.IntegerField(default=0)
-    report_file = models.FileField(upload_to='reports_save/', null=True, blank=True)
+    report_file = models.FileField(upload_to='reports_save/', null=True, blank=True, max_length=455)
 
       # Ensure the file path is correctly formatted using instance-specific information
     def save(self, *args, **kwargs):
@@ -217,7 +217,7 @@ class Report (models.Model):
 class Room(models.Model):
     report = models.ForeignKey(Report, related_name='rooms', on_delete=models.CASCADE)
     room_name = models.CharField(max_length=255)
-    room_picture = models.ImageField(upload_to=room_photo_upload_path, null=True, blank=True)
+    room_picture = models.ImageField(upload_to=room_photo_upload_path, null=True, blank=True, max_length=455)
     room_ambient_logger = models.CharField(max_length=7)
     room_surface_logger = models.CharField(max_length=7)
     room_monitor_area = models.CharField(max_length=255, blank=True, null=True)
