@@ -167,3 +167,6 @@ node_modules
 node_modules/
 
 train.py
+
+backups/*.sql.gz
+backups/
